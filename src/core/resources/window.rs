@@ -1,3 +1,4 @@
+use log::info;
 use winit::window::CursorIcon;
 
 #[derive(Debug, Copy, Clone)]
@@ -23,12 +24,13 @@ pub struct Window {
     width: u32,
     height: u32,
     dpi: f64,
+    current_cursor: Option<CursorIcon>,
     future_settings: FutureSettings
 }
 
 impl Window {
     pub(crate) fn new(screen_size: (u32, u32), dpi: f64) -> Self {
-        Self { width: screen_size.0, height: screen_size.1, future_settings: Default::default(), dpi }
+        Self { width: screen_size.0, height: screen_size.1, future_settings: Default::default(), dpi, current_cursor: None }
     }
 
     pub(crate) fn set_dimensions(&mut self, width: u32, height: u32) {
@@ -37,7 +39,13 @@ impl Window {
     }
 
     pub fn set_cursor(&mut self, icon: CursorIcon) {
-        self.future_settings.new_cursor = Some(icon);
+        if let Some(current) = self.current_cursor.as_ref() {
+            if current != &icon {
+                self.future_settings.new_cursor = Some(icon);
+            }
+        }else{
+            self.future_settings.new_cursor = Some(icon);
+        }
     }
 
     pub fn resize(&mut self, width: u32, height: u32) {
@@ -49,6 +57,8 @@ impl Window {
     }
 
     pub(crate) fn reset_future_settings(&mut self) {
+        info!("resetting cursor");
+        self.current_cursor = self.future_settings.new_cursor;
         self.future_settings = FutureSettings::default();
     }
 

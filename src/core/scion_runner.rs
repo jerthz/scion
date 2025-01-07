@@ -103,6 +103,8 @@ impl ScionRunner {
             let _r = w.request_inner_size(Size::Physical(PhysicalSize::new(dimensions.0 * window.dpi() as u32,
                                                                            dimensions.1 * window.dpi() as u32)));
         }
-        window.reset_future_settings()
+        if window.new_cursor().is_some(){
+            window.reset_future_settings();
+        }
     }
 }
