@@ -56,9 +56,10 @@ impl ScionBuilder {
     pub fn run(self) {
         let scion = Scion {
             config: self.config,
-            game_data: self.world,
-            scheduler: self.scheduler,
-            layer_machine: SceneMachine { current_scene: self.scene, current_scene_started: false },
+            game_data: Some(self.world),
+            scheduler: Some(self.scheduler),
+            layer_machine: Some(SceneMachine { current_scene: self.scene, current_scene_started: false }),
+            window_event_sender: None,
         };
         scion.run();
     }
