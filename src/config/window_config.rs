@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 use winit::dpi::LogicalSize;
-use winit::window::WindowBuilder;
+use winit::window::{WindowAttributes};
 use winit::window::WindowLevel;
 
 use crate::{config::scion_config::ScionConfig, graphics::components::color::Color};
@@ -57,8 +57,8 @@ impl Default for WindowConfig {
 }
 
 impl WindowConfig {
-    pub(crate) fn into(self, scion_config: &ScionConfig) -> WindowBuilder {
-        let mut builder = WindowBuilder::new();
+    pub(crate) fn into(self, scion_config: &ScionConfig) -> WindowAttributes {
+        let mut builder = WindowAttributes::default();
 
         builder = builder.with_title(scion_config.app_name.clone())
             .with_fullscreen(None);

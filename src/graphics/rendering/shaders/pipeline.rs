@@ -31,12 +31,14 @@ pub fn pipeline(
         layout: Some(&render_pipeline_layout),
         vertex: wgpu::VertexState {
             module: &shader,
-            entry_point: "vs_main",
+            entry_point: Some("vs_main"),
+            compilation_options: Default::default(),
             buffers: &[TexturedGlVertex::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,
-            entry_point: "fs_main",
+            entry_point: Some("fs_main"),
+            compilation_options: Default::default(),
             targets: &[Some(wgpu::ColorTargetState {
                 format: surface_config.format,
                 write_mask: wgpu::ColorWrites::ALL,
@@ -69,7 +71,8 @@ pub fn pipeline(
             mask: !0,
             alpha_to_coverage_enabled: false,
         },
-        multiview: None
+        multiview: None,
+        cache: None,
     });
     render_pipeline
 }
@@ -98,12 +101,14 @@ pub fn pipeline_sprite(
         layout: Some(&render_pipeline_layout),
         vertex: wgpu::VertexState {
             module: &shader,
-            entry_point: "vs_main",
+            entry_point: Some("vs_main"),
+            compilation_options: Default::default(),
             buffers: &[TexturedGlVertexWithLayer::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,
-            entry_point: "fs_main",
+            entry_point: Some("fs_main"),
+            compilation_options: Default::default(),
             targets: &[Some(wgpu::ColorTargetState {
                 format: surface_config.format,
                 write_mask: wgpu::ColorWrites::ALL,
@@ -136,7 +141,8 @@ pub fn pipeline_sprite(
             mask: !0,
             alpha_to_coverage_enabled: false,
         },
-        multiview: None
+        multiview: None,
+        cache: None,
     });
     render_pipeline
 }

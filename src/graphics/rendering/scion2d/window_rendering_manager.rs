@@ -52,6 +52,7 @@ impl ScionWindowRenderingManager {
                         ..Limits::default()
                     }
                         .using_resolution(adapter.limits()),
+                    memory_hints: Default::default(),
                 },
                 None,
             )
