@@ -24,7 +24,7 @@ pub mod importer {
     pub fn import_tilemap(path: &str) -> TilemapAtlas {
         match crate::utils::file::read_file(Path::new(path)) {
             Ok(file) => {
-                let mut tilemap: TilemapAtlas = serde_json::from_slice(file.as_slice()).expect("");
+                let mut tilemap: TilemapAtlas = serde_json::from_slice(file.as_slice()).expect(format!("Error while reading file at path {:?}", path).as_str());
                 tilemap.layers.iter_mut().for_each(|l| {
                     let tiles: Vec<Vec<isize>> = serde_json::from_slice(BASE64_STANDARD.decode(l.tiles_encoded.as_ref().unwrap()).expect("").as_slice()).expect("");
                     l.tiles = tiles;
@@ -41,7 +41,7 @@ pub mod importer {
     pub fn import_tileset(path: &str) -> TilesetAtlas {
         match crate::utils::file::read_file(Path::new(path)) {
             Ok(file) => {
-                let tileset: TilesetAtlas = serde_json::from_slice(file.as_slice()).expect("");
+                let tileset: TilesetAtlas = serde_json::from_slice(file.as_slice()).expect(format!("Error while reading file at path {:?}", path).as_str());
                 debug!("Tileset at path {} has been loaded", path);
                 tileset
             }
