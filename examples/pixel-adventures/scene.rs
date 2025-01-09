@@ -15,7 +15,7 @@ use scion::core::components::maths::hierarchy::Parent;
 
 use scion::core::components::maths::transform::{Transform, TransformBuilder};
 use scion::graphics::components::tiles::sprite::Sprite;
-use scion::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo};
+use scion::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo, TilemapType};
 use scion::graphics::components::tiles::tileset::Tileset;
 use scion::core::resources::inputs::types::{Input, KeyCode};
 use scion::core::scene::Scene;
@@ -186,8 +186,9 @@ fn add_background(data: &mut GameData) {
     let tileset_ref = data.assets_mut().register_tileset(tileset);
     let tilemap_infos = TilemapInfo::new(
         Dimensions::new(12, 6, 1),
-        TransformBuilder::new().with_scale(2.0).with_z(1).build(),
+        TransformBuilder::new().with_scale(2.0).with_z(10).build(),
         tileset_ref,
+        TilemapType::Standard
     );
 
     Tilemap::create(tilemap_infos, data, |_p| {
@@ -207,6 +208,7 @@ fn add_structures(data: &mut GameData) {
         Dimensions::new(48, 24, 1),
         TransformBuilder::new().with_scale(2.0).with_z(2).build(),
         tileset_ref,
+        TilemapType::Standard
     );
 
     Tilemap::create(tilemap_infos, data, |p| {

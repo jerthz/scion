@@ -1,3 +1,4 @@
+use log::info;
 use ultraviolet::{Mat4, Rotor3, Similarity3, Vec3, Vec4};
 
 use crate::core::components::maths::{
@@ -90,7 +91,8 @@ pub(crate) struct TexturedGlVertex {
 pub(crate) struct TexturedGlVertexWithLayer {
     pub position: [f32;3],
     pub tex_translation: [f32;2],
-    pub layer: u32
+    pub layer: u32,
+    pub depth: f32
 }
 
 impl TexturedGlVertexWithLayer {
@@ -114,6 +116,11 @@ impl TexturedGlVertexWithLayer {
                     offset: (mem::size_of::<[f32; 2]>() + mem::size_of::<[f32; 3]>()) as wgpu::BufferAddress,
                     shader_location: 2,
                     format: wgpu::VertexFormat::Uint32,
+                },
+                wgpu::VertexAttribute {
+                    offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>() + size_of::<u32>()) as wgpu::BufferAddress,
+                    shader_location: 3,
+                    format: wgpu::VertexFormat::Float32,
                 },
             ],
         }
@@ -151,12 +158,13 @@ impl From<(&Coordinates, &Coordinates)> for TexturedGlVertex {
     }
 }
 
-impl From<(&Coordinates, &Coordinates, usize)> for TexturedGlVertexWithLayer {
-    fn from(positions: (&Coordinates, &Coordinates, usize)) -> Self {
+impl From<(&Coordinates, &Coordinates, usize, f32)> for TexturedGlVertexWithLayer {
+    fn from(positions: (&Coordinates, &Coordinates, usize, f32)) -> Self {
         TexturedGlVertexWithLayer {
             position: [positions.0.x(), positions.0.y(), 0.0 ],
             tex_translation: [positions.1.x(), positions.1.y()],
-            layer: positions.2 as u32
+            layer: positions.2 as u32,
+            depth: positions.3,
         }
     }
 }

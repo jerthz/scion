@@ -10,7 +10,7 @@ use scion::core::components::maths::hierarchy::Parent;
 use scion::core::components::maths::transform::{Transform, TransformBuilder};
 use scion::graphics::components::shapes::rectangle::Rectangle;
 use scion::graphics::components::tiles::sprite::Sprite;
-use scion::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo};
+use scion::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo, TilemapType};
 use scion::graphics::components::tiles::tileset::Tileset;
 use scion::core::resources::audio::PlayConfig;
 use scion::core::resources::inputs::types::KeyCode;
@@ -69,7 +69,7 @@ impl Scene for MainScene {
         }
         self.fader = Some(data.push((
             Rectangle::new(384., 336., None),
-            TransformBuilder::new().with_translation(0., 0., 10).with_screen_as_origin().build(),
+            TransformBuilder::new().with_translation(0., 0., 0).with_screen_as_origin().build(),
             Material::Diffuse(Color::new(255, 255, 255, 1.)),
             Animations::new(switch_scene_animation()),
         )));
@@ -217,10 +217,12 @@ impl MainScene {
         let mut level = read_level(level_name.as_str());
         let mut scale = Transform::default();
         scale.set_scale(3.0);
+        scale.set_z(5);
         let tilemap_infos = TilemapInfo::new(
             Dimensions::new(level.map.width, level.map.height, level.map.layers.len()),
             scale,
             asset_ref.clone(),
+            TilemapType::Standard
         );
 
         self.current_width = level.map.width;
@@ -304,7 +306,7 @@ fn add_character(
     }
     data.push((
         TransformBuilder::new()
-            .with_translation(start_x as f32 * 16. * 3., start_y as f32 * 16. * 3., 2)
+            .with_translation(start_x as f32 * 16. * 3., start_y as f32 * 16. * 3., 1)
             .with_scale(3.)
             .build(),
         Sprite::new(get_direction_sprite(direction)),

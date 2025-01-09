@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use rand::{thread_rng, Rng};
 use scion::graphics::components::color::Color;
 use scion::graphics::components::shapes::rectangle::Rectangle;
-use scion::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo};
+use scion::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo, TilemapType};
 use scion::core::resources::events::topic::TopicConfiguration;
 use scion::core::resources::events::{PollConfiguration, SubscriberId};
 
@@ -457,8 +457,9 @@ fn add_tilemap(data: &mut GameData) -> Entity {
     let cases_asset = data.assets_mut().register_tileset(Tileset::new("cases".to_string(), cases_asset(), 3, 2, 16, 16));
     let infos = TilemapInfo::new(
         Dimensions::new(68, 38, 1),
-        Transform::from_xyz(10., 10., 10),
+        Transform::from_xyz(10., 10., 95),
         cases_asset,
+        TilemapType::Standard
     );
     Tilemap::create(infos, data, |position| {
         let line = position.y() % 2;

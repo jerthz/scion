@@ -75,10 +75,10 @@ impl Sprite {
                 let d = Coordinates::new(a.x + tileset.tile_width as f32, a.y);
                 let uvs_ref = self.uv_refs();
                 return [
-                    TexturedGlVertexWithLayer::from((&a, &uvs_ref[0], self.tile_number)),
-                    TexturedGlVertexWithLayer::from((&b, &uvs_ref[1], self.tile_number)),
-                    TexturedGlVertexWithLayer::from((&c, &uvs_ref[2], self.tile_number)),
-                    TexturedGlVertexWithLayer::from((&d, &uvs_ref[3], self.tile_number)),
+                    TexturedGlVertexWithLayer::from((&a, &uvs_ref[0], self.tile_number, 0.)),
+                    TexturedGlVertexWithLayer::from((&b, &uvs_ref[1], self.tile_number, 0.)),
+                    TexturedGlVertexWithLayer::from((&c, &uvs_ref[2], self.tile_number, 0.)),
+                    TexturedGlVertexWithLayer::from((&d, &uvs_ref[3], self.tile_number, 0.)),
                 ];
             }
         }

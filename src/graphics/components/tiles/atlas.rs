@@ -14,7 +14,7 @@ pub mod importer {
     use crate::graphics::components::material::Material;
     use crate::core::components::maths::transform::{Transform};
     use crate::graphics::components::tiles::atlas::data::{TilemapAtlas, TilesetAtlas};
-    use crate::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo};
+    use crate::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo, TilemapType};
     use crate::graphics::components::tiles::tileset::Tileset;
     use crate::core::resources::asset_manager::{AssetRef, AssetType};
     use crate::core::world::{GameData, Resources};
@@ -127,7 +127,8 @@ pub mod importer {
     fn create_tilemap_info(tilemap: &TilemapAtlas, mut tileset_refs: Vec<AssetRef<Material>>, tilemap_transform: Transform) -> TilemapInfo {
         TilemapInfo::new(Dimensions::new(tilemap.width, tilemap.height, tilemap.layers.len()),
                          tilemap_transform,
-                         tileset_refs.remove(0)) // TODO : When support for multi tileset is developped
+                         tileset_refs.remove(0),
+                         tilemap.tilemap_type.as_ref().unwrap_or(&TilemapType::Standard).clone()) // TODO : When support for multi tileset is developped
     }
 }
 
@@ -137,6 +138,7 @@ pub mod data {
     use serde::{Deserialize, Serialize};
 
     use crate::core::components::maths::coordinates::Coordinates;
+    use crate::graphics::components::tiles::tilemap::TilemapType;
     use crate::graphics::components::tiles::tileset::Tileset;
     use crate::utils::maths::Position;
 
@@ -261,6 +263,7 @@ pub mod data {
         pub(crate) layers: Vec<TilemapLayer>,
         pub(crate) objects: Vec<TileObject>,
         pub(crate) tilesets: Vec<TiledTilemapTileset>,
+        pub(crate) tilemap_type: Option<TilemapType>,
     }
 
     impl TilemapAtlas{

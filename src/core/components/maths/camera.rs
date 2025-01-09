@@ -21,7 +21,7 @@ impl Camera {
             top: 0.,
             bottom: -1. * height,
             near: 0.0,
-            far: 100.,
+            far: 1000.,
             dpi: 1.0,
         }
     }

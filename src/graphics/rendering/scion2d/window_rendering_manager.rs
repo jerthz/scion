@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use wgpu::{Limits, Surface, SurfaceConfiguration};
+use wgpu::{Limits, Surface, SurfaceConfiguration, TextureViewDimension};
 use winit::{window::Window};
 
 use crate::graphics::components::color::Color;
+use crate::graphics::components::material::Material::Texture;
 use crate::graphics::rendering::{RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::renderer::Scion2D;
 
@@ -94,12 +95,26 @@ impl ScionWindowRenderingManager {
            return Ok(());
         }
         let frame = self.surface.get_current_texture()?;
+        let frame_depth = self.device.create_texture(&wgpu::TextureDescriptor {
+            label: Some("Depth Texture"),
+            size: wgpu::Extent3d {
+                width: self.config.width,
+                height: self.config.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Depth32Float,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[wgpu::TextureFormat::Depth32Float],
+        });
         let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
-
+        let depth_texture_view = frame_depth.create_view(&wgpu::TextureViewDescriptor::default());
         let mut encoder =
             self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
-        self.scion_renderer.render(data, &self.default_background_color, view, &mut encoder);
+        self.scion_renderer.render(data, &self.default_background_color, view, depth_texture_view, &mut encoder);
 
         self.queue.submit(Some(encoder.finish()));
 
