@@ -1,0 +1,11 @@
+{
+  "type": "Tileset",
+  "name": "demo-ply2",
+  "total_tiles": 40,
+  "width": 4,
+  "height": 10,
+  "tile_width": 32,
+  "tile_height": 32,
+  "properties": {},
+  "tiles": {}
+}

@@ -1,0 +1,34 @@
+{
+  "type": "Map",
+  "width": 5,
+  "height": 5,
+  "tile_width": 32,
+  "tile_height": 32,
+  "properties": {},
+  "layers": [
+    {
+      "name": "Tile Layer 1",
+      "tiles_encoded": "W1swLDAsMCwwLDBdLFswLDAsMCwwLDBdLFswLDAsMCwwLDBdLFswLDAsMCwwLDBdLFswLDAsMCwwLDBdXQ==",
+      "properties": {}
+    },
+    {
+      "name": "Tile Layer 2",
+      "tiles_encoded": "W1swLC0xLC0xLDAsMF0sWy0xLC0xLC0xLDEsMF0sWy0xLC0xLC0xLC0xLC0xXSxbLTEsLTEsLTEsLTEsLTFdLFstMSwtMSwtMSwtMSwxXV0=",
+      "properties": {}
+    },
+    {
+      "name": "Tile Layer 3",
+      "tiles_encoded": "W1stMSwtMSwtMSwtMSwwXSxbLTEsLTEsLTEsLTEsLTFdLFstMSwtMSwtMSwtMSwtMV0sWy0xLC0xLC0xLC0xLC0xXSxbLTEsLTEsLTEsLTEsLTFdXQ==",
+      "properties": {}
+    }
+  ],
+  "objects": [],
+  "tilemap_type": "Isometric",
+  "tilesets": [
+    {
+      "index": 0,
+      "total_tiles": 40,
+      "name": "demo-ply"
+    }
+  ]
+}

@@ -1,1 +1,0 @@
-{"type":"Tileset","name":"demo-ply","total_tiles":120,"width":12,"height":10,"tile_width":16,"tile_height":16,"properties":{},"tiles":{"73":{"animation":[{"duration":300,"tile_id":73},{"duration":300,"tile_id":74},{"duration":300,"tile_id":73}],"objects":[]}}}

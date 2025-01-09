@@ -1,4 +1,6 @@
+use std::collections::BTreeMap;
 use hecs::{Component, Entity};
+use log::info;
 use wgpu::BufferUsages;
 
 use crate::graphics::components::{Square, Triangle};
@@ -39,7 +41,7 @@ fn prepare_buffer_update_for_component<T: Component + Renderable2D>(
             let descriptor = component.vertex_buffer_descriptor(Some(material));
             updates.push(RenderingUpdate::VertexBuffer {
                 entity,
-                contents: descriptor.contents.to_vec(), // TODO
+                contents: descriptor.contents.to_vec(),
                 usage: descriptor.usage,
             });
             renderer.upsert_vertex_buffer(entity);
@@ -49,7 +51,7 @@ fn prepare_buffer_update_for_component<T: Component + Renderable2D>(
             let descriptor = component.indexes_buffer_descriptor();
             updates.push(RenderingUpdate::IndexBuffer {
                 entity,
-                contents: descriptor.contents.to_vec(), // TODO
+                contents: descriptor.contents.to_vec(),
                 usage: descriptor.usage,
             });
             renderer.upsert_indexes_buffer(entity);
@@ -69,7 +71,7 @@ fn prepare_buffer_update_for_ui_component<T: Component + Renderable2D + Renderab
             let descriptor = component.vertex_buffer_descriptor(m);
             updates.push(RenderingUpdate::VertexBuffer {
                 entity,
-                contents: descriptor.contents.to_vec(), // TODO
+                contents: descriptor.contents.to_vec(),
                 usage: descriptor.usage,
             });
             renderer.upsert_vertex_buffer(entity);
@@ -78,7 +80,7 @@ fn prepare_buffer_update_for_ui_component<T: Component + Renderable2D + Renderab
             let descriptor = component.indexes_buffer_descriptor();
             updates.push(RenderingUpdate::IndexBuffer {
                 entity,
-                contents: descriptor.contents.to_vec(), // TODO
+                contents: descriptor.contents.to_vec(),
                 usage: descriptor.usage,
             });
             renderer.upsert_indexes_buffer(entity);
@@ -91,11 +93,14 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
     let mut updates = vec![];
     {
         let mut to_modify: Vec<(Entity, [TexturedGlVertexWithLayer; 4])> = Vec::new();
-        for (entity, (_, material, _)) in data.query::<(&mut Tilemap, &Material, &Transform)>().iter() {
+        for (entity, (t, material, _)) in data.query::<(&mut Tilemap, &Material, &Transform)>().iter() {
             let tile_size = Material::tile_size(material).expect("");
             let mut position = 0;
             let mut vertexes = Vec::new();
             let mut indexes = Vec::new();
+            let isometric = t.is_isometric();
+            let max_x = t.width();
+            let depth = t.depth();
 
             let any_tile_modified = renderer.missing_vertex_buffer(&entity) || any_dirty_sprite(data, entity);
             if any_tile_modified {
@@ -104,21 +109,36 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                         let current_vertex = sprite.compute_content(Some(material));
                         to_modify.push((e, current_vertex));
                         let mut vec = current_vertex.to_vec();
+                        let mut offset_x = 0.;
+                        let mut offset_y = 0.;
+                        let mut offset_z = 0;
+
+                        if isometric {
+                            offset_x = -1. * tile.position.x() as f32 * (tile_size / 2) as f32 + tile.position.y() as f32 * (tile_size / 2) as f32;
+                            offset_y = -1. * tile.position.x() as f32 * (tile_size / 4) as f32 - tile.position.y() as f32 * (tile_size / 2) as f32 - tile.position.y() as f32 * (tile_size / 4) as f32 - (tile.position.z() * tile_size/2) as f32;
+                            offset_z =  (max_x - tile.position.z())  * (max_x + 1) * (max_x + 1) +  tile.position.x() * (max_x + 1) + (max_x -  tile.position.y())
+                        }else{
+                            offset_z = depth * 100 - tile.position.z() * 10;
+                        }
+                        info!("depth {};{};{}/{}", tile.position.x(), tile.position.y(),tile.position.z(), offset_z);
+
                         vec.iter_mut().for_each(|gl_vertex| {
-                            gl_vertex.position[0] = gl_vertex.position[0] + tile_size as f32 * tile.position.x() as f32;
-                            gl_vertex.position[1] = gl_vertex.position[1] + tile_size as f32 * tile.position.y() as f32;
-                            gl_vertex.position[2] = gl_vertex.position[2] + tile.position.z() as f32 / 100.
+                            gl_vertex.position[0] = gl_vertex.position[0] + tile_size as f32 * tile.position.x() as f32 + offset_x;
+                            gl_vertex.position[1] = gl_vertex.position[1] + tile_size as f32 * tile.position.y() as f32 + offset_y;
+                            gl_vertex.position[2] = gl_vertex.position[2] + tile.position.z() as f32 / 100.;
+                            gl_vertex.depth = gl_vertex.depth + offset_z as f32 * 0.00001;
                         });
-                        vertexes.append(&mut vec);
                         let sprite_indexes = Sprite::indices();
                         let mut sprite_indexes: Vec<u16> = sprite_indexes
                             .iter()
                             .map(|indice| (*indice as usize + (position * 4)) as u16)
                             .collect();
-                        indexes.append(&mut sprite_indexes);
                         position += 1;
+                        vertexes.append(&mut vec);
+                        indexes.append(&mut sprite_indexes);
                     }
                 }
+
                 let bytes_vertexes: &[u8] = bytemuck::cast_slice(vertexes.as_slice());
                 updates.push(RenderingUpdate::VertexBuffer {
                     entity,
@@ -130,7 +150,7 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                 let bytes_indexes: &[u8] = bytemuck::cast_slice(indexes.as_slice());
                 updates.push(RenderingUpdate::IndexBuffer {
                     entity,
-                    contents: bytes_indexes.to_vec(), // TODO
+                    contents: bytes_indexes.to_vec(),
                     usage: BufferUsages::INDEX,
                 });
                 renderer.upsert_indexes_buffer(entity);

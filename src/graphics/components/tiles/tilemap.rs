@@ -49,6 +49,13 @@ impl TileEvent {
     }
 }
 
+
+#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
+pub enum TilemapType {
+    Standard,
+    Isometric,
+}
+
 pub(crate) struct Tile {
     pub(crate) position: Position,
     pub(crate) tilemap: Entity,
@@ -88,6 +95,7 @@ pub struct TilemapInfo {
     dimensions: Dimensions,
     transform: Transform,
     tileset_ref: AssetRef<Material>,
+    tilemap_type: TilemapType
 }
 
 impl TilemapInfo {
@@ -95,8 +103,9 @@ impl TilemapInfo {
         dimensions: Dimensions,
         transform: Transform,
         tileset_ref: AssetRef<Material>,
+        tilemap_type: TilemapType
     ) -> Self {
-        Self { dimensions, transform, tileset_ref }
+        Self { dimensions, transform, tileset_ref, tilemap_type }
     }
 }
 
@@ -105,11 +114,16 @@ pub struct Tilemap {
     tile_entities: HashMap<Position, Entity>,
     events: HashMap<Position, TileEvent>,
     tileset_ref: AssetRef<Material>,
+    tilemap_type: TilemapType,
+    width: usize,
+    height: usize,
+    depth: usize,
+
 }
 
 impl Tilemap {
-    pub(crate) fn new(tileset_ref: AssetRef<Material>) -> Self {
-        Self { tile_entities: Default::default(), events: HashMap::default(), tileset_ref }
+    pub(crate) fn new(tileset_ref: AssetRef<Material>, tilemap_type: TilemapType, dimensions: &Dimensions) -> Self {
+        Self { tile_entities: Default::default(), events: HashMap::default(), tileset_ref, tilemap_type, width: dimensions.width(), height: dimensions.height(), depth: dimensions.depth() }
     }
 
     /// Convenience fn to create a tilemap and add it to the world.
@@ -119,7 +133,7 @@ impl Tilemap {
     where
         F: FnMut(&Position) -> TileInfos,
     {
-        let self_entity = Tilemap::create_tilemap(world, infos.tileset_ref, infos.transform);
+        let self_entity = Tilemap::create_tilemap(world, infos.tileset_ref, infos.transform, infos.tilemap_type, &infos.dimensions);
 
         for x in 0..infos.dimensions.width() {
             for y in 0..infos.dimensions.height() {
@@ -256,8 +270,29 @@ impl Tilemap {
         world: &mut impl World,
         tileset_ref: AssetRef<Material>,
         transform: Transform,
+        tilemap_type: TilemapType,
+        dimensions: &Dimensions,
     ) -> Entity {
-        world.push((Self::new(tileset_ref.clone()), tileset_ref, transform))
+        world.push((Self::new(tileset_ref.clone(), tilemap_type, dimensions), tileset_ref, transform))
+    }
+
+    pub fn is_isometric(&self)-> bool{
+        match self.tilemap_type {
+            TilemapType::Standard => { false }
+            TilemapType::Isometric => { true }
+        }
+    }
+
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
+    pub fn depth(&self) -> usize {
+        self.depth
     }
 }
 

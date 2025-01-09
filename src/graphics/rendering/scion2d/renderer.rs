@@ -60,7 +60,7 @@ impl Scion2D {
 
     pub(crate) fn update(
         &mut self,
-        mut data: &mut Vec<RenderingUpdate>,
+        data: &mut Vec<RenderingUpdate>,
         device: &Device,
         _surface_config: &SurfaceConfiguration,
         queue: &mut Queue,
@@ -102,9 +102,10 @@ impl Scion2D {
         data: Vec<RenderingInfos>,
         default_background: &Option<Color>,
         texture_view: TextureView,
+        depth_texture_view: TextureView,
         encoder: &mut CommandEncoder,
     ) {
-        self.render_component(default_background, texture_view, encoder, data);
+        self.render_component(default_background, texture_view, depth_texture_view, encoder, data);
     }
 
     fn insert_components_pipelines<T: Component + Renderable2D>(
@@ -151,13 +152,23 @@ impl Scion2D {
         &mut self,
         default_background: &Option<Color>,
         texture_view: TextureView,
+        depth_texture_view: TextureView,
         encoder: &mut CommandEncoder,
         mut infos: Vec<RenderingInfos>,
     ) {
+
+
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: None,
             color_attachments: &[get_default_color_attachment(&texture_view, default_background)],
-            depth_stencil_attachment: None,
+            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                view: &depth_texture_view,
+                depth_ops: Some(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(1.0),
+                    store: StoreOp::Store,
+                }),
+                stencil_ops: None,
+            }),
             occlusion_query_set: None,
             timestamp_writes: None,
         });

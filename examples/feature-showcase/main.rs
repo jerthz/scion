@@ -25,8 +25,8 @@ fn create_config() -> ScionConfig {
         .with_app_name("Showcase - Scion".to_string())
         .with_window_config(
             WindowConfigBuilder::new()
-                .with_resizable(false)
-                .with_dimensions((1024, 768))
+                .with_resizable(true)
+                .with_dimensions((1920, 1080))
                 .with_default_background_color(Some(Color::new_rgb(0,0,0)))
                 .get())
         .get()

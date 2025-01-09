@@ -18,12 +18,17 @@ fn vs_main(
     @location(0) a_position : vec3<f32>,
     @location(1) a_tex_translation : vec2<f32>,
     @location(2) layer: u32,
+    @location(3) depth: f32,
 ) ->  VertexOutput {
     var result: VertexOutput;
+    let world_position = r_data.model_trans * vec4<f32>(a_position, 1.0);
+    var clip_position = r_data.camera_view * world_position;
+    clip_position.z += depth;
+    result.position = clip_position;
     result.v_tex_translation = a_tex_translation;
-    result.position = r_data.camera_view * (r_data.model_trans * vec4<f32>(a_position, 1.));
     result.layer = u32(layer);
     return result;
+
 }
 
 @group(1)
@@ -37,5 +42,12 @@ var s_diffuse: sampler;
 // Définit la sortie du shader.
 @fragment
 fn fs_main(vertex: VertexOutput) -> @location(0) vec4<f32> {
-    return textureSample(t_diffuse, s_diffuse, vertex.v_tex_translation, vertex.layer);
+    let depth = vertex.position.z / vertex.position.w;
+    let color = textureSample(t_diffuse, s_diffuse, vertex.v_tex_translation, vertex.layer);
+
+    if (color.a < 0.0001) {
+        discard;
+    }
+
+    return color;
 }

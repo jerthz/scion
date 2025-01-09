@@ -21,7 +21,7 @@ use scion::{
     Scion,
 };
 use scion::core::components::maths::transform::Transform;
-
+use scion::graphics::components::tiles::tilemap::TilemapType;
 use crate::level_reader::Level;
 
 mod bomb_animations;
@@ -67,8 +67,9 @@ impl Scene for MainScene {
 
         let tilemap_infos = TilemapInfo::new(
             Dimensions::new(level.width, level.height, level.tilemap.len()),
-            Transform::default(),
+            Transform::from_xyz(0.,0.,10),
             asset_ref.clone(),
+            TilemapType::Standard
         );
 
         let tilemap = Tilemap::create(tilemap_infos, data, |p| {

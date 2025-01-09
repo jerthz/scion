@@ -119,7 +119,7 @@ fn add_main_ui_mask(data: &mut GameData) {
     let image = UiImage::new(544., 704.);
 
     let mut t = Transform::default();
-    t.set_z(0);
+    t.set_z(10);
     data.push((image, t, Material::Texture(path)));
 }
 
@@ -128,7 +128,7 @@ fn add_ui_top_overflow(data: &mut GameData) {
     let image = UiImage::new(324., 32.);
 
     let mut t = Transform::default();
-    t.set_z(2);
+    t.set_z(0);
     t.append_translation(32., 0.);
     data.push((image, t, Material::Texture(path)));
 }
