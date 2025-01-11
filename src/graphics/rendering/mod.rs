@@ -22,6 +22,7 @@ pub(crate) trait Renderable2D {
     fn set_dirty(&mut self, is_dirty: bool);
     fn get_pivot_offset(&self, _material: Option<&Material>) -> Vector { Vector::default() }
     fn get_pivot(&self) -> Pivot { Pivot::TopLeft }
+    fn get_rendering_priority(&self) -> usize { 0 }
 }
 
 pub(crate) trait RenderableUi: Renderable2D {}
@@ -69,4 +70,5 @@ pub struct RenderingInfos {
     pub(crate) entity: Entity,
     pub(crate) texture_path: Option<String>,
     pub(crate) type_name: String,
+    pub(crate) render_priority: usize,
 }

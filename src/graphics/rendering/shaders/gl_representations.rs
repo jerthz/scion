@@ -73,7 +73,7 @@ impl ColoredGlVertex {
                     offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 1,
                     format: wgpu::VertexFormat::Float32x3,
-                },
+                }
             ],
         }
     }
@@ -84,6 +84,7 @@ impl ColoredGlVertex {
 pub(crate) struct TexturedGlVertex {
     pub position: [f32;3],
     pub tex_translation: [f32;2],
+    pub depth: f32
 }
 
 #[repr(C)]
@@ -144,6 +145,11 @@ impl TexturedGlVertex {
                     shader_location: 1,
                     format: wgpu::VertexFormat::Float32x2,
                 },
+                wgpu::VertexAttribute {
+                    offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>()) as wgpu::BufferAddress,
+                    shader_location: 2,
+                    format: wgpu::VertexFormat::Float32,
+                },
             ],
         }
     }
@@ -154,9 +160,21 @@ impl From<(&Coordinates, &Coordinates)> for TexturedGlVertex {
         TexturedGlVertex {
             position: [positions.0.x(), positions.0.y(), 0.0 ],
             tex_translation: [positions.1.x(), positions.1.y],
+            depth: 0.0,
         }
     }
 }
+
+impl From<(&Coordinates, &Coordinates, f32)> for TexturedGlVertex {
+    fn from(positions: (&Coordinates, &Coordinates, f32)) -> Self {
+        TexturedGlVertex {
+            position: [positions.0.x(), positions.0.y(), 0.0 ],
+            tex_translation: [positions.1.x(), positions.1.y],
+            depth: positions.2,
+        }
+    }
+}
+
 
 impl From<(&Coordinates, &Coordinates, usize, f32)> for TexturedGlVertexWithLayer {
     fn from(positions: (&Coordinates, &Coordinates, usize, f32)) -> Self {

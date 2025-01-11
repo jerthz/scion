@@ -13,6 +13,7 @@ use crate::graphics::components::color::Color;
 use crate::core::components::maths::padding::Padding;
 use crate::core::resources::asset_manager::AssetRef;
 use crate::core::world::Resources;
+use crate::graphics::rendering::shaders::gl_representations::TexturedGlVertex;
 
 /// A component representing a Text in the UI.
 pub struct UiText {
@@ -119,7 +120,9 @@ impl Renderable2D for UiTextImage {
 
     fn set_dirty(&mut self, _is_dirty: bool) {}
 
-
+    fn get_rendering_priority(&self) -> usize {
+        1
+    }
 }
 
 impl RenderableUi for UiTextImage {}

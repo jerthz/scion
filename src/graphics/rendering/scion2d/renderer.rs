@@ -171,8 +171,7 @@ impl Scion2D {
             timestamp_writes: None,
         });
 
-        infos.sort_by(|a, b| a.layer.cmp(&b.layer));
-
+        infos.sort_by(|a, b| a.layer.cmp(&b.layer).then_with(|| b.render_priority.cmp(&a.render_priority)));
         while let Some(rendering_infos) = infos.pop() {
             render_pass.set_bind_group(
                 0,

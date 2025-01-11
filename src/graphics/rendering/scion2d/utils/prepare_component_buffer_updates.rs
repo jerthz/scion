@@ -67,7 +67,7 @@ fn prepare_buffer_update_for_ui_component<T: Component + Renderable2D + Renderab
     data: &mut GameData) -> Vec<RenderingUpdate> {
     let mut updates = vec![];
     for (entity, (component, _, m)) in data.query::<(&mut T, &Transform, Option<&Material>)>().iter() {
-        if renderer.missing_vertex_buffer(&entity){
+        if renderer.missing_vertex_buffer(&entity) || component.dirty(){
             let descriptor = component.vertex_buffer_descriptor(m);
             updates.push(RenderingUpdate::VertexBuffer {
                 entity,
@@ -76,8 +76,9 @@ fn prepare_buffer_update_for_ui_component<T: Component + Renderable2D + Renderab
             });
             renderer.upsert_vertex_buffer(entity);
         }
-        if renderer.missing_indexes_buffer(&entity){
+        if renderer.missing_indexes_buffer(&entity) || component.dirty(){
             let descriptor = component.indexes_buffer_descriptor();
+
             updates.push(RenderingUpdate::IndexBuffer {
                 entity,
                 contents: descriptor.contents.to_vec(),
