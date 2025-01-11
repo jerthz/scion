@@ -31,6 +31,7 @@ pub(crate) fn pre_render_component<T: Component + Renderable2D>(
             entity,
             texture_path: path,
             type_name: type_name.to_string(),
+            render_priority: component.get_rendering_priority()
         });
     }
     render_infos
@@ -62,6 +63,7 @@ pub(crate) fn pre_render_tilemaps(data: &mut GameData) -> Vec<RenderingInfos> {
             entity,
             texture_path: path,
             type_name: type_name.to_string(),
+            render_priority: 0
         });
     }
     render_infos
@@ -94,6 +96,7 @@ pub(crate) fn pre_render_ui_component<T: Component + Renderable2D + RenderableUi
             entity,
             texture_path: path,
             type_name: type_name.to_string(),
+            render_priority: component.get_rendering_priority()
         });
     }
     render_infos
