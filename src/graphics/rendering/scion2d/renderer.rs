@@ -156,8 +156,6 @@ impl Scion2D {
         encoder: &mut CommandEncoder,
         mut infos: Vec<RenderingInfos>,
     ) {
-
-
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: None,
             color_attachments: &[get_default_color_attachment(&texture_view, default_background)],
@@ -172,6 +170,8 @@ impl Scion2D {
             occlusion_query_set: None,
             timestamp_writes: None,
         });
+
+        infos.sort_by(|a, b| a.layer.cmp(&b.layer));
 
         while let Some(rendering_infos) = infos.pop() {
             render_pass.set_bind_group(

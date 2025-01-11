@@ -120,7 +120,6 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                         }else{
                             offset_z = depth * 100 - tile.position.z() * 10;
                         }
-                        info!("depth {};{};{}/{}", tile.position.x(), tile.position.y(),tile.position.z(), offset_z);
 
                         vec.iter_mut().for_each(|gl_vertex| {
                             gl_vertex.position[0] = gl_vertex.position[0] + tile_size as f32 * tile.position.x() as f32 + offset_x;
