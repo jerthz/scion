@@ -1,17 +1,16 @@
+use hecs::Entity;
+use scion::core::components::maths::transform::TransformBuilder;
+use scion::core::resources::asset_manager::AssetType;
+use scion::graphics::components::tiles::atlas::importer::load_tilemap;
 use std::collections::HashMap;
 use std::time::Duration;
-use hecs::Entity;
-use log::info;
-use scion::core::components::maths::transform::{Transform, TransformBuilder};
-use scion::graphics::components::tiles::atlas::importer::load_tilemap;
-use scion::core::resources::asset_manager::AssetType;
 
 use scion::core::scene::Scene;
 use scion::core::world::{GameData, World};
 use scion::graphics::components::animations::{Animation, AnimationModifier, Animations};
-use scion::graphics::components::tiles::atlas::data;
 use scion::utils::file::app_base_path_join;
 use scion::utils::maths::Vector;
+use scion::utils::premade::dummy_camera_controller::DummyCameraConfig;
 
 #[derive(Default)]
 pub struct DemoScene {
@@ -24,6 +23,11 @@ pub struct Tm;
 impl Scene for DemoScene {
     fn on_start(&mut self, data: &mut GameData) {
         data.add_default_camera();
+
+        data.get_resource_mut::<DummyCameraConfig>()
+            .expect("Missing dummy camera config ?").set_horizontal_velocity(15.);
+        data.get_resource_mut::<DummyCameraConfig>()
+            .expect("Missing dummy camera config ?").set_vertical_velocity(15.);
 
         data.assets_mut().register_tileset_atlas_and_texture(
             "demo-ply", &app_base_path_join("examples/feature-showcase/assets/demo-ply.json"),

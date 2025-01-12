@@ -46,7 +46,7 @@ impl ScionBuilder {
         self
     }
 
-    ///
+    /// Add the given package to the build
     pub fn with_package<P: Package>(mut self, package: P) -> Self {
         package.prepare(&mut self.world);
         package.load(self)

@@ -6,6 +6,7 @@ use scion::config::scion_config::{ScionConfig, ScionConfigBuilder};
 use scion::config::window_config::WindowConfigBuilder;
 use scion::graphics::components::color::Color;
 use scion::Scion;
+use scion::utils::premade::dummy_camera_controller::DummyCamera;
 use crate::scene::DemoScene;
 
 mod scene;
@@ -13,6 +14,7 @@ mod scene;
 fn main() {
     Scion::app_with_config(create_config())
         .with_scene::<DemoScene>()
+        .with_package(DummyCamera)
         .run();
 }
 
