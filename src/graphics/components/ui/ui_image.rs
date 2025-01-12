@@ -42,10 +42,10 @@ impl UiImage {
         let d = Coordinates::new(a.x() + width, a.y());
 
         let mut contents = [
-            TexturedGlVertex::from((&a, &uvs[0], 0.02)),
-            TexturedGlVertex::from((&b, &uvs[1], 0.02)),
-            TexturedGlVertex::from((&c, &uvs[2], 0.02)),
-            TexturedGlVertex::from((&d, &uvs[3], 0.02)),
+            TexturedGlVertex::from((&a, &uvs[0], 0.002)),
+            TexturedGlVertex::from((&b, &uvs[1], 0.002)),
+            TexturedGlVertex::from((&c, &uvs[2], 0.002)),
+            TexturedGlVertex::from((&d, &uvs[3], 0.002)),
         ];
 
         Self { contents }
@@ -64,10 +64,10 @@ impl UiImage {
         let d = Coordinates::new(a.x() + width, a.y());
 
         let mut contents = [
-            TexturedGlVertex::from((&a, &uvs[0], 0.01)),
-            TexturedGlVertex::from((&b, &uvs[1], 0.01)),
-            TexturedGlVertex::from((&c, &uvs[2], 0.01)),
-            TexturedGlVertex::from((&d, &uvs[3], 0.01)),
+            TexturedGlVertex::from((&a, &uvs[0], 0.001)),
+            TexturedGlVertex::from((&b, &uvs[1], 0.001)),
+            TexturedGlVertex::from((&c, &uvs[2], 0.001)),
+            TexturedGlVertex::from((&d, &uvs[3], 0.001)),
         ];
 
         Self { contents }

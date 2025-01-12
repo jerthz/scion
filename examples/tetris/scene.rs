@@ -16,7 +16,7 @@ use scion::core::components::maths::transform::Transform;
 use scion::graphics::components::ui::ui_button::UiButton;
 use scion::graphics::components::ui::ui_input::UiInput;
 use scion::core::resources::inputs::types::{Input, KeyCode};
-
+use scion::graphics::components::shapes::rectangle::Rectangle;
 use crate::{asset_path, resources::TetrisResource};
 
 #[derive(Default)]
@@ -64,12 +64,13 @@ fn add_score_ui(data: &mut GameData) -> Entity {
 
     let mut input = UiInput::new(200, 200, font_asset.clone())
         .with_font_size(16)
+        .with_tab_index(1)
         .with_font_color(Color::new_rgb(0, 0, 0));
     input.set_text("Coucou".to_string());
 
     data.push((
         input,
-        Transform::from_xyz(394., 330., 2)
+        Transform::from_xyz(394., 330., 1)
     ));
 
     let background_asset = data.assets_mut().register_material(Material::Diffuse(Color::new_rgb(200, 200, 200)));
@@ -116,19 +117,21 @@ fn add_score_ui(data: &mut GameData) -> Entity {
 
 fn add_main_ui_mask(data: &mut GameData) {
     let path = asset_path().join("ui.png").get();
-    let image = UiImage::new(544., 704.);
+    let image = Rectangle::new(544., 704., None);
 
     let mut t = Transform::default();
     t.set_z(10);
+    t.set_use_screen_as_origin(true);
     data.push((image, t, Material::Texture(path)));
 }
 
 fn add_ui_top_overflow(data: &mut GameData) {
     let path = asset_path().join("ui_overflow_top.png").get();
-    let image = UiImage::new(324., 32.);
+    let image = Rectangle::new(324., 32., None);
 
     let mut t = Transform::default();
     t.set_z(0);
     t.append_translation(32., 0.);
+    t.set_use_screen_as_origin(true);
     data.push((image, t, Material::Texture(path)));
 }

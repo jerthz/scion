@@ -237,6 +237,10 @@ impl From<UniformData<'_>> for GlUniform {
                 z: 0.0,
             });
         }
+
+        if uniform_data.is_ui_component {
+            model_trans.translation.z = model_trans.translation.z / 1000.;
+        }
         model_trans
             .prepend_rotation(Rotor3::from_rotation_xy(uniform_data.transform.global_angle).normalized());
         let mut model_trans = model_trans.into_homogeneous_matrix();

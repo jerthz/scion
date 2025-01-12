@@ -52,7 +52,20 @@ pub enum KeyCode {
     RShift,
     Apostrophe,
     BackSpace,
-    Enter
+    Enter,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12,
+    Slash
 }
 
 impl KeyCode{
@@ -86,6 +99,7 @@ impl KeyCode{
             KeyCode::Z => Some('z'),
             KeyCode::Space => Some(' '),
             KeyCode::Apostrophe => Some('\''),
+            KeyCode::Slash => Some('/'),
             _ => None
         }
     }
@@ -99,6 +113,18 @@ impl From<&Key> for KeyCode {
             Key::Named(NamedKey::ArrowUp) => KeyCode::Up,
             Key::Named(NamedKey::ArrowRight) => KeyCode::Right,
             Key::Named(NamedKey::ArrowDown) => KeyCode::Down,
+            Key::Named(NamedKey::F1) => KeyCode::F1,
+            Key::Named(NamedKey::F2) => KeyCode::F2,
+            Key::Named(NamedKey::F3) => KeyCode::F3,
+            Key::Named(NamedKey::F4) => KeyCode::F4,
+            Key::Named(NamedKey::F5) => KeyCode::F5,
+            Key::Named(NamedKey::F6) => KeyCode::F6,
+            Key::Named(NamedKey::F7) => KeyCode::F7,
+            Key::Named(NamedKey::F8) => KeyCode::F8,
+            Key::Named(NamedKey::F9) => KeyCode::F9,
+            Key::Named(NamedKey::F10) => KeyCode::F10,
+            Key::Named(NamedKey::F11) => KeyCode::F11,
+            Key::Named(NamedKey::F12) => KeyCode::F12,
             Key::Character("A") => KeyCode::A,
             Key::Character("B") => KeyCode::B,
             Key::Character("C") => KeyCode::C,
@@ -152,6 +178,7 @@ impl From<&Key> for KeyCode {
             Key::Character("y") => KeyCode::Y,
             Key::Character("z") => KeyCode::Z,
             Key::Character("\'") => KeyCode::Apostrophe,
+            Key::Character("/") => KeyCode::Slash,
             Key::Named(NamedKey::Space) => KeyCode::Space,
             Key::Named(NamedKey::Shift) => KeyCode::LShift,
             Key::Named(NamedKey::Tab) => KeyCode::Tab,

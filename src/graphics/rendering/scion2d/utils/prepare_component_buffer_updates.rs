@@ -117,7 +117,7 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                         if isometric {
                             offset_x = -1. * tile.position.x() as f32 * (tile_size / 2) as f32 + tile.position.y() as f32 * (tile_size / 2) as f32;
                             offset_y = -1. * tile.position.x() as f32 * (tile_size / 4) as f32 - tile.position.y() as f32 * (tile_size / 2) as f32 - tile.position.y() as f32 * (tile_size / 4) as f32 - (tile.position.z() * tile_size/2) as f32;
-                            offset_z =  (max_x - tile.position.z())  * (max_x + 1) * (max_x + 1) +  tile.position.x() * (max_x + 1) + (max_x -  tile.position.y())
+                            offset_z =  (max_x - tile.position.z())  * (max_x + 1) +  tile.position.x() * (max_x + 1) + (max_x -  tile.position.y())
                         }else{
                             offset_z = depth * 100 - tile.position.z() * 10;
                         }

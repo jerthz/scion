@@ -3,6 +3,7 @@ pub mod file;
 pub mod logger;
 pub mod maths;
 pub mod frame_limiter;
+pub mod premade;
 
 #[derive(Debug)]
 #[allow(dead_code)]

@@ -14,7 +14,7 @@ pub(crate) struct UiFocusable{
 }
 
 /// trait that should be shared by all focusable components
-pub trait Focusable{
+pub trait Focusable {
     fn tab_index(&self) -> usize;
     fn set_tab_index(&mut self, tab_index: usize);
 }
