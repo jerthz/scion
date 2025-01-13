@@ -12,6 +12,7 @@ pub fn pipeline(
     surface_config: &SurfaceConfiguration,
     texture_bind_group_layout: &BindGroupLayout,
     transform_bind_group_layout: &BindGroupLayout,
+    color_picking_bind_group_layout: &BindGroupLayout,
     topology: wgpu::PrimitiveTopology,
 ) -> RenderPipeline {
 
@@ -22,7 +23,7 @@ pub fn pipeline(
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("Basic square pipeline layout"),
-        bind_group_layouts: &[transform_bind_group_layout, texture_bind_group_layout],
+        bind_group_layouts: &[transform_bind_group_layout, texture_bind_group_layout, color_picking_bind_group_layout],
         push_constant_ranges: &[],
     });
 
@@ -89,6 +90,7 @@ pub fn pipeline_sprite(
     surface_config: &SurfaceConfiguration,
     texture_bind_group_layout: &BindGroupLayout,
     transform_bind_group_layout: &BindGroupLayout,
+    color_picking_bind_group_layout: &BindGroupLayout,
     topology: wgpu::PrimitiveTopology,
 ) -> RenderPipeline {
     let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -98,7 +100,7 @@ pub fn pipeline_sprite(
 
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("Basic sprite pipeline layout"),
-        bind_group_layouts: &[transform_bind_group_layout, texture_bind_group_layout],
+        bind_group_layouts: &[transform_bind_group_layout, texture_bind_group_layout, color_picking_bind_group_layout],
         push_constant_ranges: &[],
     });
 

@@ -189,6 +189,21 @@ impl From<(&Coordinates, &Coordinates, usize, f32)> for TexturedGlVertexWithLaye
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+pub(crate) struct ColorPickingUniform {
+    pub color: [f32; 4],
+    pub enable_color_override: u32,
+    pub _padding: [u32; 3],
+}
+
+impl ColorPickingUniform {
+    pub(crate) fn replace_with(&mut self, other: ColorPickingUniform) {
+        self.color = other.color;
+        self.enable_color_override = other.enable_color_override;
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub(crate) struct GlUniform {
     pub model_trans: [[f32; 4]; 4],
     pub camera_view: [[f32; 4]; 4],

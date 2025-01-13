@@ -8,6 +8,11 @@ struct Uniforms {
     camera_view: mat4x4<f32>,
 }
 
+struct ColorPickingUniforms {
+    color: vec4<f32>,
+    enable_color_override: u32,
+};
+
 @group(0)
 @binding(0)
 var<uniform> r_data: Uniforms;
@@ -35,11 +40,19 @@ var t_diffuse: texture_2d<f32>;
 @binding(1)
 var s_diffuse: sampler;
 
+@group(2)
+@binding(0)
+var<uniform> u_color_picking: ColorPickingUniforms;
+
+
 @fragment
 fn fs_main(vertex: VertexOutput) -> @location(0) vec4<f32> {
     let color = textureSample(t_diffuse, s_diffuse, vertex.v_tex_translation);
     if (color.a < 0.01) {
         discard;
     }
-    return textureSample(t_diffuse, s_diffuse, vertex.v_tex_translation);
+    if (u_color_picking.enable_color_override > 0) {
+        return u_color_picking.color;
+    }
+    return color;
 }

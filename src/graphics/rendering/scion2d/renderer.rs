@@ -27,7 +27,7 @@ use crate::{
 };
 use crate::graphics::rendering::{DiffuseBindGroupUpdate, RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::rendering_texture_management::load_texture_array_to_queue;
-use crate::graphics::rendering::shaders::gl_representations::GlUniform;
+use crate::graphics::rendering::shaders::gl_representations::{ColorPickingUniform, GlUniform};
 use crate::graphics::rendering::shaders::pipeline::pipeline_sprite;
 
 #[derive(Default)]
@@ -38,15 +38,22 @@ pub(crate) struct Scion2D {
     texture_bind_group_layout: Option<BindGroupLayout>,
     texture_array_bind_group_layout: Option<BindGroupLayout>,
     transform_bind_group_layout: Option<BindGroupLayout>,
+    color_picking_bind_group_layout: Option<BindGroupLayout>,
     diffuse_bind_groups: HashMap<String, (BindGroup, wgpu::Texture)>,
     transform_uniform_bind_groups: HashMap<Entity, (GlUniform, Buffer, BindGroup)>,
+    color_picking_uniform_bind_groups: HashMap<Entity, (ColorPickingUniform, Buffer, BindGroup)>,
+    default_color_picking_uniform_bind_groups: Option<BindGroup>,
 }
 impl Scion2D {
 
     pub(crate) fn start(&mut self, device: &Device, surface_config: &SurfaceConfiguration) {
         self.transform_bind_group_layout = Some(Self::create_uniform_bind_group_layout(device));
+        self.color_picking_bind_group_layout = Some(Self::create_color_picking_bind_group_layout(device));
         self.texture_bind_group_layout = Some(Self::create_texture_bind_group_layout(device));
         self.texture_array_bind_group_layout = Some(Self::create_texture_array_bind_group_layout(device));
+        self.default_color_picking_uniform_bind_groups = Some(create_color_picking_uniform_bind_group(device,
+                                                                                                      ColorPickingUniform{ color: [0.,0.,0.,1.], enable_color_override: 0, _padding: [0; 3] }
+                                                                                                      , self.color_picking_bind_group_layout.as_ref().unwrap()).2);
         self.insert_components_pipelines::<Triangle>(&device, &surface_config);
         self.insert_components_pipelines::<Square>(&device, &surface_config);
         self.insert_components_pipelines::<Rectangle>(&device, &surface_config);
@@ -91,6 +98,9 @@ impl Scion2D {
                         });
                     self.index_buffers.insert(entity, index_buffer);
                 }
+                RenderingUpdate::ColorPickingUniform { entity, uniform } => {
+                    self.update_color_picking_uniform(device, queue, entity, uniform);
+                }
             }
         }
 
@@ -132,6 +142,7 @@ impl Scion2D {
                         surface_config,
                         self.texture_array_bind_group_layout.as_ref().unwrap(),
                         self.transform_bind_group_layout.as_ref().unwrap(),
+                        self.color_picking_bind_group_layout.as_ref().unwrap(),
                         T::topology(),
                     )
                 } else {
@@ -140,6 +151,7 @@ impl Scion2D {
                         surface_config,
                         self.texture_bind_group_layout.as_ref().unwrap(),
                         self.transform_bind_group_layout.as_ref().unwrap(),
+                        self.color_picking_bind_group_layout.as_ref().unwrap(),
                         T::topology(),
                     )
                 }
@@ -193,6 +205,20 @@ impl Scion2D {
                 render_pass.set_bind_group(
                     1,
                     &self.diffuse_bind_groups.get(path.as_str()).unwrap().0,
+                    &[],
+                );
+            }
+
+            if self.color_picking_uniform_bind_groups.contains_key(&rendering_infos.entity) {
+                render_pass.set_bind_group(
+                    2,
+                    &self.color_picking_uniform_bind_groups.get(&rendering_infos.entity).unwrap().2,
+                    &[],
+                );
+            } else {
+                render_pass.set_bind_group(
+                    2,
+                    self.default_color_picking_uniform_bind_groups.as_ref().expect("Unreachable default_color_picking_uniform_bind_groups but it should be default"),
                     &[],
                 );
             }
@@ -260,6 +286,25 @@ impl Scion2D {
         }
     }
 
+    fn update_color_picking_uniform(&mut self, device: &Device, queue: &mut Queue, entity: Entity, uniform: ColorPickingUniform) {
+        if let std::collections::hash_map::Entry::Vacant(e) = self.color_picking_uniform_bind_groups.entry(entity) {
+            let (uniform, uniform_buffer, group) = create_color_picking_uniform_bind_group(
+                device,
+                uniform,
+                self.transform_bind_group_layout.as_ref().unwrap(),
+            );
+            queue.write_buffer(&uniform_buffer, 0, bytemuck::cast_slice(&[uniform]));
+            e.insert((uniform, uniform_buffer, group));
+        } else {
+            let (current_uniform, uniform_buffer, _) = self
+                .color_picking_uniform_bind_groups
+                .get_mut(&entity)
+                .expect("Fatal error, a color picking has been marked as found but doesn't exist");
+            current_uniform.replace_with(uniform);
+            queue.write_buffer(uniform_buffer, 0, bytemuck::cast_slice(&[*current_uniform]));
+        }
+    }
+
     fn create_uniform_bind_group_layout(device: &Device) -> BindGroupLayout {
         device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &[wgpu::BindGroupLayoutEntry {
@@ -273,6 +318,24 @@ impl Scion2D {
                 count: None,
             }],
             label: Some("uniform_bind_group_layout"),
+        })
+    }
+
+    fn create_color_picking_bind_group_layout(device: &Device) -> BindGroupLayout {
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: wgpu::BufferSize::new(32),
+                    },
+                    count: None,
+                },
+            ],
+            label: Some("color_picking_bind_group_layout"),
         })
     }
 
@@ -413,6 +476,30 @@ fn create_transform_uniform_bind_group(
     });
 
     (gl_uniform, uniform_buffer, uniform_bind_group)
+}
+
+fn create_color_picking_uniform_bind_group(
+    device: &Device,
+    gl_uniform: ColorPickingUniform,
+    color_picking_bind_group_layout: &BindGroupLayout,
+) -> (ColorPickingUniform, Buffer, BindGroup) {
+    let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Color Picking Buffer"),
+        contents: bytemuck::cast_slice(&[gl_uniform]),
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+    });
+
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        layout: &color_picking_bind_group_layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: uniform_buffer.as_entire_binding(),
+            },
+        ],
+        label: Some("Color Picking Bind Group"),
+    });
+    (gl_uniform, uniform_buffer, bind_group)
 }
 
 fn get_default_color_attachment<'a>(

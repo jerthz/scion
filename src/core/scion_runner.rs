@@ -10,7 +10,7 @@ use crate::core::resources::time::Time;
 use crate::core::scene::{SceneAction, SceneMachine};
 use crate::core::scheduler::Scheduler;
 use crate::core::world::GameData;
-use crate::graphics::rendering::{RendererEvent, RenderingInfos, RenderingUpdate};
+use crate::graphics::rendering::{RendererCallbackEvent, RendererEvent, RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
 use crate::graphics::rendering::scion2d::rendering_thread::ScionRenderingThread;
 use crate::graphics::rendering::scion2d::window_rendering_manager::ScionWindowRenderingManager;
@@ -25,6 +25,7 @@ pub struct ScionRunner {
     pub(crate) window_rendering_manager: Option<ScionWindowRenderingManager>,
     pub(crate) window: Option<Arc<Window>>,
     pub(crate) main_thread_receiver: Option<Receiver<WindowingEvent>>,
+    pub(crate) render_callback_receiver: Option<Receiver<RendererCallbackEvent>>,
     pub(crate) scion_pre_renderer: Scion2DPreRenderer,
 }
 
@@ -42,6 +43,9 @@ impl ScionRunner {
         let mut render_tick = Instant::now();
 
         loop {
+            if let Some(rcv) = self.render_callback_receiver.as_mut() {
+                println!("{:?}", get_last_event(rcv));
+            }
             let should_tick = frame_limiter.is_min_tick();
             if should_tick {
                 start_tick = Instant::now();
@@ -107,4 +111,12 @@ impl ScionRunner {
             window.reset_future_settings();
         }
     }
+}
+
+fn get_last_event(receiver: &Receiver<RendererCallbackEvent>) -> Option<RendererCallbackEvent> {
+    let mut last_event = None;
+    while let Ok(event) = receiver.try_recv() {
+        last_event = Some(event);
+    }
+    last_event
 }

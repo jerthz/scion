@@ -31,7 +31,7 @@ fn create_config() -> ScionConfig {
             WindowConfigBuilder::new()
                 .with_resizable(true)
                 .with_dimensions((1920, 1080))
-                .with_default_background_color(Some(Color::new_rgb(0,0,0)))
+                .with_default_background_color(Some(Color::new_rgb(255,0,0)))
                 .get())
         .get()
 }
