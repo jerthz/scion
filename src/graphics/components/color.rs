@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 use crate::graphics::rendering::shaders::gl_representations::GlColor;
@@ -118,6 +119,25 @@ impl Color {
     pub(crate) fn to_texture_path(&self) -> String{
         format!("color-{}-{}-{}-{}", self.red(), self.green(), self.blue(), self.alpha())
     }
+
+    pub fn color_from_u32(index: u32) -> Color {
+        let r = (index & 0xFF) as u8;
+        let g = (index >> 8 & 0xFF) as u8;
+        let b = (index >> 16 & 0xFF) as u8;
+        Color::new_rgb(r, g, b)
+    }
+
+    pub fn as_u32(&self) -> u32 {
+        let r =self.r as u32;
+        let g = (self.g as u32) << 8;
+        let b = (self.b as u32) << 16;
+        r | g | b
+    }
+
+    pub(crate) fn as_f32_array(&self) -> [f32; 4] {
+        let linear = self.to_linear();
+        [linear.r as f32, linear.g as f32, linear.b as f32, self.a]
+    }
 }
 
 impl From<&Color> for GlColor {
@@ -131,8 +151,31 @@ impl From<&Color> for GlColor {
     }
 }
 
-impl ToString for Color{
-    fn to_string(&self) -> String {
-        format!("r{:?}g{:?}b{:?}a{:?}", self.r,self.g,self.b,self.a)
+impl Display for Color{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", format!("r{:?}g{:?}b{:?}a{:?}", self.r, self.g, self.b, self.a))
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::graphics::components::color::Color;
+
+    #[test]
+    fn color_from_u32() {
+        let c = Color::color_from_u32(0);
+        let c1 = Color::color_from_u32(8950);
+        let c2 = Color::color_from_u32(2650054);
+        let c3 = Color::color_from_u32(4687);
+        let c4 = Color::color_from_u32(2565);
+        let c5 = Color::color_from_u32(16777215);
+
+        println!("c {}", c.to_string());
+        println!("c1 {}", c1.to_string());
+        println!("c2 {}", c2.to_string());
+        println!("c3 {}", c3.to_string());
+        println!("c4 {}", c4.to_string());
+        println!("c5 {}", c5.to_string());
     }
 }

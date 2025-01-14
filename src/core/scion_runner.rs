@@ -44,8 +44,19 @@ impl ScionRunner {
 
         loop {
             if let Some(rcv) = self.render_callback_receiver.as_mut() {
-                println!("{:?}", get_last_event(rcv));
+                if let Some(picked) = get_last_event(rcv){
+                    match picked{
+                        RendererCallbackEvent::CursorColorPicking(c) => {
+                            if let Some(color) = c{
+                                if let Some (e) = self.scion_pre_renderer.color_picking_storage.get_entity_from_color(&color){
+                                    println!("Currently selected {:?}", e);
+                                }
+                            }
+                        }
+                    }
+                }
             }
+
             let should_tick = frame_limiter.is_min_tick();
             if should_tick {
                 start_tick = Instant::now();

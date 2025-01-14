@@ -7,3 +7,4 @@ pub mod window;
 pub mod font_atlas;
 pub mod focus_manager;
 pub mod global_storage;
+pub mod color_picking;

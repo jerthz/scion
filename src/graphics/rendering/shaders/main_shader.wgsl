@@ -1,17 +1,14 @@
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
-    @location(0) v_tex_translation: vec2<f32>
+    @location(0) v_tex_translation: vec2<f32>,
+    @location(1) color_picking_override:  vec4<f32>,
+    @location(2) enable_color_picking_override: u32
  };
 
 struct Uniforms {
     model_trans: mat4x4<f32>,
     camera_view: mat4x4<f32>,
 }
-
-struct ColorPickingUniforms {
-    color: vec4<f32>,
-    enable_color_override: u32,
-};
 
 @group(0)
 @binding(0)
@@ -22,13 +19,17 @@ fn vs_main(
     @location(0) a_position : vec3<f32>,
     @location(1) a_tex_translation : vec2<f32>,
     @location(2) depth: f32,
+    @location(3) color_picking_override: vec4<f32>,
+    @location(4) enable_color_picking_override: u32,
 ) ->  VertexOutput{
     var result: VertexOutput;
-     let world_position = r_data.model_trans * vec4<f32>(a_position, 1.0);
-        var clip_position = r_data.camera_view * world_position;
-        clip_position.z += depth;
-        result.position = clip_position;
-        result.v_tex_translation = a_tex_translation;
+    let world_position = r_data.model_trans * vec4<f32>(a_position, 1.0);
+    var clip_position = r_data.camera_view * world_position;
+    clip_position.z += depth;
+    result.position = clip_position;
+    result.v_tex_translation = a_tex_translation;
+    result.color_picking_override = color_picking_override;
+    result.enable_color_picking_override = u32(enable_color_picking_override);
     return result;
 }
 
@@ -40,10 +41,6 @@ var t_diffuse: texture_2d<f32>;
 @binding(1)
 var s_diffuse: sampler;
 
-@group(2)
-@binding(0)
-var<uniform> u_color_picking: ColorPickingUniforms;
-
 
 @fragment
 fn fs_main(vertex: VertexOutput) -> @location(0) vec4<f32> {
@@ -51,8 +48,8 @@ fn fs_main(vertex: VertexOutput) -> @location(0) vec4<f32> {
     if (color.a < 0.01) {
         discard;
     }
-    if (u_color_picking.enable_color_override > 0) {
-        return u_color_picking.color;
+    if (vertex.enable_color_picking_override > 0) {
+        return vertex.color_picking_override;
     }
     return color;
 }

@@ -1,9 +1,7 @@
-use hecs::Component;
-use log::info;
-use crate::graphics::components::{Square, Triangle};
-use crate::graphics::components::material::Material;
 use crate::core::components::maths::camera::Camera;
 use crate::core::components::maths::transform::Transform;
+use crate::core::world::{GameData, World};
+use crate::graphics::components::material::Material;
 use crate::graphics::components::shapes::line::Line;
 use crate::graphics::components::shapes::polygon::Polygon;
 use crate::graphics::components::shapes::rectangle::Rectangle;
@@ -12,10 +10,11 @@ use crate::graphics::components::tiles::tilemap::Tilemap;
 use crate::graphics::components::ui::ui_image::UiImage;
 use crate::graphics::components::ui::ui_text::UiTextImage;
 use crate::graphics::components::ui::UiComponent;
-use crate::core::world::{GameData, World};
-use crate::graphics::rendering::{Renderable2D, RenderingUpdate};
-use crate::graphics::rendering::shaders::gl_representations::{GlUniform, UniformData};
+use crate::graphics::components::{Square, Triangle};
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
+use crate::graphics::rendering::shaders::gl_representations::{GlUniform, UniformData};
+use crate::graphics::rendering::{Renderable2D, RenderingUpdate};
+use hecs::Component;
 
 pub(crate) fn call(renderer: &mut Scion2DPreRenderer, data: &mut GameData) -> Vec<RenderingUpdate> {
     let mut updates = vec![];

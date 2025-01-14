@@ -1,7 +1,9 @@
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
     @location(0) v_tex_translation: vec2<f32>,
-    @location(1) layer: u32
+    @location(1) layer: u32,
+    @location(2) color_picking_override:  vec4<f32>,
+    @location(3) enable_color_picking_override: u32
  };
 
 struct Uniforms {
@@ -9,11 +11,6 @@ struct Uniforms {
     camera_view: mat4x4<f32>
 }
 
-
-struct ColorPickingUniforms {
-    color: vec4<f32>,
-    enable_color_override: u32,
-};
 
 @group(0)
 @binding(0)
@@ -26,6 +23,8 @@ fn vs_main(
     @location(1) a_tex_translation : vec2<f32>,
     @location(2) layer: u32,
     @location(3) depth: f32,
+    @location(4) color_picking_override: vec4<f32>,
+    @location(5) enable_color_picking_override: u32,
 ) ->  VertexOutput {
     var result: VertexOutput;
     let world_position = r_data.model_trans * vec4<f32>(a_position, 1.0);
@@ -34,6 +33,8 @@ fn vs_main(
     result.position = clip_position;
     result.v_tex_translation = a_tex_translation;
     result.layer = u32(layer);
+    result.color_picking_override = color_picking_override;
+    result.enable_color_picking_override = u32(enable_color_picking_override);
     return result;
 
 }
@@ -46,23 +47,18 @@ var t_diffuse: texture_2d_array<f32>;
 @binding(1)
 var s_diffuse: sampler;
 
-@group(2)
-@binding(0)
-var<uniform> u_color_picking: ColorPickingUniforms;
-
-// Définit la sortie du shader.
 @fragment
 fn fs_main(vertex: VertexOutput) -> @location(0) vec4<f32> {
     let depth = vertex.position.z / vertex.position.w;
-       let color = textureSample(t_diffuse, s_diffuse, vertex.v_tex_translation, vertex.layer);
+   let color = textureSample(t_diffuse, s_diffuse, vertex.v_tex_translation, vertex.layer);
 
-       if (color.a < 0.0001) {
-           discard;
-       }
+   if (color.a < 0.0001) {
+       discard;
+   }
 
-       if (u_color_picking.enable_color_override > 0) {
-               return u_color_picking.color;
-       }
+   if (vertex.enable_color_picking_override > 0) {
+       return vertex.color_picking_override;
+   }
 
-       return color;
+   return color;
 }

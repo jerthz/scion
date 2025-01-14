@@ -71,7 +71,7 @@ impl ScionWindowRenderingManager {
         let mut scion_renderer = Scion2D::default();
         scion_renderer.start(&device, &config);
 
-        Self { surface, device, queue, config, scion_renderer, default_background_color: default_background, should_render: true, should_compute_cursor_color_picking: false, cursor_position: None, render_callback_sender }
+        Self { surface, device, queue, config, scion_renderer, default_background_color: default_background, should_render: true, should_compute_cursor_color_picking: true, cursor_position: None, render_callback_sender }
     }
 
     pub(crate) fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>, _scale_factor: f64) {

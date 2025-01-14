@@ -4,6 +4,7 @@ use ultraviolet::{Mat4, Rotor3, Similarity3, Vec3, Vec4};
 use crate::core::components::maths::{
     camera::Camera, coordinates::Coordinates, transform::Transform,
 };
+use crate::graphics::components::color::Color;
 use crate::utils::maths::Vector;
 
 #[repr(C)]
@@ -84,7 +85,9 @@ impl ColoredGlVertex {
 pub(crate) struct TexturedGlVertex {
     pub position: [f32;3],
     pub tex_translation: [f32;2],
-    pub depth: f32
+    pub depth: f32,
+    pub color_picking_override: [f32;4],
+    pub enable_color_picking_override: u32,
 }
 
 #[repr(C)]
@@ -93,7 +96,10 @@ pub(crate) struct TexturedGlVertexWithLayer {
     pub position: [f32;3],
     pub tex_translation: [f32;2],
     pub layer: u32,
-    pub depth: f32
+    pub depth: f32,
+    pub color_picking_override: [f32;4],
+    pub enable_color_picking_override: u32,
+
 }
 
 impl TexturedGlVertexWithLayer {
@@ -123,6 +129,16 @@ impl TexturedGlVertexWithLayer {
                     shader_location: 3,
                     format: wgpu::VertexFormat::Float32,
                 },
+                wgpu::VertexAttribute {
+                    offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>() + size_of::<u32>() + size_of::<f32>()) as wgpu::BufferAddress,
+                    shader_location: 4,
+                    format: wgpu::VertexFormat::Float32x4,
+                },
+                wgpu::VertexAttribute {
+                    offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>() + size_of::<u32>() + size_of::<f32>() + size_of::<[f32; 4]>()) as wgpu::BufferAddress,
+                    shader_location: 5,
+                    format: wgpu::VertexFormat::Uint32,
+                },
             ],
         }
     }
@@ -150,53 +166,92 @@ impl TexturedGlVertex {
                     shader_location: 2,
                     format: wgpu::VertexFormat::Float32,
                 },
+                wgpu::VertexAttribute {
+                    offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>() + size_of::<f32>()) as wgpu::BufferAddress,
+                    shader_location: 3,
+                    format: wgpu::VertexFormat::Float32x4,
+                },
+                wgpu::VertexAttribute {
+                    offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>() + size_of::<f32>() + size_of::<[f32; 4]>()) as wgpu::BufferAddress,
+                    shader_location: 4,
+                    format: wgpu::VertexFormat::Uint32,
+                },
             ],
         }
     }
 }
 
 impl From<(&Coordinates, &Coordinates)> for TexturedGlVertex {
-    fn from(positions: (&Coordinates, &Coordinates)) -> Self {
+    fn from(vertex_infos: (&Coordinates, &Coordinates)) -> Self {
         TexturedGlVertex {
-            position: [positions.0.x(), positions.0.y(), 0.0 ],
-            tex_translation: [positions.1.x(), positions.1.y],
+            position: [vertex_infos.0.x(), vertex_infos.0.y(), 0.0 ],
+            tex_translation: [vertex_infos.1.x(), vertex_infos.1.y],
             depth: 0.0,
+            color_picking_override: [0.,0.,0.,1.],
+            enable_color_picking_override: 0,
         }
     }
 }
 
 impl From<(&Coordinates, &Coordinates, f32)> for TexturedGlVertex {
-    fn from(positions: (&Coordinates, &Coordinates, f32)) -> Self {
+    fn from(vertex_infos: (&Coordinates, &Coordinates, f32)) -> Self {
         TexturedGlVertex {
-            position: [positions.0.x(), positions.0.y(), 0.0 ],
-            tex_translation: [positions.1.x(), positions.1.y],
-            depth: positions.2,
+            position: [vertex_infos.0.x(), vertex_infos.0.y(), 0.0 ],
+            tex_translation: [vertex_infos.1.x(), vertex_infos.1.y],
+            depth: vertex_infos.2,
+            color_picking_override: [0.,0.,0.,1.],
+            enable_color_picking_override: 0,
         }
     }
 }
 
-
 impl From<(&Coordinates, &Coordinates, usize, f32)> for TexturedGlVertexWithLayer {
-    fn from(positions: (&Coordinates, &Coordinates, usize, f32)) -> Self {
+    fn from(vertex_infos:(&Coordinates, &Coordinates, usize, f32)) -> Self {
         TexturedGlVertexWithLayer {
-            position: [positions.0.x(), positions.0.y(), 0.0 ],
-            tex_translation: [positions.1.x(), positions.1.y()],
-            layer: positions.2 as u32,
-            depth: positions.3,
+            position: [vertex_infos.0.x(), vertex_infos.0.y(), 0.0 ],
+            tex_translation: [vertex_infos.1.x(), vertex_infos.1.y()],
+            layer: vertex_infos.2 as u32,
+            depth: vertex_infos.3,
+            color_picking_override: [0.,0.,0.,1.],
+            enable_color_picking_override: 0,
+        }
+    }
+}
+
+impl From<(&Coordinates, &Coordinates, usize, f32, Color, bool)> for TexturedGlVertexWithLayer {
+    fn from(vertex_infos:(&Coordinates, &Coordinates, usize, f32, Color, bool)) -> Self {
+        TexturedGlVertexWithLayer {
+            position: [vertex_infos.0.x(), vertex_infos.0.y(), 0.0 ],
+            tex_translation: [vertex_infos.1.x(), vertex_infos.1.y()],
+            layer: vertex_infos.2 as u32,
+            depth: vertex_infos.3,
+            color_picking_override: [0.,0.,0.,1.],
+            enable_color_picking_override: if vertex_infos.5 { 1 } else { 0 },
         }
     }
 }
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub(crate) struct ColorPickingUniform {
-    pub color: [f32; 4],
-    pub enable_color_override: u32,
-    pub _padding: [u32; 3],
+pub(crate) struct GlColorPickingUniform {
+    color: [f32; 4],
+    enable_color_override: u32,
+    _padding: [u32; 3],
 }
 
-impl ColorPickingUniform {
-    pub(crate) fn replace_with(&mut self, other: ColorPickingUniform) {
+impl GlColorPickingUniform{
+    pub fn new(color: [f32; 4], enable_color_override: u32) -> Self {
+        Self{
+            color,
+            enable_color_override,
+            _padding: [0;3],
+        }
+    }
+}
+
+
+impl GlColorPickingUniform {
+    pub(crate) fn replace_with(&mut self, other: GlColorPickingUniform) {
         self.color = other.color;
         self.enable_color_override = other.enable_color_override;
     }

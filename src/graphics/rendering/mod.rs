@@ -9,7 +9,7 @@ use crate::graphics::components::material::{Material, Texture, TextureArray};
 use crate::core::components::maths::Pivot;
 use shaders::gl_representations::GlUniform;
 use crate::graphics::components::color::Color;
-use crate::graphics::rendering::shaders::gl_representations::ColorPickingUniform;
+use crate::graphics::rendering::shaders::gl_representations::GlColorPickingUniform;
 use crate::utils::maths::Vector;
 
 pub(crate) mod shaders;
@@ -41,15 +41,10 @@ pub(crate) enum RenderingUpdate {
         entity: Entity,
         uniform: GlUniform,
     },
-    ColorPickingUniform {
-        entity: Entity,
-        uniform: ColorPickingUniform,
-    },
     VertexBuffer{
         entity: Entity,
         contents: Vec<u8>,
         usage: BufferUsages
-
     },
     IndexBuffer{
         entity: Entity,
