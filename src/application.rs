@@ -27,6 +27,7 @@ use crate::core::scion_runner::ScionRunner;
 
 
 use crate::core::world::GameData;
+use crate::graphics::rendering::RendererCallbackEvent;
 use crate::graphics::rendering::scion2d::window_rendering_manager::ScionWindowRenderingManager;
 use crate::graphics::windowing::WindowingEvent;
 
@@ -82,6 +83,7 @@ impl Scion {
                 window_rendering_manager: None,
                 window: None,
                 main_thread_receiver: None,
+                render_callback_receiver: None,
                 scion_pre_renderer: Default::default(),
             }.launch_game_loop();
         } else {
@@ -121,6 +123,7 @@ impl ApplicationHandler<ScionEvent> for Scion {
                 .create_window(window_builder)
                 .expect("An error occurred while building the main game window"),
         );
+        let (render_callback_sender, render_callback_receiver) = mpsc::channel::<(RendererCallbackEvent)>();
         let window_rendering_manager = futures::executor::block_on(
             ScionWindowRenderingManager::new(
                 window.clone(),
@@ -130,6 +133,7 @@ impl ApplicationHandler<ScionEvent> for Scion {
                     .unwrap()
                     .default_background_color
                     .clone(),
+                render_callback_sender
             ),
         );
 
@@ -156,6 +160,7 @@ impl ApplicationHandler<ScionEvent> for Scion {
                 window_rendering_manager: Some(window_rendering_manager),
                 window: Some(window.clone()),
                 main_thread_receiver: Some(receiver),
+                render_callback_receiver: Some(render_callback_receiver),
                 scion_pre_renderer: Default::default(),
             }
                 .launch_game_loop();

@@ -10,7 +10,7 @@ use crate::core::resources::time::Time;
 use crate::core::scene::{SceneAction, SceneMachine};
 use crate::core::scheduler::Scheduler;
 use crate::core::world::GameData;
-use crate::graphics::rendering::{RendererEvent, RenderingInfos, RenderingUpdate};
+use crate::graphics::rendering::{RendererCallbackEvent, RendererEvent, RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
 use crate::graphics::rendering::scion2d::rendering_thread::ScionRenderingThread;
 use crate::graphics::rendering::scion2d::window_rendering_manager::ScionWindowRenderingManager;
@@ -25,6 +25,7 @@ pub struct ScionRunner {
     pub(crate) window_rendering_manager: Option<ScionWindowRenderingManager>,
     pub(crate) window: Option<Arc<Window>>,
     pub(crate) main_thread_receiver: Option<Receiver<WindowingEvent>>,
+    pub(crate) render_callback_receiver: Option<Receiver<RendererCallbackEvent>>,
     pub(crate) scion_pre_renderer: Scion2DPreRenderer,
 }
 
@@ -42,6 +43,8 @@ impl ScionRunner {
         let mut render_tick = Instant::now();
 
         loop {
+            self.compute_color_picked_entity();
+
             let should_tick = frame_limiter.is_min_tick();
             if should_tick {
                 start_tick = Instant::now();
@@ -81,7 +84,27 @@ impl ScionRunner {
                     .apply_scene_action(SceneAction::EndFrame, &mut self.game_data);
                 frame_limiter.tick(&start_tick);
             }
+            if let Some(status) = self.game_data.resources.game_state_mut().take_picking_update(){
+                render_sender.send((vec![RendererEvent::CursorPickingStatusUpdate(status)],vec![], vec![])).unwrap();
+            }
+
             thread::sleep(frame_limiter.min_tick_duration.clone());
+        }
+    }
+
+    fn compute_color_picked_entity(&mut self) {
+        if let Some(rcv) = self.render_callback_receiver.as_mut() {
+            if let Some(picked) = get_last_event(rcv) {
+                match picked {
+                    RendererCallbackEvent::CursorColorPicking(c) => {
+                        if let Some(color) = c {
+                            self.game_data.resources.game_state_mut().set_color_picked_entity(self.scion_pre_renderer.color_picking_storage.get_entity_from_color(&color));
+                        }else{
+                            self.game_data.resources.game_state_mut().set_color_picked_entity(None);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -107,4 +130,12 @@ impl ScionRunner {
             window.reset_future_settings();
         }
     }
+}
+
+fn get_last_event(receiver: &Receiver<RendererCallbackEvent>) -> Option<RendererCallbackEvent> {
+    let mut last_event = None;
+    while let Ok(event) = receiver.try_recv() {
+        last_event = Some(event);
+    }
+    last_event
 }

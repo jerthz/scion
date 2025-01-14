@@ -27,7 +27,7 @@ use crate::{
 };
 use crate::graphics::rendering::{DiffuseBindGroupUpdate, RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::rendering_texture_management::load_texture_array_to_queue;
-use crate::graphics::rendering::shaders::gl_representations::GlUniform;
+use crate::graphics::rendering::shaders::gl_representations::{GlColorPickingUniform, GlUniform, PickingData};
 use crate::graphics::rendering::shaders::pipeline::pipeline_sprite;
 
 #[derive(Default)]
@@ -37,9 +37,13 @@ pub(crate) struct Scion2D {
     render_pipelines: HashMap<String, RenderPipeline>,
     texture_bind_group_layout: Option<BindGroupLayout>,
     texture_array_bind_group_layout: Option<BindGroupLayout>,
+    picking_bind_group_layout: Option<BindGroupLayout>,
     transform_bind_group_layout: Option<BindGroupLayout>,
     diffuse_bind_groups: HashMap<String, (BindGroup, wgpu::Texture)>,
     transform_uniform_bind_groups: HashMap<Entity, (GlUniform, Buffer, BindGroup)>,
+    default_color_picking_uniform_bind_groups: Option<BindGroup>,
+    enabled_picking_uniform_bind_group: Option<BindGroup>,
+    disabled_picking_uniform_bind_group: Option<BindGroup>,
 }
 impl Scion2D {
 
@@ -47,6 +51,9 @@ impl Scion2D {
         self.transform_bind_group_layout = Some(Self::create_uniform_bind_group_layout(device));
         self.texture_bind_group_layout = Some(Self::create_texture_bind_group_layout(device));
         self.texture_array_bind_group_layout = Some(Self::create_texture_array_bind_group_layout(device));
+        self.picking_bind_group_layout = Some(Self::create_picking_bind_group_layout(device));
+        self.disabled_picking_uniform_bind_group = Some(self.create_default_picking_bind_group(device, 0));
+        self.enabled_picking_uniform_bind_group = Some(self.create_default_picking_bind_group(device, 1));
         self.insert_components_pipelines::<Triangle>(&device, &surface_config);
         self.insert_components_pipelines::<Square>(&device, &surface_config);
         self.insert_components_pipelines::<Rectangle>(&device, &surface_config);
@@ -56,6 +63,26 @@ impl Scion2D {
         self.insert_components_pipelines::<UiImage>(&device, &surface_config);
         self.insert_components_pipelines::<UiTextImage>(&device, &surface_config);
         self.insert_components_pipelines::<Tilemap>(&device, &surface_config);
+    }
+
+    fn create_default_picking_bind_group(&mut self, device: &Device, enabled: u32) -> BindGroup {
+        let data = PickingData { enabled };
+        let buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Picking Buffer"),
+            contents: bytemuck::cast_slice(&[data]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("Picking BindGroup"),
+            layout: &self.picking_bind_group_layout.as_ref().unwrap(),
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: buffer.as_entire_binding(),
+                },
+            ],
+        });
+        bind_group
     }
 
     pub(crate) fn update(
@@ -104,8 +131,9 @@ impl Scion2D {
         texture_view: TextureView,
         depth_texture_view: TextureView,
         encoder: &mut CommandEncoder,
+        picking: bool
     ) {
-        self.render_component(default_background, texture_view, depth_texture_view, encoder, data);
+        self.render_component(default_background, texture_view, depth_texture_view, encoder, data, picking);
     }
 
     fn insert_components_pipelines<T: Component + Renderable2D>(
@@ -132,7 +160,8 @@ impl Scion2D {
                         surface_config,
                         self.texture_array_bind_group_layout.as_ref().unwrap(),
                         self.transform_bind_group_layout.as_ref().unwrap(),
-                        T::topology(),
+                        self.picking_bind_group_layout.as_ref().unwrap(),
+                        T::topology()
                     )
                 } else {
                     pipeline(
@@ -140,7 +169,8 @@ impl Scion2D {
                         surface_config,
                         self.texture_bind_group_layout.as_ref().unwrap(),
                         self.transform_bind_group_layout.as_ref().unwrap(),
-                        T::topology(),
+                        self.picking_bind_group_layout.as_ref().unwrap(),
+                        T::topology()
                     )
                 }
                 ,
@@ -155,6 +185,7 @@ impl Scion2D {
         depth_texture_view: TextureView,
         encoder: &mut CommandEncoder,
         mut infos: Vec<RenderingInfos>,
+        picking: bool
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: None,
@@ -196,6 +227,21 @@ impl Scion2D {
                     &[],
                 );
             }
+
+            if picking {
+                render_pass.set_bind_group(
+                    2,
+                    self.enabled_picking_uniform_bind_group.as_ref().unwrap(),
+                    &[],
+                );
+            }else{
+                render_pass.set_bind_group(
+                    2,
+                    self.disabled_picking_uniform_bind_group.as_ref().unwrap(),
+                    &[],
+                );
+            }
+
 
             render_pass.draw_indexed(rendering_infos.range, 0, 0..1);
         }
@@ -297,6 +343,24 @@ impl Scion2D {
                 },
             ],
             label: Some("texture_bind_group_layout"),
+        })
+    }
+
+    fn create_picking_bind_group_layout(device: &Device) -> BindGroupLayout {
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX | wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: wgpu::BufferSize::new(size_of::<PickingData>() as _),
+                    },
+                    count: None,
+                },
+            ],
+            label: Some("picking_bind_group_layout"),
         })
     }
 
@@ -413,6 +477,30 @@ fn create_transform_uniform_bind_group(
     });
 
     (gl_uniform, uniform_buffer, uniform_bind_group)
+}
+
+fn create_color_picking_uniform_bind_group(
+    device: &Device,
+    gl_uniform: GlColorPickingUniform,
+    color_picking_bind_group_layout: &BindGroupLayout,
+) -> (GlColorPickingUniform, Buffer, BindGroup) {
+    let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Color Picking Buffer"),
+        contents: bytemuck::cast_slice(&[gl_uniform]),
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+    });
+
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        layout: &color_picking_bind_group_layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: uniform_buffer.as_entire_binding(),
+            },
+        ],
+        label: Some("Color Picking Bind Group"),
+    });
+    (gl_uniform, uniform_buffer, bind_group)
 }
 
 fn get_default_color_attachment<'a>(

@@ -22,6 +22,12 @@ impl ScionRenderingThread{
                         RendererEvent::Resize(physical_size, scale_factor) => {
                             self.window_rendering_manager.as_mut().unwrap().resize(physical_size, scale_factor);
                         }
+                        RendererEvent::CursorPositionUpdate(v) => {
+                            self.window_rendering_manager.as_mut().unwrap().update_cursor(v);
+                        }
+                        RendererEvent::CursorPickingStatusUpdate(s) => {
+                            self.window_rendering_manager.as_mut().unwrap().update_color_picking(s);
+                        }
                     }
                 });
 

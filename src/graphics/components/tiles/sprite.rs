@@ -141,4 +141,8 @@ impl Renderable2D for Sprite {
     fn get_pivot(&self) -> Pivot {
         self.pivot
     }
+
+    fn color_picking_enabled(&self) -> bool {
+        true
+    }
 }

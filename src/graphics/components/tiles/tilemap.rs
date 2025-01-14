@@ -56,9 +56,19 @@ pub enum TilemapType {
     Isometric,
 }
 
-pub(crate) struct Tile {
+pub struct Tile {
     pub(crate) position: Position,
     pub(crate) tilemap: Entity,
+}
+
+impl Tile{
+    pub fn get_position(&self) -> &Position {
+        &self.position
+    }
+
+    pub fn get_tilemap_entity(&self) -> Entity {
+        self.tilemap
+    }
 }
 
 /// Struct representing a single tile in a tilemap. Needs to be returned in the

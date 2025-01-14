@@ -8,6 +8,8 @@ use winit::dpi::PhysicalSize;
 use crate::graphics::components::material::{Material, Texture, TextureArray};
 use crate::core::components::maths::Pivot;
 use shaders::gl_representations::GlUniform;
+use crate::graphics::components::color::Color;
+use crate::graphics::rendering::shaders::gl_representations::GlColorPickingUniform;
 use crate::utils::maths::Vector;
 
 pub(crate) mod shaders;
@@ -23,6 +25,7 @@ pub(crate) trait Renderable2D {
     fn get_pivot_offset(&self, _material: Option<&Material>) -> Vector { Vector::default() }
     fn get_pivot(&self) -> Pivot { Pivot::TopLeft }
     fn get_rendering_priority(&self) -> usize { 0 }
+    fn color_picking_enabled(&self) -> bool { false }
 }
 
 pub(crate) trait RenderableUi: Renderable2D {}
@@ -42,7 +45,6 @@ pub(crate) enum RenderingUpdate {
         entity: Entity,
         contents: Vec<u8>,
         usage: BufferUsages
-
     },
     IndexBuffer{
         entity: Entity,
@@ -53,8 +55,16 @@ pub(crate) enum RenderingUpdate {
 
 pub enum RendererEvent {
     ForceRedraw,
+    CursorPositionUpdate(Option<(u32,u32)>),
+    CursorPickingStatusUpdate(bool),
     Resize(PhysicalSize<u32>, f64)
 }
+
+#[derive(Debug)]
+pub enum RendererCallbackEvent {
+    CursorColorPicking(Option<Color>)
+}
+
 
 #[derive(Debug)]
 pub(crate) enum DiffuseBindGroupUpdate {
@@ -63,7 +73,7 @@ pub(crate) enum DiffuseBindGroupUpdate {
     TilesetBindGroup(TextureArray),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RenderingInfos {
     pub(crate) layer: usize,
     pub(crate) range: Range<u32>,

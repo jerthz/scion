@@ -107,6 +107,8 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
             if any_tile_modified {
                 for (e, (tile, sprite)) in data.query::<(&Tile, &Sprite)>().iter() {
                     if tile.tilemap == entity {
+
+                        let color_picking = renderer.color_picking_storage.create_picking(e);
                         let current_vertex = sprite.compute_content(Some(material));
                         to_modify.push((e, current_vertex));
                         let mut vec = current_vertex.to_vec();
@@ -127,6 +129,8 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                             gl_vertex.position[1] = gl_vertex.position[1] + tile_size as f32 * tile.position.y() as f32 + offset_y;
                             gl_vertex.position[2] = gl_vertex.position[2] + tile.position.z() as f32 / 100.;
                             gl_vertex.depth = gl_vertex.depth + offset_z as f32 * 0.00001;
+                            gl_vertex.enable_color_picking_override = 1;
+                            gl_vertex.color_picking_override = color_picking.as_f32_array();
                         });
                         let sprite_indexes = Sprite::indices();
                         let mut sprite_indexes: Vec<u16> = sprite_indexes

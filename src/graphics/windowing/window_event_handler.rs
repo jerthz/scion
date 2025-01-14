@@ -65,6 +65,10 @@ pub fn handle_window_event(runner: &mut ScionRunner) -> Vec<RendererEvent> {
                             position.x / dpi_factor,
                             position.y / dpi_factor,
                         );
+                        update.push(RendererEvent::CursorPositionUpdate(Some(((position.x / dpi_factor) as u32, (position.y / dpi_factor) as u32))));
+                    }
+                    WindowEvent::CursorLeft{ .. } => {
+                        update.push(RendererEvent::CursorPositionUpdate(None));
                     }
                     _ => {}
                 }

@@ -8,6 +8,7 @@ use std::time::Duration;
 use scion::core::scene::Scene;
 use scion::core::world::{GameData, World};
 use scion::graphics::components::animations::{Animation, AnimationModifier, Animations};
+use scion::graphics::components::tiles::tilemap::Tile;
 use scion::utils::file::app_base_path_join;
 use scion::utils::maths::Vector;
 use scion::utils::premade::dummy_camera_controller::DummyCameraConfig;
@@ -70,11 +71,17 @@ impl Scene for DemoScene {
 
         data.add_components(entity, (Animations::new(animations), Tm {}));
 
-
+        data.game_state_mut().update_color_picking_status(true);
         self.entity = Some(entity);
     }
 
     fn on_update(&mut self, data: &mut GameData) {
+        let picked = data.game_state().get_color_picked_entity();
+        if let Some(e) = picked {
+            let t = data.entry_mut::<(&Tile)>(e).expect("");
+            println!("currently pointed : {:?} in the tilemap {:?}", t.get_position(), t.get_tilemap_entity());
+        }
+
         let animations = data.entry_mut::<&mut Animations>(self.entity.unwrap()).expect("");
         if !animations.any_animation_running() {
             if self.last == 0 {

@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::time::SystemTime;
 
 use hecs::Entity;
-
+use crate::core::resources::color_picking::ColorPickingStorage;
 use crate::graphics::components::{Square, Triangle};
 use crate::graphics::components::shapes::line::Line;
 use crate::graphics::components::shapes::polygon::Polygon;
@@ -13,7 +13,7 @@ use crate::graphics::components::ui::ui_text::UiTextImage;
 use crate::core::world::{GameData, World};
 use crate::graphics::rendering::{RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::utils::pre_render_components::{pre_render_component, pre_render_tilemaps, pre_render_ui_component};
-use crate::graphics::rendering::scion2d::utils::prepare_component_buffer_updates;
+use crate::graphics::rendering::scion2d::utils::{prepare_component_buffer_updates};
 use crate::graphics::rendering::scion2d::utils::prepare_material_updates;
 use crate::graphics::rendering::scion2d::utils::prepare_transform_updates;
 use crate::utils::file::FileReaderError;
@@ -24,6 +24,7 @@ pub(crate) struct Scion2DPreRenderer {
     transform_uniform: HashSet<Entity>,
     vertex_buffer: HashSet<Entity>,
     indexes_buffer: HashSet<Entity>,
+    pub(crate) color_picking_storage: ColorPickingStorage
 }
 
 impl Scion2DPreRenderer {
