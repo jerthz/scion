@@ -388,7 +388,7 @@ impl Resources {
 
 #[derive(Default)]
 pub struct InternalResources {
-    storage: HashMap<ResourceTypeId, AtomicResourceCell>,
+    storage: HashMap<ResourceTypeId, AtomicResourceCell>
 }
 
 unsafe impl Send for InternalResources {}

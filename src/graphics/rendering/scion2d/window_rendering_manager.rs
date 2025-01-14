@@ -71,7 +71,7 @@ impl ScionWindowRenderingManager {
         let mut scion_renderer = Scion2D::default();
         scion_renderer.start(&device, &config);
 
-        Self { surface, device, queue, config, scion_renderer, default_background_color: default_background, should_render: true, should_compute_cursor_color_picking: true, cursor_position: None, render_callback_sender }
+        Self { surface, device, queue, config, scion_renderer, default_background_color: default_background, should_render: true, should_compute_cursor_color_picking: false, cursor_position: None, render_callback_sender }
     }
 
     pub(crate) fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>, _scale_factor: f64) {
@@ -91,6 +91,10 @@ impl ScionWindowRenderingManager {
 
     pub(crate) fn update_cursor(&mut self, cursor_update: Option<(u32,u32)>) {
         self.cursor_position = cursor_update;
+    }
+
+    pub(crate) fn update_color_picking(&mut self, should_update: bool) {
+        self.should_compute_cursor_color_picking = should_update;
     }
 
     pub(crate) fn render(
@@ -135,6 +139,7 @@ impl ScionWindowRenderingManager {
             view,
             depth_view,
             &mut encoder,
+            false
         );
 
         self.queue.submit(Some(encoder.finish()));
@@ -185,6 +190,7 @@ impl ScionWindowRenderingManager {
             offscreen_view,
             depth_view2,
             &mut encoder,
+            true
         );
 
         let (pixel_x, pixel_y) = self.cursor_position.as_ref().unwrap();

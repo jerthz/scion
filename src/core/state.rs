@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use hecs::Entity;
 
 /// `GameState` is a convenience Resource created to keep track of
 /// diverse thing internally. It's also the resource used to create
@@ -7,6 +8,8 @@ use std::collections::HashMap;
 pub struct GameState {
     flags: HashMap<String, bool>,
     text: HashMap<String, String>,
+    color_picked_entity: Option<Entity>,
+    color_picked_status_update: Option<bool>,
 }
 
 impl GameState {
@@ -32,5 +35,21 @@ impl GameState {
 
     pub fn set_text(&mut self, key: &str, val: &str) {
         self.text.insert(key.to_string(), val.to_string());
+    }
+
+    pub(crate) fn set_color_picked_entity(&mut self, e: Option<Entity>) {
+        self.color_picked_entity = e;
+    }
+
+    pub fn get_color_picked_entity(&self) -> Option<Entity> {
+        self.color_picked_entity.clone()
+    }
+
+    pub fn update_color_picking_status(&mut self, status: bool) {
+        self.color_picked_status_update = Some(status);
+    }
+
+    pub(crate) fn take_picking_update(&mut self) -> Option<bool> {
+        self.color_picked_status_update.take()
     }
 }

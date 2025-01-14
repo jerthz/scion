@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 use hecs::Entity;
 use crate::graphics::components::color::Color;
 

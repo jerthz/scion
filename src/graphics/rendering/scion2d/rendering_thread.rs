@@ -25,6 +25,9 @@ impl ScionRenderingThread{
                         RendererEvent::CursorPositionUpdate(v) => {
                             self.window_rendering_manager.as_mut().unwrap().update_cursor(v);
                         }
+                        RendererEvent::CursorPickingStatusUpdate(s) => {
+                            self.window_rendering_manager.as_mut().unwrap().update_color_picking(s);
+                        }
                     }
                 });
 

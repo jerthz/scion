@@ -1,4 +1,3 @@
-use log::info;
 use ultraviolet::{Mat4, Rotor3, Similarity3, Vec3, Vec4};
 
 use crate::core::components::maths::{
@@ -255,6 +254,12 @@ impl GlColorPickingUniform {
         self.color = other.color;
         self.enable_color_override = other.enable_color_override;
     }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+pub(crate) struct PickingData {
+    pub(crate) enabled: u32,
 }
 
 #[repr(C)]

@@ -11,6 +11,10 @@ struct Uniforms {
     camera_view: mat4x4<f32>
 }
 
+struct PickingData {
+    enabled: u32
+}
+
 
 @group(0)
 @binding(0)
@@ -47,6 +51,10 @@ var t_diffuse: texture_2d_array<f32>;
 @binding(1)
 var s_diffuse: sampler;
 
+@group(2)
+@binding(0)
+var<uniform>  picking_data: PickingData;
+
 @fragment
 fn fs_main(vertex: VertexOutput) -> @location(0) vec4<f32> {
     let depth = vertex.position.z / vertex.position.w;
@@ -56,7 +64,7 @@ fn fs_main(vertex: VertexOutput) -> @location(0) vec4<f32> {
        discard;
    }
 
-   if (vertex.enable_color_picking_override > 0) {
+   if (picking_data.enabled > 0 && vertex.enable_color_picking_override > 0) {
        return vertex.color_picking_override;
    }
 

@@ -56,6 +56,7 @@ pub(crate) enum RenderingUpdate {
 pub enum RendererEvent {
     ForceRedraw,
     CursorPositionUpdate(Option<(u32,u32)>),
+    CursorPickingStatusUpdate(bool),
     Resize(PhysicalSize<u32>, f64)
 }
 

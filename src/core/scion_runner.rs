@@ -43,19 +43,7 @@ impl ScionRunner {
         let mut render_tick = Instant::now();
 
         loop {
-            if let Some(rcv) = self.render_callback_receiver.as_mut() {
-                if let Some(picked) = get_last_event(rcv){
-                    match picked{
-                        RendererCallbackEvent::CursorColorPicking(c) => {
-                            if let Some(color) = c{
-                                if let Some (e) = self.scion_pre_renderer.color_picking_storage.get_entity_from_color(&color){
-                                    println!("Currently selected {:?}", e);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            self.compute_color_picked_entity();
 
             let should_tick = frame_limiter.is_min_tick();
             if should_tick {
@@ -96,7 +84,27 @@ impl ScionRunner {
                     .apply_scene_action(SceneAction::EndFrame, &mut self.game_data);
                 frame_limiter.tick(&start_tick);
             }
+            if let Some(status) = self.game_data.resources.game_state_mut().take_picking_update(){
+                render_sender.send((vec![RendererEvent::CursorPickingStatusUpdate(status)],vec![], vec![])).unwrap();
+            }
+
             thread::sleep(frame_limiter.min_tick_duration.clone());
+        }
+    }
+
+    fn compute_color_picked_entity(&mut self) {
+        if let Some(rcv) = self.render_callback_receiver.as_mut() {
+            if let Some(picked) = get_last_event(rcv) {
+                match picked {
+                    RendererCallbackEvent::CursorColorPicking(c) => {
+                        if let Some(color) = c {
+                            self.game_data.resources.game_state_mut().set_color_picked_entity(self.scion_pre_renderer.color_picking_storage.get_entity_from_color(&color));
+                        }else{
+                            self.game_data.resources.game_state_mut().set_color_picked_entity(None);
+                        }
+                    }
+                }
+            }
         }
     }
 
