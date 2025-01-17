@@ -2,14 +2,14 @@ use std::sync::{Arc, mpsc};
 use std::sync::mpsc::Receiver;
 use std::thread;
 use std::time::Instant;
-
+use hecs::Entity;
 use winit::dpi::{PhysicalSize, Size};
 use winit::window::Window;
 
 use crate::core::resources::time::Time;
 use crate::core::scene::{SceneAction, SceneMachine};
 use crate::core::scheduler::Scheduler;
-use crate::core::world::GameData;
+use crate::core::world::{GameData, World};
 use crate::graphics::rendering::{RendererCallbackEvent, RendererEvent, RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
 use crate::graphics::rendering::scion2d::rendering_thread::ScionRenderingThread;
@@ -33,7 +33,7 @@ impl ScionRunner {
     pub(crate) fn launch_game_loop(mut self) {
         self.setup();
         let mut frame_limiter = FrameLimiter::new(FrameLimiterConfig::default());
-        let (render_sender, render_receiver) = mpsc::channel::<(Vec<RendererEvent>, Vec<RenderingUpdate>, Vec<RenderingInfos>)>();
+        let (render_sender, render_receiver) = mpsc::channel::<(Vec<RendererEvent>, Vec<RenderingUpdate>, Vec<RenderingInfos>, Vec<Entity>)>();
         let window_rendering_manager = self.window_rendering_manager.take();
 
         thread::spawn(move || { ScionRenderingThread::new(window_rendering_manager, render_receiver).run() });
@@ -54,7 +54,7 @@ impl ScionRunner {
                     .expect("Time is an internal resource and can't be missing")
                     .frame();
                 self.game_data.timers().add_delta_duration(frame_duration);
-                let _r = render_sender.send((handle_window_event(&mut self), vec![], vec![]));
+                let _r = render_sender.send((handle_window_event(&mut self), vec![], vec![],vec![]));
                 self.layer_machine.apply_scene_action(SceneAction::Update, &mut self.game_data);
                 self.scheduler.execute(&mut self.game_data);
                 self.layer_machine.apply_scene_action(SceneAction::LateUpdate, &mut self.game_data);
@@ -72,7 +72,7 @@ impl ScionRunner {
 
                 let updates = self.scion_pre_renderer.prepare_update(&mut self.game_data);
                 let rendering_infos = Scion2DPreRenderer::prepare_rendering(&mut self.game_data);
-                let _r = render_sender.send((vec![], updates, rendering_infos));
+                let _r = render_sender.send((vec![], updates, rendering_infos,vec![]));
 
                 frame_limiter.render();
             }
@@ -83,10 +83,14 @@ impl ScionRunner {
                 self.layer_machine
                     .apply_scene_action(SceneAction::EndFrame, &mut self.game_data);
                 frame_limiter.tick(&start_tick);
+                if let Some(e) = self.game_data.take_despawned(){
+                    render_sender.send((vec![], vec![], vec![], e)).unwrap();
+                }
             }
             if let Some(status) = self.game_data.resources.game_state_mut().take_picking_update(){
-                render_sender.send((vec![RendererEvent::CursorPickingStatusUpdate(status)],vec![], vec![])).unwrap();
+                render_sender.send((vec![RendererEvent::CursorPickingStatusUpdate(status)],vec![], vec![], vec![])).unwrap();
             }
+
 
             thread::sleep(frame_limiter.min_tick_duration.clone());
         }

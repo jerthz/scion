@@ -159,6 +159,10 @@ impl GameData {
     pub(crate) fn has_camera(&self)-> bool{
         self.subworld.query::<&Camera>().iter().count() > 0
     }
+
+    pub(crate) fn take_despawned(&mut self) -> Option<Vec<Entity>>{
+        self.subworld.entity_cleaner.take()
+    }
 }
 
 impl World for GameData {
@@ -179,7 +183,7 @@ impl World for GameData {
     }
 
     fn remove(&mut self, entity: Entity) -> Result<(), NoSuchEntity> {
-        self.subworld.internal_world.despawn(entity)
+        self.subworld.remove(entity)
     }
 
     fn add_components(
@@ -222,6 +226,7 @@ impl World for GameData {
 #[derive(Default)]
 pub struct SubWorld {
     internal_world: hecs::World,
+    entity_cleaner: Option<Vec<Entity>>,
 }
 
 #[derive(Default)]
@@ -243,6 +248,12 @@ impl World for SubWorld {
     }
 
     fn remove(&mut self, entity: Entity) -> Result<(), NoSuchEntity> {
+        match &mut self.entity_cleaner {
+            Some(vec) => vec.push(entity),
+            None => {
+                self.entity_cleaner = Some(vec![entity]);
+            }
+        }
         self.internal_world.despawn(entity)
     }
 
