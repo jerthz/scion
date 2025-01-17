@@ -2,15 +2,14 @@
 use std::ops::Range;
 
 use hecs::Entity;
-use wgpu::{BufferUsages, util::BufferInitDescriptor};
+use wgpu::{util::BufferInitDescriptor, BufferUsages};
 use winit::dpi::PhysicalSize;
 
-use crate::graphics::components::material::{Material, Texture, TextureArray};
 use crate::core::components::maths::Pivot;
-use shaders::gl_representations::GlUniform;
 use crate::graphics::components::color::Color;
-use crate::graphics::rendering::shaders::gl_representations::GlColorPickingUniform;
+use crate::graphics::components::material::{Material, Texture, TextureArray};
 use crate::utils::maths::Vector;
+use shaders::gl_representations::GlUniform;
 
 pub(crate) mod shaders;
 pub(crate) mod scion2d;

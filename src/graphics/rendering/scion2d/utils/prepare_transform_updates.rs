@@ -8,7 +8,7 @@ use crate::graphics::components::shapes::rectangle::Rectangle;
 use crate::graphics::components::tiles::sprite::Sprite;
 use crate::graphics::components::tiles::tilemap::Tilemap;
 use crate::graphics::components::ui::ui_image::UiImage;
-use crate::graphics::components::ui::ui_text::UiTextImage;
+use crate::graphics::components::ui::ui_text::UiText;
 use crate::graphics::components::ui::UiComponent;
 use crate::graphics::components::{Square, Triangle};
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
@@ -25,7 +25,7 @@ pub(crate) fn call(renderer: &mut Scion2DPreRenderer, data: &mut GameData) -> Ve
     updates.append(&mut update_transforms_for_type::<Line>(renderer, data));
     updates.append(&mut update_transforms_for_type::<Polygon>(renderer, data));
     updates.append(&mut update_transforms_for_type::<UiImage>(renderer, data));
-    updates.append(&mut update_transforms_for_type::<UiTextImage>(renderer, data));
+    updates.append(&mut update_transforms_for_type::<UiText>(renderer, data));
     updates.append(&mut update_transforms_for_type::<Tilemap>(renderer, data));
     updates
 }

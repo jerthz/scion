@@ -1,19 +1,19 @@
-use std::sync::{Arc, mpsc};
+use hecs::Entity;
 use std::sync::mpsc::Receiver;
+use std::sync::{mpsc, Arc};
 use std::thread;
 use std::time::Instant;
-use hecs::Entity;
 use winit::dpi::{PhysicalSize, Size};
 use winit::window::Window;
 
 use crate::core::resources::time::Time;
 use crate::core::scene::{SceneAction, SceneMachine};
 use crate::core::scheduler::Scheduler;
-use crate::core::world::{GameData, World};
-use crate::graphics::rendering::{RendererCallbackEvent, RendererEvent, RenderingInfos, RenderingUpdate};
+use crate::core::world::GameData;
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
 use crate::graphics::rendering::scion2d::rendering_thread::ScionRenderingThread;
 use crate::graphics::rendering::scion2d::window_rendering_manager::ScionWindowRenderingManager;
+use crate::graphics::rendering::{RendererCallbackEvent, RendererEvent, RenderingInfos, RenderingUpdate};
 use crate::graphics::windowing::window_event_handler::handle_window_event;
 use crate::graphics::windowing::WindowingEvent;
 use crate::utils::frame_limiter::{FrameLimiter, FrameLimiterConfig};
@@ -90,7 +90,6 @@ impl ScionRunner {
             if let Some(status) = self.game_data.resources.game_state_mut().take_picking_update(){
                 render_sender.send((vec![RendererEvent::CursorPickingStatusUpdate(status)],vec![], vec![], vec![])).unwrap();
             }
-
 
             thread::sleep(frame_limiter.min_tick_duration.clone());
         }

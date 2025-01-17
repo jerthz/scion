@@ -1,22 +1,21 @@
 use std::collections::{HashMap, HashSet};
 use std::time::SystemTime;
 
-use hecs::Entity;
 use crate::core::resources::color_picking::ColorPickingStorage;
-use crate::graphics::components::{Square, Triangle};
+use crate::core::world::{GameData, World};
 use crate::graphics::components::shapes::line::Line;
 use crate::graphics::components::shapes::polygon::Polygon;
 use crate::graphics::components::shapes::rectangle::Rectangle;
 use crate::graphics::components::tiles::sprite::Sprite;
 use crate::graphics::components::ui::ui_image::UiImage;
-use crate::graphics::components::ui::ui_text::UiTextImage;
-use crate::core::world::{GameData, World};
-use crate::graphics::rendering::{RenderingInfos, RenderingUpdate};
-use crate::graphics::rendering::scion2d::utils::pre_render_components::{pre_render_component, pre_render_tilemaps, pre_render_ui_component};
-use crate::graphics::rendering::scion2d::utils::{prepare_component_buffer_updates};
+use crate::graphics::components::{Square, Triangle};
+use crate::graphics::rendering::scion2d::utils::pre_render_components::{pre_render_component, pre_render_tilemaps, pre_render_ui_component, pre_render_ui_text};
 use crate::graphics::rendering::scion2d::utils::prepare_material_updates;
 use crate::graphics::rendering::scion2d::utils::prepare_transform_updates;
+use crate::graphics::rendering::scion2d::utils::prepare_component_buffer_updates;
+use crate::graphics::rendering::{RenderingInfos, RenderingUpdate};
 use crate::utils::file::FileReaderError;
+use hecs::Entity;
 
 #[derive(Default)]
 pub(crate) struct Scion2DPreRenderer {
@@ -50,8 +49,8 @@ impl Scion2DPreRenderer {
             rendering_infos.append(&mut pre_render_component::<Line>(data));
             rendering_infos.append(&mut pre_render_component::<Polygon>(data));
             rendering_infos.append(&mut pre_render_ui_component::<UiImage>(data));
-            rendering_infos.append(&mut pre_render_ui_component::<UiTextImage>(data));
             rendering_infos.append(&mut pre_render_tilemaps(data));
+            rendering_infos.append(&mut pre_render_ui_text(data));
             rendering_infos.sort_by(|a, b| b.layer.cmp(&a.layer));
             return rendering_infos;
         }

@@ -2,24 +2,22 @@ use std::{collections::HashMap, ops::Range};
 
 use hecs::Entity;
 use serde::{Deserialize, Serialize};
-use wgpu::{PrimitiveTopology, util::BufferInitDescriptor};
+use wgpu::{util::BufferInitDescriptor, PrimitiveTopology};
 
-use crate::{
-    graphics::{
-        components::{
-            animations::{Animation, Animations},
-            material::Material,
-            tiles::sprite::Sprite,
-        },
-    },
-    graphics::rendering::Renderable2D,
-    core::resources::asset_manager::AssetRef,
-    utils::maths::{Dimensions, Position},
-};
 use crate::core::components::maths::hierarchy::Parent;
 use crate::core::components::maths::transform::Transform;
 use crate::core::resources::asset_manager::AssetManager;
 use crate::core::world::{SubWorld, World};
+use crate::{
+    core::resources::asset_manager::AssetRef,
+    graphics::rendering::Renderable2D,
+    graphics::components::{
+        animations::{Animation, Animations},
+        material::Material,
+        tiles::sprite::Sprite,
+    },
+    utils::maths::{Dimensions, Position},
+};
 
 #[derive(Debug)]
 pub struct Pathing {

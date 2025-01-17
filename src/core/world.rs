@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::hash::Hasher;
 
 use atomic_refcell::{AtomicRef, AtomicRefCell, AtomicRefMut};
-use downcast_rs::{Downcast, impl_downcast};
+use downcast_rs::{impl_downcast, Downcast};
 use hecs::{
     Component, ComponentError, DynamicBundle, Entity, NoSuchEntity, Query, QueryBorrow,
     QueryMut, QueryOne, QueryOneError,

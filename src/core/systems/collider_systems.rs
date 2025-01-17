@@ -1,14 +1,14 @@
 use std::collections::{HashMap, HashSet};
 
-use hecs::{Component, Entity};
 use crate::core::components::maths::collider::{Collider, ColliderDebug, ColliderMask, Collision};
 use crate::core::components::maths::hierarchy::Parent;
 use crate::core::components::maths::transform::Transform;
+use hecs::{Component, Entity};
 
-use crate::graphics::components::{color::Color, material::Material, shapes::polygon::Polygon};
 use crate::core::resources::global_storage::GlobalStorage;
 use crate::core::resources::inputs::types::{Input, KeyCode};
 use crate::core::world::{GameData, World};
+use crate::graphics::components::{color::Color, material::Material, shapes::polygon::Polygon};
 use crate::graphics::rendering::Renderable2D;
 
 pub(crate) fn collider_cleaner_system(data: &mut GameData) {
@@ -147,11 +147,11 @@ fn fetch_collider_debug_entities(data: &mut GameData) -> (HashSet<Entity>, HashM
 
 #[cfg(test)]
 mod tests {
+    use crate::core::components::maths::collider::CollisionArea;
     use crate::core::components::maths::{
         collider::{Collider, ColliderMask, ColliderType, Collision},
         transform::Transform,
     };
-    use crate::core::components::maths::collider::CollisionArea;
     use crate::core::resources::inputs::inputs_controller::InputsController;
     use crate::core::world::GameData;
 

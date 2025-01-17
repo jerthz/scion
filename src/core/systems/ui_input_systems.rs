@@ -1,10 +1,9 @@
-use log::info;
 use crate::core::components::maths::hierarchy::{Children, Parent};
 use crate::core::components::maths::transform::Transform;
-use crate::graphics::components::ui::ui_input::UiInput;
-use crate::graphics::components::ui::ui_text::UiText;
 use crate::core::resources::inputs::types::{Input, KeyCode};
 use crate::core::world::{GameData, World};
+use crate::graphics::components::ui::ui_input::UiInput;
+use crate::graphics::components::ui::ui_text::UiText;
 
 /// This system is responsible of handling components needed to represent a ui_input
 /// It will detect and create needed components
@@ -76,12 +75,12 @@ pub(crate) fn synchronize_input_and_text(data: &mut GameData) {
 mod tests {
     use crate::core::components::maths::hierarchy::{Children, Parent};
     use crate::core::components::maths::transform::Transform;
-    use crate::graphics::components::ui::font::Font;
-    use crate::graphics::components::ui::ui_input::UiInput;
-    use crate::graphics::components::ui::ui_text::UiText;
     use crate::core::resources::asset_manager::AssetManager;
     use crate::core::systems::ui_input_systems::set_childs_on_inputs;
     use crate::core::world::{GameData, World};
+    use crate::graphics::components::ui::font::Font;
+    use crate::graphics::components::ui::ui_input::UiInput;
+    use crate::graphics::components::ui::ui_text::UiText;
 
     #[test]
     fn set_childs_on_inputs_tests() {

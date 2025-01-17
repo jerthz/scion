@@ -1,9 +1,13 @@
 use std::collections::HashMap;
 
 use hecs::{Component, Entity};
-use wgpu::{BindGroup, BindGroupLayout, Buffer, CommandEncoder, Device, Queue, RenderPassColorAttachment, RenderPipeline, SamplerBindingType, StoreOp, SurfaceConfiguration, TextureFormat, TextureView, util::DeviceExt};
 use wgpu::util::BufferInitDescriptor;
+use wgpu::{util::DeviceExt, BindGroup, BindGroupLayout, Buffer, CommandEncoder, Device, Queue, RenderPassColorAttachment, RenderPipeline, SamplerBindingType, StoreOp, SurfaceConfiguration, TextureFormat, TextureView};
 
+use crate::graphics::rendering::scion2d::rendering_texture_management::load_texture_array_to_queue;
+use crate::graphics::rendering::shaders::gl_representations::{GlColorPickingUniform, GlUniform, PickingData};
+use crate::graphics::rendering::shaders::pipeline::pipeline_sprite;
+use crate::graphics::rendering::{DiffuseBindGroupUpdate, RenderingInfos, RenderingUpdate};
 use crate::{
     graphics::components::{
         color::Color
@@ -20,15 +24,12 @@ use crate::{
         }, ui::{ui_image::UiImage, ui_text::UiTextImage},
     },
     graphics::rendering::{
-        Renderable2D
-        , shaders::pipeline::pipeline,
+        shaders::pipeline::pipeline
+        , Renderable2D,
     }
     ,
 };
-use crate::graphics::rendering::{DiffuseBindGroupUpdate, RenderingInfos, RenderingUpdate};
-use crate::graphics::rendering::scion2d::rendering_texture_management::load_texture_array_to_queue;
-use crate::graphics::rendering::shaders::gl_representations::{GlColorPickingUniform, GlUniform, PickingData};
-use crate::graphics::rendering::shaders::pipeline::pipeline_sprite;
+use crate::graphics::components::ui::ui_text::UiText;
 
 #[derive(Default)]
 pub(crate) struct Scion2D {
@@ -61,7 +62,7 @@ impl Scion2D {
         self.insert_components_pipelines::<Line>(&device, &surface_config);
         self.insert_components_pipelines::<Polygon>(&device, &surface_config);
         self.insert_components_pipelines::<UiImage>(&device, &surface_config);
-        self.insert_components_pipelines::<UiTextImage>(&device, &surface_config);
+        self.insert_components_pipelines::<UiText>(&device, &surface_config);
         self.insert_components_pipelines::<Tilemap>(&device, &surface_config);
     }
 

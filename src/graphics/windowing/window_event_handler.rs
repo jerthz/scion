@@ -1,9 +1,9 @@
+use crate::core::components::maths::camera::Camera;
 use winit::event::WindowEvent;
 use winit::keyboard::Key;
-use crate::core::components::maths::camera::Camera;
 
 use crate::core::resources::inputs::mouse::MouseEvent;
-use crate::core::resources::inputs::types::{InputState, KeyboardEvent, KeyCode, MouseButton};
+use crate::core::resources::inputs::types::{InputState, KeyCode, KeyboardEvent, MouseButton};
 use crate::core::scion_runner::ScionRunner;
 use crate::core::world::World;
 use crate::graphics::rendering::RendererEvent;

@@ -1,6 +1,6 @@
-use std::sync::Arc;
-use std::sync::mpsc::Sender;
 use hecs::Entity;
+use std::sync::mpsc::Sender;
+use std::sync::Arc;
 use wgpu::{Limits, Surface, SurfaceConfiguration};
 use winit::window::Window;
 

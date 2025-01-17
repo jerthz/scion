@@ -1,13 +1,13 @@
 use std::ops::Range;
 
-use wgpu::{PrimitiveTopology, util::BufferInitDescriptor};
+use wgpu::{util::BufferInitDescriptor, PrimitiveTopology};
 
-use crate::{
-    graphics::components::{material::Material},
-    graphics::rendering::{Renderable2D, RenderableUi},
-};
 use crate::core::components::maths::coordinates::Coordinates;
 use crate::graphics::rendering::shaders::gl_representations::TexturedGlVertex;
+use crate::{
+    graphics::components::material::Material,
+    graphics::rendering::{Renderable2D, RenderableUi},
+};
 
 /// Renderable 2D UIImage
 #[derive(Debug)]
