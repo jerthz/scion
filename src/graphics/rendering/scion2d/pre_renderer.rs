@@ -94,6 +94,5 @@ impl Scion2DPreRenderer {
         self.vertex_buffer.retain(|&k| data.contains(k));
         self.indexes_buffer.retain(|&k| data.contains(k));
         self.transform_uniform.retain(|&k| data.contains(k));
-        // TODO transfer a clean buffer update to the rendering thread
     }
 }

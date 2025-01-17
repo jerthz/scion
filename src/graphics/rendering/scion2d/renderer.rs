@@ -120,8 +120,14 @@ impl Scion2D {
                 }
             }
         }
+    }
 
-        // FIXME : self.clean_buffers(data);
+    pub(crate) fn clean_entities(&mut self, mut entities: Vec<Entity>) {
+        entities.drain(0..entities.len()).for_each(|entity| {
+            self.index_buffers.remove(&entity);
+            self.vertex_buffers.remove(&entity);
+            self.transform_uniform_bind_groups.remove(&entity);
+        });
     }
 
     pub(crate) fn render(

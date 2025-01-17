@@ -1,11 +1,12 @@
 use std::sync::mpsc::{Receiver};
+use hecs::Entity;
 use log::{info};
 use crate::graphics::rendering::{RendererEvent, RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::window_rendering_manager::ScionWindowRenderingManager;
 
 pub(crate) struct ScionRenderingThread {
     pub(crate) window_rendering_manager: Option<ScionWindowRenderingManager>,
-    pub(crate) render_receiver: Receiver<(Vec<RendererEvent>, Vec<RenderingUpdate>, Vec<RenderingInfos>)>,
+    pub(crate) render_receiver: Receiver<(Vec<RendererEvent>, Vec<RenderingUpdate>, Vec<RenderingInfos>, Vec<Entity>)>,
 }
 
 impl ScionRenderingThread{
@@ -13,7 +14,7 @@ impl ScionRenderingThread{
         info!("Initializing rendering thread");
         let mut update_accumulator: Vec<RenderingUpdate> = Vec::new();
         loop {
-            if let Ok((mut events, mut updates, rendering_infos)) = self.render_receiver.recv() {
+            if let Ok((mut events, mut updates, rendering_infos, cleaner)) = self.render_receiver.recv() {
                 events.drain(0..events.len()).for_each(|event|{
                     match event {
                         RendererEvent::ForceRedraw => {
@@ -30,6 +31,8 @@ impl ScionRenderingThread{
                         }
                     }
                 });
+
+                self.window_rendering_manager.as_mut().unwrap().clean_entities(cleaner);
 
                 if !updates.is_empty(){
                     update_accumulator.append(&mut updates);
@@ -48,7 +51,7 @@ impl ScionRenderingThread{
         }
     }
 
-    pub fn new(window_rendering_manager: Option<ScionWindowRenderingManager>, render_receiver: Receiver<(Vec<RendererEvent>, Vec<RenderingUpdate>, Vec<RenderingInfos>)>) -> Self{
+    pub fn new(window_rendering_manager: Option<ScionWindowRenderingManager>, render_receiver: Receiver<(Vec<RendererEvent>, Vec<RenderingUpdate>, Vec<RenderingInfos>, Vec<Entity>)>) -> Self{
         Self{
             window_rendering_manager,
             render_receiver,

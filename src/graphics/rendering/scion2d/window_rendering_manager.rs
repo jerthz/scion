@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use std::sync::mpsc::Sender;
+use hecs::Entity;
 use wgpu::{Limits, Surface, SurfaceConfiguration};
 use winit::window::Window;
 
@@ -71,7 +72,7 @@ impl ScionWindowRenderingManager {
         let mut scion_renderer = Scion2D::default();
         scion_renderer.start(&device, &config);
 
-        Self { surface, device, queue, config, scion_renderer, default_background_color: default_background, should_render: true, should_compute_cursor_color_picking: false, cursor_position: None, render_callback_sender }
+        Self { surface, device, queue, config, scion_renderer, default_background_color: default_background, should_render: false, should_compute_cursor_color_picking: false, cursor_position: None, render_callback_sender }
     }
 
     pub(crate) fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>, _scale_factor: f64) {
@@ -95,6 +96,10 @@ impl ScionWindowRenderingManager {
 
     pub(crate) fn update_color_picking(&mut self, should_update: bool) {
         self.should_compute_cursor_color_picking = should_update;
+    }
+
+    pub(crate) fn clean_entities(&mut self, entities: Vec<Entity>) {
+        self.scion_renderer.clean_entities(entities);
     }
 
     pub(crate) fn render(
