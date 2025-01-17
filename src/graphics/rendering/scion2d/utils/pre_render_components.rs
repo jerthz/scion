@@ -45,7 +45,8 @@ pub(crate) fn pre_render_tilemaps(data: &mut GameData) -> Vec<RenderingInfos> {
 
     for (entity, (_, material, transform)) in data
         .query::<(&mut Tilemap, &Material, &Transform)>()
-        .without::<(&Hide, &HidePropagated)>()
+        .without::<(&Hide)>()
+        .without::<(&HidePropagated)>()
         .iter()
     {
         let tiles_nb = tiles
