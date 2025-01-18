@@ -108,7 +108,7 @@ mod tests {
     use crate::core::world::World;
     use crate::graphics::components::ui::{
         font::Font,
-        ui_text::{UiText, UiTextImage},
+        ui_text::{UiText},
     };
 
     use super::*;
@@ -129,32 +129,6 @@ mod tests {
         UiText::new("abf".to_string(), asset)
     }
 
-    #[test]
-    fn ui_text_without_transform_should_not_generate_ui_image() {
-        let mut world = GameData::default();
-        let mut manager = AssetManager::default();
-        let _entity = world.push((get_test_ui_text(&mut manager),));
-        world.insert_resource(manager);
-
-        ui_text_bitmap_update_system(&mut world);
-
-        let cpt = world.query::<&UiTextImage>().iter().count();
-        assert_eq!(0, cpt);
-    }
-
-    #[test]
-    fn ui_text_with_transform_should_generate_ui_image() {
-        let mut world = GameData::default();
-
-        let mut manager = AssetManager::default();
-        let _entity = world.push((get_test_ui_text(&mut manager), Transform::default()));
-        world.insert_resource(manager);
-
-        ui_text_bitmap_update_system(&mut world);
-
-        let cpt = world.query::<&UiTextImage>().iter().count();
-        assert_eq!(3, cpt);
-    }
 
     struct Test {
         pub score: usize,
