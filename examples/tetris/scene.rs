@@ -62,6 +62,37 @@ fn add_score_ui(data: &mut GameData) -> Entity {
     };
     let font_asset = data.assets_mut().register_font(font);
 
+    let mut input = UiInput::new(200, 200, font_asset.clone())
+        .with_font_size(16)
+        .with_tab_index(1)
+        .with_font_color(Color::new_rgb(0, 0, 0));
+    input.set_text("Coucou".to_string());
+
+    data.push((
+        input,
+        Transform::from_xyz(394., 330., 1)
+    ));
+
+    let background_asset = data.assets_mut().register_material(Material::Diffuse(Color::new_rgb(200, 200, 200)));
+    let hover_asset = data.assets_mut().register_material(Material::Diffuse(Color::new_rgb(160, 160, 160)));
+    let clicked_asset = data.assets_mut().register_material(Material::Diffuse(Color::new_rgb(120, 120, 120)));
+
+    let button = UiButton::new(70, 30, font_asset.clone())
+        .with_font_size(16)
+        .with_tab_index(13)
+        .with_font_color(Color::new_rgb(0, 0, 0))
+        .with_padding(Padding::new(Some(8.), Some(10.)))
+        .with_background_material(background_asset)
+        .with_clicked_material(clicked_asset)
+        .with_hover_material(hover_asset)
+        .with_text("Button")
+        .with_on_click_action(|_res| { info!("Test click at {:?}", std::time::SystemTime::now()); });
+
+    data.push((
+        button,
+        Transform::from_xyz(394., 430., 3)
+    ));
+
     let font2 = Font::Bitmap {
         texture_path: asset_path().join("font.png").get(),
         chars: "0123456789ACEOPRSULI".to_string(),
@@ -72,11 +103,16 @@ fn add_score_ui(data: &mut GameData) -> Entity {
     };
     let font_asset_2 = data.assets_mut().register_font(font2);
 
-    let txt = UiText::new("abcdefghijklmnop".to_string(), font_asset.clone()).with_font_size(12);
+    let txt = UiText::new("SCORE".to_string(), font_asset_2.clone());
     let transform = Transform::from_xyz(394., 250., 2);
 
-    data.push((txt, transform))
+    data.push((txt, transform));
 
+    let txt = UiText::new("".to_string(), font_asset.clone())
+        .sync_value(|res| res.get_resource::<TetrisResource>().unwrap().get_score()).with_font_size(32);
+
+    let transform = Transform::from_xyz(394., 290., 2);
+    data.push((txt, transform))
 }
 
 fn add_main_ui_mask(data: &mut GameData) {

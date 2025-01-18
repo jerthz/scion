@@ -61,7 +61,7 @@ pub fn dummy_developer_console_system(data: &mut GameData) {
         let font_asset = data.assets_mut().register_font(font);
 
         let mut input = UiInput::new(current_window_width as usize, 60, font_asset.clone())
-            .with_font_size(20)
+            .with_font_size(12)
             .with_tab_index(1)
             .with_font_color(Color::new_rgb(255, 255, 255));
         input.set_text("/".to_string());

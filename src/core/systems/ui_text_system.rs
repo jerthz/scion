@@ -14,7 +14,7 @@ use crate::graphics::components::material::Material;
 use crate::graphics::components::ui::{
     font::Font,
     ui_image::UiImage,
-    ui_text::{UiText, UiTextImage},
+    ui_text::{UiText},
     UiComponent,
 };
 

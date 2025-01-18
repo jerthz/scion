@@ -17,7 +17,6 @@ use crate::graphics::rendering::{Renderable2D, RenderableUi, RenderingUpdate};
 use hecs::{Component, Entity};
 use log::info;
 use wgpu::BufferUsages;
-use crate::graphics::components::ui::font::Font;
 
 pub(crate) fn call(renderer: &mut Scion2DPreRenderer, data: &mut GameData) -> Vec<RenderingUpdate> {
     let mut updates = vec![];
@@ -192,7 +191,7 @@ fn prepare_buffer_update_for_ui_text(renderer: &mut Scion2DPreRenderer, data: &m
         let mut indexes_accumulator = Vec::new();
         let mut vertexes_accumulator = Vec::new();
         let mut current_x = 0.;
-        let current_y = 0.; // TODO: Compute lines when handled
+        let current_y = 0.;
         if path != "" && ui_text.dirty() {
             let mut font_atlas = resources.font_atlas();
             let atlas = font_atlas.get_texture_from_path(&path).expect("Missing mandatory font atlas");
@@ -255,9 +254,7 @@ fn prepare_buffer_update_for_ui_text(renderer: &mut Scion2DPreRenderer, data: &m
 
 fn compute_offset(character_position: &CharacterPosition, min_y: f32, char: char) -> f32 {
     let current_start_y = character_position.start_y;
-    info!("a:::::: {:?} {:?}", current_start_y, min_y);
     if current_start_y > min_y {
-        info!("{:?} {:?}", char, (current_start_y - min_y) as f32);
         current_start_y - min_y
     }else{
         0.

@@ -118,10 +118,10 @@ impl UiText {
         let c = Coordinates::new(a.x + char_width, a.y + char_height);
         let d = Coordinates::new(a.x + char_width, a.y);
         [
-            TexturedGlVertex::from((&a, &uvs_ref[0])),
-            TexturedGlVertex::from((&b, &uvs_ref[1])),
-            TexturedGlVertex::from((&c, &uvs_ref[2])),
-            TexturedGlVertex::from((&d, &uvs_ref[3])),
+            TexturedGlVertex::from((&a, &uvs_ref[0], 0.00)),
+            TexturedGlVertex::from((&b, &uvs_ref[1], 0.00)),
+            TexturedGlVertex::from((&c, &uvs_ref[2], 0.00)),
+            TexturedGlVertex::from((&d, &uvs_ref[3], 0.00)),
         ]
     }
 
@@ -161,39 +161,3 @@ impl Renderable2D for UiText {
     }
 
 }
-
-/// `UiTextImage` is an internal component used to keep track of the character in case of a
-/// bitmap font
-#[derive(Debug)]
-pub(crate) struct UiTextImage(pub(crate)
-                              UiImage);
-
-impl Renderable2D for UiTextImage {
-    fn vertex_buffer_descriptor(&mut self, material: Option<&Material>) -> BufferInitDescriptor {
-        self.0.vertex_buffer_descriptor(material)
-    }
-
-    fn indexes_buffer_descriptor(&self) -> BufferInitDescriptor {
-        self.0.indexes_buffer_descriptor()
-    }
-
-    fn range(&self) -> Range<u32> {
-        self.0.range()
-    }
-
-    fn topology() -> PrimitiveTopology {
-        wgpu::PrimitiveTopology::TriangleList
-    }
-
-    fn dirty(&self) -> bool {
-        false
-    }
-
-    fn set_dirty(&mut self, _is_dirty: bool) {}
-
-    fn get_rendering_priority(&self) -> usize {
-        1
-    }
-}
-
-impl RenderableUi for UiTextImage {}

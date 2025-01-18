@@ -35,7 +35,7 @@ use crate::graphics::components::tiles::sprite::Sprite;
 use crate::graphics::components::ui::ui_button::UiButton;
 use crate::graphics::components::ui::ui_image::UiImage;
 use crate::graphics::components::ui::ui_input::UiInput;
-use crate::graphics::components::ui::ui_text::{UiText, UiTextImage};
+use crate::graphics::components::ui::ui_text::{UiText};
 use crate::graphics::components::{Square, Triangle};
 use crate::ScionBuilder;
 
@@ -86,8 +86,7 @@ impl Package for InternalPackage {
             .with_system(collider_cleaner_system)
             .with_system(default_camera_system)
             .with_system(sync_text_value_system)
-            .with_system(ui_text_material_resolver)
-            .with_system(ui_text_atlas_system)
+            .with_system(set_childs_on_buttons)
             .with_system(children_manager_system)
             .with_system(hide_propagated_deletion_system)
             .with_system(hide_propagation_system)
@@ -99,7 +98,6 @@ impl Package for InternalPackage {
             .with_system(collider_pivot_propagation_system::<Line>)
             .with_system(debug_colliders_system)
             .with_system(missing_ui_component_system::<UiImage>)
-            .with_system(missing_ui_component_system::<UiTextImage>)
             .with_system(missing_ui_component_system::<UiText>)
             .with_system(missing_ui_component_system::<UiButton>)
             .with_system(missing_focus_component_system::<UiInput>)
@@ -109,7 +107,8 @@ impl Package for InternalPackage {
             .with_system(dirty_transform_system)
             .with_system(compute_collisions_system)
             .with_system(set_childs_on_inputs)
-            .with_system(set_childs_on_buttons)
+            .with_system(ui_text_material_resolver)
+            .with_system(ui_text_atlas_system)
             .with_system(compute_hover)
             .with_system(focus_switcher_system)
             .with_system(register_keyboard_inputs_on_ui_input)

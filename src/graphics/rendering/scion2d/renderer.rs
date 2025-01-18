@@ -21,7 +21,7 @@ use crate::{
         tiles::{
             sprite::Sprite,
             tilemap::Tilemap,
-        }, ui::{ui_image::UiImage, ui_text::UiTextImage},
+        }, ui::{ui_image::UiImage},
     },
     graphics::rendering::{
         shaders::pipeline::pipeline

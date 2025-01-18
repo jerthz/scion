@@ -11,7 +11,7 @@ use crate::{
 
 
 /// Component used by the 2D Renderer to know which material to use when graphics a renderable object.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Material {
     /// Fill with a color
     Diffuse(Color),
