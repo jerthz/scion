@@ -1,7 +1,6 @@
-use hecs::{Component, Entity};
-use wgpu::BufferUsages;
-
+use crate::core::components::maths::coordinates::Coordinates;
 use crate::core::components::maths::transform::Transform;
+use crate::core::resources::font_atlas::CharacterPosition;
 use crate::core::world::{GameData, World};
 use crate::graphics::components::material::Material;
 use crate::graphics::components::shapes::line::Line;
@@ -10,11 +9,14 @@ use crate::graphics::components::shapes::rectangle::Rectangle;
 use crate::graphics::components::tiles::sprite::Sprite;
 use crate::graphics::components::tiles::tilemap::{Tile, Tilemap};
 use crate::graphics::components::ui::ui_image::UiImage;
-use crate::graphics::components::ui::ui_text::UiTextImage;
+use crate::graphics::components::ui::ui_text::UiText;
 use crate::graphics::components::{Square, Triangle};
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
 use crate::graphics::rendering::shaders::gl_representations::TexturedGlVertexWithLayer;
 use crate::graphics::rendering::{Renderable2D, RenderableUi, RenderingUpdate};
+use hecs::{Component, Entity};
+use log::info;
+use wgpu::BufferUsages;
 
 pub(crate) fn call(renderer: &mut Scion2DPreRenderer, data: &mut GameData) -> Vec<RenderingUpdate> {
     let mut updates = vec![];
@@ -25,7 +27,7 @@ pub(crate) fn call(renderer: &mut Scion2DPreRenderer, data: &mut GameData) -> Ve
     updates.append(&mut prepare_buffer_update_for_component::<Line>(renderer, data));
     updates.append(&mut prepare_buffer_update_for_component::<Polygon>(renderer, data));
     updates.append(&mut prepare_buffer_update_for_ui_component::<UiImage>(renderer, data));
-    updates.append(&mut prepare_buffer_update_for_ui_component::<UiTextImage>(renderer, data));
+    updates.append(&mut prepare_buffer_update_for_ui_text(renderer, data));
     updates.append(&mut prepare_buffer_update_for_tilemap(renderer, data));
     updates
 }
@@ -65,7 +67,7 @@ fn prepare_buffer_update_for_ui_component<T: Component + Renderable2D + Renderab
     data: &mut GameData) -> Vec<RenderingUpdate> {
     let mut updates = vec![];
     for (entity, (component, _, m)) in data.query::<(&mut T, &Transform, Option<&Material>)>().iter() {
-        if renderer.missing_vertex_buffer(&entity) || component.dirty(){
+        if renderer.missing_vertex_buffer(&entity) || component.dirty() {
             let descriptor = component.vertex_buffer_descriptor(m);
             updates.push(RenderingUpdate::VertexBuffer {
                 entity,
@@ -74,7 +76,7 @@ fn prepare_buffer_update_for_ui_component<T: Component + Renderable2D + Renderab
             });
             renderer.upsert_vertex_buffer(entity);
         }
-        if renderer.missing_indexes_buffer(&entity) || component.dirty(){
+        if renderer.missing_indexes_buffer(&entity) || component.dirty() {
             let descriptor = component.indexes_buffer_descriptor();
 
             updates.push(RenderingUpdate::IndexBuffer {
@@ -105,7 +107,6 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
             if any_tile_modified {
                 for (e, (tile, sprite)) in data.query::<(&Tile, &Sprite)>().iter() {
                     if tile.tilemap == entity {
-
                         let color_picking = renderer.color_picking_storage.create_picking(e);
                         let current_vertex = sprite.compute_content(Some(material));
                         to_modify.push((e, current_vertex));
@@ -116,9 +117,9 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
 
                         if isometric {
                             offset_x = -1. * tile.position.x() as f32 * (tile_size / 2) as f32 + tile.position.y() as f32 * (tile_size / 2) as f32;
-                            offset_y = -1. * tile.position.x() as f32 * (tile_size / 4) as f32 - tile.position.y() as f32 * (tile_size / 2) as f32 - tile.position.y() as f32 * (tile_size / 4) as f32 - (tile.position.z() * tile_size/2) as f32;
-                            offset_z =  (max_x - tile.position.z())  * (max_x + 1) +  tile.position.x() * (max_x + 1) + (max_x -  tile.position.y())
-                        }else{
+                            offset_y = -1. * tile.position.x() as f32 * (tile_size / 4) as f32 - tile.position.y() as f32 * (tile_size / 2) as f32 - tile.position.y() as f32 * (tile_size / 4) as f32 - (tile.position.z() * tile_size / 2) as f32;
+                            offset_z = (max_x - tile.position.z()) * (max_x + 1) + tile.position.x() * (max_x + 1) + (max_x - tile.position.y())
+                        } else {
                             offset_z = depth * 100 - tile.position.z() * 10;
                         }
 
@@ -145,7 +146,7 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                 updates.push(RenderingUpdate::VertexBuffer {
                     entity,
                     contents: bytes_vertexes.to_vec(),
-                    usage: BufferUsages::VERTEX
+                    usage: BufferUsages::VERTEX,
                 });
                 renderer.upsert_vertex_buffer(entity);
 
@@ -175,4 +176,129 @@ fn any_dirty_sprite(data: &GameData, entity: Entity) -> bool {
         .filter(|(_, (tile, sprite))| tile.tilemap == entity && sprite.dirty())
         .count()
         > 0
+}
+
+fn prepare_buffer_update_for_ui_text(renderer: &mut Scion2DPreRenderer, data: &mut GameData) -> Vec<RenderingUpdate> {
+    let mut updates = vec![];
+    let (world, resources) = data.split();
+    for (entity, (mut ui_text, _, material)) in world.query_mut::<(&mut UiText, &Transform, &Material)>() {
+        let path = if let Material::Texture(e) = material {
+            e.to_string()
+        } else {
+            "".to_string()
+        };
+
+        let mut indexes_accumulator = Vec::new();
+        let mut vertexes_accumulator = Vec::new();
+        let mut current_x = 0.;
+        let current_y = 0.;
+        if path != "" && ui_text.dirty() {
+            let mut font_atlas = resources.font_atlas();
+            let atlas = font_atlas.get_texture_from_path(&path).expect("Missing mandatory font atlas");
+            let min_y = atlas.min_y();
+            let texture_width = atlas.width as f32;
+            let texture_height = atlas.height as f32;
+            let mut space_nb = 0;
+            for (pos, character) in ui_text.text().chars().enumerate() {
+                if character.is_whitespace() {
+                    current_x += 5.;
+                    space_nb += 1;
+                    continue;
+                }
+                let char = atlas.character_positions.get(&character).unwrap();
+                let uvs = compute_char_uvs(texture_width, texture_height, char);
+                let mut current_vertexes = ui_text.char_vertex(char.width(), char.height(), uvs);
+
+                let offset_y = compute_offset(char, min_y, character);
+                current_vertexes.iter_mut().for_each(|gl_vertex| {
+                    gl_vertex.position[0] = gl_vertex.position[0] + current_x;
+                    gl_vertex.position[1] = gl_vertex.position[1] + current_y + offset_y;
+                });
+                let char_indexes = UiText::char_indices();
+                let mut char_indexes: Vec<u16> = char_indexes
+                    .iter()
+                    .map(|indice| (*indice as usize + ((pos - space_nb) * 4)) as u16)
+                    .collect();
+
+                vertexes_accumulator.append(&mut current_vertexes.to_vec());
+                indexes_accumulator.append(&mut char_indexes);
+                current_x = current_x + char.width() + 1.0; // TODO letter_spacing
+                //TODO: Compute lines when handled
+            }
+            if vertexes_accumulator.is_empty(){
+                vertexes_accumulator.append(&mut ui_text.char_vertex(0.,0.,empty_char_uvs()).to_vec())
+            }
+            if indexes_accumulator.is_empty(){
+                indexes_accumulator.append(&mut UiText::char_indices().to_vec());
+            }
+            let bytes_vertexes: &[u8] = bytemuck::cast_slice(vertexes_accumulator.as_slice());
+            updates.push(RenderingUpdate::VertexBuffer {
+                entity,
+                contents: bytes_vertexes.to_vec(),
+                usage: BufferUsages::VERTEX,
+            });
+            renderer.upsert_vertex_buffer(entity);
+
+            let bytes_indexes: &[u8] = bytemuck::cast_slice(indexes_accumulator.as_slice());
+            updates.push(RenderingUpdate::IndexBuffer {
+                entity,
+                contents: bytes_indexes.to_vec(),
+                usage: BufferUsages::INDEX,
+            });
+            renderer.upsert_indexes_buffer(entity);
+            ui_text.set_dirty(false);
+        }
+    }
+    updates
+}
+
+fn compute_offset(character_position: &CharacterPosition, min_y: f32, char: char) -> f32 {
+    let current_start_y = character_position.start_y;
+    if current_start_y > min_y {
+        current_start_y - min_y
+    }else{
+        0.
+    }
+}
+
+fn compute_char_uvs(texture_width: f32, texture_height: f32, char: &CharacterPosition) -> [Coordinates; 4] {
+    [
+        Coordinates::new(
+            char.start_x / texture_width,
+            char.start_y / texture_height,
+        ),
+        Coordinates::new(
+            char.start_x / texture_width,
+            char.end_y / texture_height,
+        ),
+        Coordinates::new(
+            char.end_x / texture_width,
+            char.end_y / texture_height,
+        ),
+        Coordinates::new(
+            char.end_x / texture_width,
+            char.start_y / texture_height,
+        ),
+    ]
+}
+
+fn empty_char_uvs() -> [Coordinates; 4] {
+    [
+        Coordinates::new(
+            0.,
+            0.,
+        ),
+        Coordinates::new(
+            0.,
+            0.,
+        ),
+        Coordinates::new(
+            0.,
+            0.,
+        ),
+        Coordinates::new(
+            0.,
+            0.,
+        ),
+    ]
 }

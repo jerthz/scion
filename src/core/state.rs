@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use hecs::Entity;
+use std::collections::HashMap;
 
 /// `GameState` is a convenience Resource created to keep track of
 /// diverse thing internally. It's also the resource used to create

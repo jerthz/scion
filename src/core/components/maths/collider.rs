@@ -2,7 +2,7 @@ use geo_clipper::Clipper;
 use geo_types::{Coord, LineString};
 use hecs::Entity;
 
-use crate::core::components::maths::{coordinates::Coordinates, Pivot, transform::Transform};
+use crate::core::components::maths::{coordinates::Coordinates, transform::Transform, Pivot};
 use crate::utils::maths::{centroid_polygon, rotate_point_around_pivot, Vector};
 
 /// `ColliderMask` will serve as a 'mask' to allow filter while collisions happen

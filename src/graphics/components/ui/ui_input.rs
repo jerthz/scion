@@ -1,7 +1,7 @@
-use crate::graphics::components::color::Color;
-use crate::graphics::components::ui::Focusable;
-use crate::graphics::components::ui::font::Font;
 use crate::core::resources::asset_manager::AssetRef;
+use crate::graphics::components::color::Color;
+use crate::graphics::components::ui::font::Font;
+use crate::graphics::components::ui::Focusable;
 
 /// A component representing an input Text in the UI.
 pub struct UiInput {

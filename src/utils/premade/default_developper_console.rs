@@ -1,5 +1,3 @@
-use hecs::Entity;
-use log::info;
 use crate::core::components::maths::hierarchy::Parent;
 use crate::core::components::maths::transform::Transform;
 use crate::core::package::Package;
@@ -11,8 +9,10 @@ use crate::graphics::components::tiles::atlas::data;
 use crate::graphics::components::ui::font::Font;
 use crate::graphics::components::ui::ui_image::UiImage;
 use crate::graphics::components::ui::ui_input::UiInput;
-use crate::ScionBuilder;
 use crate::utils::file::app_base_path;
+use crate::ScionBuilder;
+use hecs::Entity;
+use log::info;
 
 pub struct DummyDeveloperConsole;
 
@@ -61,10 +61,10 @@ pub fn dummy_developer_console_system(data: &mut GameData) {
         let font_asset = data.assets_mut().register_font(font);
 
         let mut input = UiInput::new(current_window_width as usize, 60, font_asset.clone())
-            .with_font_size(14)
+            .with_font_size(12)
             .with_tab_index(1)
             .with_font_color(Color::new_rgb(255, 255, 255));
-        input.set_text("Coucou".to_string());
+        input.set_text("/".to_string());
 
         data.push((
             input,
@@ -77,7 +77,7 @@ pub fn dummy_developer_console_system(data: &mut GameData) {
         data.resources.get_resource_mut::<ScionDeveloperConsoleResource>().expect("Missing mandatory resource ScionDeveloperConsoleResource").currently_displayed = true;
         data.resources.get_resource_mut::<ScionDeveloperConsoleResource>().expect("Missing mandatory resource ScionDeveloperConsoleResource").current_entity = Some(parent);
 
-    }else if (currently_displayed && !open && close) {
+    }else if currently_displayed && !open && close {
         let e = data.resources.get_resource_mut::<ScionDeveloperConsoleResource>().expect("Missing mandatory resource ScionDeveloperConsoleResource").current_entity.unwrap();
         data.resources.get_resource_mut::<ScionDeveloperConsoleResource>().expect("Missing mandatory resource ScionDeveloperConsoleResource").currently_displayed = false;
         data.resources.get_resource_mut::<ScionDeveloperConsoleResource>().expect("Missing mandatory resource ScionDeveloperConsoleResource").current_entity = None;

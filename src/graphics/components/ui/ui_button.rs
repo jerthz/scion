@@ -1,10 +1,10 @@
-use crate::graphics::components::color::Color;
-use crate::graphics::components::material::Material;
 use crate::core::components::maths::padding::Padding;
-use crate::graphics::components::ui::Focusable;
-use crate::graphics::components::ui::font::Font;
 use crate::core::resources::asset_manager::AssetRef;
 use crate::core::world::Resources;
+use crate::graphics::components::color::Color;
+use crate::graphics::components::material::Material;
+use crate::graphics::components::ui::font::Font;
+use crate::graphics::components::ui::Focusable;
 
 pub struct UiButton {
     text: String,

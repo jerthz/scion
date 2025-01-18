@@ -1,6 +1,6 @@
-use std::collections::{HashMap, VecDeque};
-use hecs::Entity;
 use crate::graphics::components::color::Color;
+use hecs::Entity;
+use std::collections::{HashMap, VecDeque};
 
 #[derive(Default)]
 pub(crate) struct ColorPickingStorage{

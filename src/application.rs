@@ -1,34 +1,32 @@
 use std::path::Path;
 
-use std::sync::{Arc, mpsc};
+use std::sync::{mpsc, Arc};
 use std::thread;
 use std::time::Duration;
 
 
+use crate::core::application_builder::ScionBuilder;
+use crate::config::scion_config::{ScionConfig, ScionConfigReader};
 use log::{error, info};
-use winit::{
-    event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-};
 use winit::application::ApplicationHandler;
 use winit::error::EventLoopError;
 use winit::event::{DeviceEvent, DeviceId};
 use winit::event_loop::ActiveEventLoop;
 use winit::window::{WindowAttributes, WindowId};
-use crate::{
-    config::scion_config::{ScionConfig, ScionConfigReader},
+use winit::{
+    event::{Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
 };
-use crate::core::application_builder::ScionBuilder;
 
 
-use crate::core::scene::{SceneMachine};
+use crate::core::scene::SceneMachine;
 use crate::core::scheduler::Scheduler;
 use crate::core::scion_runner::ScionRunner;
 
 
 use crate::core::world::GameData;
-use crate::graphics::rendering::RendererCallbackEvent;
 use crate::graphics::rendering::scion2d::window_rendering_manager::ScionWindowRenderingManager;
+use crate::graphics::rendering::RendererCallbackEvent;
 use crate::graphics::windowing::WindowingEvent;
 
 /// `Scion` is the entry point of any application made with Scion's lib.

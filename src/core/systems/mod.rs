@@ -1,24 +1,14 @@
-use crate::graphics::components::{Square, Triangle};
-use crate::graphics::components::material::Material;
-use crate::graphics::components::shapes::line::Line;
-use crate::graphics::components::shapes::polygon::Polygon;
-use crate::graphics::components::shapes::rectangle::Rectangle;
-use crate::graphics::components::tiles::sprite::Sprite;
-use crate::graphics::components::ui::ui_button::UiButton;
-use crate::graphics::components::ui::ui_image::UiImage;
-use crate::graphics::components::ui::ui_input::UiInput;
-use crate::graphics::components::ui::ui_text::{UiText, UiTextImage};
 use crate::core::package::Package;
 use crate::core::resources::asset_manager::AssetManager;
 use crate::core::resources::audio::Audio;
 use crate::core::resources::color_picking::ColorPickingStorage;
-use crate::core::resources::events::Events;
 use crate::core::resources::events::topic::TopicConfiguration;
+use crate::core::resources::events::Events;
 use crate::core::resources::focus_manager::FocusManager;
 use crate::core::resources::font_atlas::FontAtlas;
 use crate::core::resources::global_storage::GlobalStorage;
 use crate::core::resources::inputs::inputs_controller::InputsController;
-use crate::core::resources::time::{Time, Timers, TimerType};
+use crate::core::resources::time::{Time, TimerType, Timers};
 use crate::core::scene::SceneController;
 use crate::core::state::GameState;
 use crate::core::systems::animations_system::animation_executer_system;
@@ -35,8 +25,18 @@ use crate::core::systems::missing_ui_component_system::{missing_focus_component_
 use crate::core::systems::parent_transform_system::{dirty_child_system, dirty_transform_system};
 use crate::core::systems::ui_button_systems::{compute_hover, set_childs_on_buttons};
 use crate::core::systems::ui_input_systems::{register_keyboard_inputs_on_ui_input, set_childs_on_inputs, synchronize_input_and_text};
-use crate::core::systems::ui_text_system::{sync_text_value_system, ui_text_bitmap_update_system};
+use crate::core::systems::ui_text_system::{sync_text_value_system, ui_text_atlas_system, ui_text_material_resolver};
 use crate::core::world::GameData;
+use crate::graphics::components::material::Material;
+use crate::graphics::components::shapes::line::Line;
+use crate::graphics::components::shapes::polygon::Polygon;
+use crate::graphics::components::shapes::rectangle::Rectangle;
+use crate::graphics::components::tiles::sprite::Sprite;
+use crate::graphics::components::ui::ui_button::UiButton;
+use crate::graphics::components::ui::ui_image::UiImage;
+use crate::graphics::components::ui::ui_input::UiInput;
+use crate::graphics::components::ui::ui_text::{UiText};
+use crate::graphics::components::{Square, Triangle};
 use crate::ScionBuilder;
 
 pub(crate) mod animations_system;
@@ -86,7 +86,7 @@ impl Package for InternalPackage {
             .with_system(collider_cleaner_system)
             .with_system(default_camera_system)
             .with_system(sync_text_value_system)
-            .with_system(ui_text_bitmap_update_system)
+            .with_system(set_childs_on_buttons)
             .with_system(children_manager_system)
             .with_system(hide_propagated_deletion_system)
             .with_system(hide_propagation_system)
@@ -98,7 +98,6 @@ impl Package for InternalPackage {
             .with_system(collider_pivot_propagation_system::<Line>)
             .with_system(debug_colliders_system)
             .with_system(missing_ui_component_system::<UiImage>)
-            .with_system(missing_ui_component_system::<UiTextImage>)
             .with_system(missing_ui_component_system::<UiText>)
             .with_system(missing_ui_component_system::<UiButton>)
             .with_system(missing_focus_component_system::<UiInput>)
@@ -108,7 +107,8 @@ impl Package for InternalPackage {
             .with_system(dirty_transform_system)
             .with_system(compute_collisions_system)
             .with_system(set_childs_on_inputs)
-            .with_system(set_childs_on_buttons)
+            .with_system(ui_text_material_resolver)
+            .with_system(ui_text_atlas_system)
             .with_system(compute_hover)
             .with_system(focus_switcher_system)
             .with_system(register_keyboard_inputs_on_ui_input)

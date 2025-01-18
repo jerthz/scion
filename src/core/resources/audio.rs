@@ -1,7 +1,5 @@
 use std::sync::mpsc;
 
-use rodio::{OutputStream, Sink};
-
 use crate::core::audio_controller;
 use crate::core::audio_controller::AudioController;
 

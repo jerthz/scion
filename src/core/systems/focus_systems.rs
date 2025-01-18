@@ -1,10 +1,10 @@
 use hecs::Entity;
 use log::debug;
 
-use crate::graphics::components::{Hide, HidePropagated};
-use crate::graphics::components::ui::UiFocusable;
 use crate::core::resources::inputs::types::{Input, KeyCode};
 use crate::core::world::{GameData, SubWorld, World};
+use crate::graphics::components::ui::UiFocusable;
+use crate::graphics::components::{Hide, HidePropagated};
 
 #[derive(PartialEq, Eq)]
 enum FocusAction {

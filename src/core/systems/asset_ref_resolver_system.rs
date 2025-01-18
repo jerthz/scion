@@ -1,9 +1,7 @@
 use hecs::Component;
 
-use crate::core::{
-    resources::asset_manager::{AssetManager, AssetRef},
-};
 use crate::core::world::{GameData, World};
+use crate::core::resources::asset_manager::{AssetManager, AssetRef};
 use crate::graphics::components::material::Material;
 
 pub(crate) trait AssetResolverFn<T: Component> {
@@ -33,11 +31,11 @@ impl AssetResolverFn<Material> for MaterialAssetResolverFn {
 
 #[cfg(test)]
 mod tests {
+    use crate::core::world::World;
     use crate::core::{
         resources::asset_manager::AssetManager,
         systems::asset_ref_resolver_system::MaterialAssetResolverFn,
     };
-    use crate::core::world::World;
     use crate::graphics::components::color::Color;
 
     use super::*;

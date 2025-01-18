@@ -2,8 +2,8 @@ use std::{collections::HashMap, marker::PhantomData};
 
 use log::debug;
 
-use crate::graphics::components::{material::Material, tiles::tileset::Tileset};
 use crate::graphics::components::ui::font::Font;
+use crate::graphics::components::{material::Material, tiles::tileset::Tileset};
 
 /// `AssetManager` is resource that will link assets to an asset ref to allow reusability of assets
 #[derive(Default)]
@@ -133,9 +133,7 @@ pub enum AssetType {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{
-        resources::asset_manager::AssetManager,
-    };
+    use crate::core::resources::asset_manager::AssetManager;
     use crate::graphics::components::color::Color;
     use crate::graphics::components::material::Material;
     use crate::graphics::components::tiles::tileset::Tileset;

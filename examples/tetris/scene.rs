@@ -90,7 +90,7 @@ fn add_score_ui(data: &mut GameData) -> Entity {
 
     data.push((
         button,
-        Transform::from_xyz(394., 430., 2)
+        Transform::from_xyz(394., 430., 3)
     ));
 
     let font2 = Font::Bitmap {

@@ -1,15 +1,15 @@
 use std::ops::Range;
 
-use wgpu::{PrimitiveTopology, util::BufferInitDescriptor};
+use wgpu::{util::BufferInitDescriptor, PrimitiveTopology};
 
-use crate::{
-    graphics::components::{material::Material},
-    graphics::rendering::Renderable2D,
-};
 use crate::core::components::maths::coordinates::Coordinates;
 use crate::core::components::maths::Pivot;
 use crate::graphics::rendering::shaders::gl_representations::TexturedGlVertex;
 use crate::utils::maths::Vector;
+use crate::{
+    graphics::components::material::Material,
+    graphics::rendering::Renderable2D,
+};
 
 /// Renderable 2D Polygon made of outlines.
 #[derive(Debug)]

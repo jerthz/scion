@@ -1,19 +1,19 @@
+use crate::core::components::maths::transform::Transform;
+use crate::core::world::{GameData, World};
+use crate::graphics::components::ui::ui_text::UiText;
 use crate::{
+    core::resources::time::TimerType,
     graphics::components::{
         animations::{
-            AnimationModifier, AnimationModifierType, Animations, AnimationStatus,
+            AnimationModifier, AnimationModifierType, AnimationStatus, Animations,
             ComputedKeyframeModifier,
         },
         color::Color,
-        Hide,
         material::Material,
         tiles::sprite::Sprite,
+        Hide,
     },
-    core::resources::time::TimerType,
 };
-use crate::core::components::maths::transform::Transform;
-use crate::graphics::components::ui::ui_text::UiText;
-use crate::core::world::{GameData, World};
 
 #[derive(PartialEq)]
 enum BlinkResult {

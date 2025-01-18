@@ -1,8 +1,8 @@
-use std::sync::mpsc::{Receiver};
-use hecs::Entity;
-use log::{info};
-use crate::graphics::rendering::{RendererEvent, RenderingInfos, RenderingUpdate};
 use crate::graphics::rendering::scion2d::window_rendering_manager::ScionWindowRenderingManager;
+use crate::graphics::rendering::{RendererEvent, RenderingInfos, RenderingUpdate};
+use hecs::Entity;
+use log::info;
+use std::sync::mpsc::Receiver;
 
 pub(crate) struct ScionRenderingThread {
     pub(crate) window_rendering_manager: Option<ScionWindowRenderingManager>,

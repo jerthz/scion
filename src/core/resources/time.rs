@@ -200,7 +200,7 @@ mod timer {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::resources::time::{Timers, TimerType};
+    use crate::core::resources::time::{TimerType, Timers};
 
     #[test]
     fn add_timer_test() {

@@ -1,11 +1,12 @@
 use hecs::Component;
 
-use crate::graphics::components::{Hide, HidePropagated};
-use crate::graphics::components::material::Material;
 use crate::core::components::maths::transform::Transform;
+use crate::core::world::{GameData, World};
+use crate::graphics::components::material::Material;
 use crate::graphics::components::tiles::sprite::Sprite;
 use crate::graphics::components::tiles::tilemap::{Tile, Tilemap};
-use crate::core::world::{GameData, World};
+use crate::graphics::components::ui::ui_text::UiText;
+use crate::graphics::components::{Hide, HidePropagated};
 use crate::graphics::rendering::{Renderable2D, RenderableUi, RenderingInfos};
 
 pub(crate) fn pre_render_component<T: Component + Renderable2D>(
@@ -67,6 +68,28 @@ pub(crate) fn pre_render_tilemaps(data: &mut GameData) -> Vec<RenderingInfos> {
             render_priority: 0
         });
     }
+    render_infos
+}
+
+pub(crate) fn pre_render_ui_text(data: &mut GameData) -> Vec<RenderingInfos> {
+    let type_name = std::any::type_name::<UiText>();
+    let mut render_infos = Vec::new();
+
+    for (entity, (component, material, transform)) in data.query::<(&UiText, &Material, &Transform)>().iter() {
+        let path = match material {
+            Material::Texture(path) => Some(path.clone()),
+            _ => None,
+        };
+        render_infos.push(RenderingInfos {
+            layer: transform.translation().z(),
+            range: 0..(component.text().chars().filter(|c| !c.is_whitespace()).count() * UiText::char_indices().len()) as u32,
+            entity,
+            texture_path: path,
+            type_name: type_name.to_string(),
+            render_priority: 0
+        });
+    }
+
     render_infos
 }
 

@@ -1,9 +1,9 @@
 use crate::core::components::maths::hierarchy::{Children, Parent};
+use crate::core::world::{GameData, World};
 use crate::graphics::components::{
     Hide,
     HidePropagated
 };
-use crate::core::world::{GameData, World};
 
 /// System responsible to add a `HidePropagate` component to each child of entities that have an `Hide` component
 pub(crate) fn hide_propagation_system(data: &mut GameData) {
@@ -46,11 +46,11 @@ pub(crate) fn hide_propagated_deletion_system(data: &mut GameData) {
 #[cfg(test)]
 mod tests {
     use crate::{
+        core::world::GameData,
         graphics::components::{
             Hide,
             HidePropagated,
         },
-        core::world::GameData,
     };
 
     use super::*;

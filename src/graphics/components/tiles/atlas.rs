@@ -5,19 +5,19 @@ pub mod importer {
     use std::path::Path;
     use std::time::Duration;
 
-    use base64::Engine;
     use base64::prelude::BASE64_STANDARD;
+    use base64::Engine;
     use hecs::Entity;
     use log::{debug, error};
 
+    use crate::core::components::maths::transform::Transform;
+    use crate::core::resources::asset_manager::{AssetRef, AssetType};
+    use crate::core::world::{GameData, Resources};
     use crate::graphics::components::animations::{Animation, AnimationModifier};
     use crate::graphics::components::material::Material;
-    use crate::core::components::maths::transform::{Transform};
     use crate::graphics::components::tiles::atlas::data::{TilemapAtlas, TilesetAtlas};
     use crate::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo, TilemapType};
     use crate::graphics::components::tiles::tileset::Tileset;
-    use crate::core::resources::asset_manager::{AssetRef, AssetType};
-    use crate::core::world::{GameData, Resources};
     use crate::utils::maths::Dimensions;
 
     /// Import a tilemap from a .scion format located at `path`, into a TilemapAtlas
