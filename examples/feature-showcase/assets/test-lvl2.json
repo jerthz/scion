@@ -23,7 +23,11 @@
     }
   ],
   "objects": [],
-  "tilemap_type": "Isometric",
+  "tilemap_type": {"Isometric": {
+    "offset_x":  { "x_multiplier": 16.0, "y_multiplier": 16.0 , "z_multiplier": 0.0 },
+    "offset_y":  { "x_multiplier": 8.0, "y_multiplier": 24.0 , "z_multiplier": 16.0},
+    "offset_z":  { "x_multiplier": 0.0, "y_multiplier": 0.0, "z_multiplier": 0.0 }
+  }},
   "tilesets": [
     {
       "index": 0,

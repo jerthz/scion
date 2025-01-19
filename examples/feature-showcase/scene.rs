@@ -64,10 +64,10 @@ impl Scene for DemoScene {
         let mut animations = HashMap::new();
 
         animations.insert("up".to_string(), Animation::new(Duration::from_millis(1500),
-                                               vec![AnimationModifier::transform(40, Some(Vector::new(0., -400.)), None, None)]));
+                                               vec![AnimationModifier::transform(60, Some(Vector::new(0., -400.)), None, None)]));
 
         animations.insert("down".to_string(), Animation::new(Duration::from_millis(1500),
-                                                 vec![AnimationModifier::transform(40, Some(Vector::new(0., 400.)), None, None)]));
+                                                 vec![AnimationModifier::transform(60, Some(Vector::new(0., 400.)), None, None)]));
 
         data.add_components(entity, (Animations::new(animations), Tm {}));
 

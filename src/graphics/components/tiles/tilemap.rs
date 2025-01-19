@@ -51,7 +51,18 @@ impl TileEvent {
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub enum TilemapType {
     Standard,
-    Isometric,
+    Isometric{
+        offset_x : OffsetMultiplier,
+        offset_y : OffsetMultiplier,
+        offset_z : OffsetMultiplier,
+    },
+}
+
+#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
+pub struct OffsetMultiplier{
+    pub x_multiplier: f32,
+    pub y_multiplier: f32,
+    pub z_multiplier: f32
 }
 
 pub struct Tile {
@@ -287,7 +298,7 @@ impl Tilemap {
     pub fn is_isometric(&self)-> bool{
         match self.tilemap_type {
             TilemapType::Standard => { false }
-            TilemapType::Isometric => { true }
+            TilemapType::Isometric { .. } => { true }
         }
     }
 
@@ -302,6 +313,49 @@ impl Tilemap {
     pub fn depth(&self) -> usize {
         self.depth
     }
+
+    pub fn offset_x_multiplier_y(&self) -> f32 {
+        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+            return offset_x.y_multiplier;
+        }
+        0.
+    }
+
+    pub fn offset_x_multiplier_x(&self) -> f32 {
+        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+            return offset_x.x_multiplier;
+        }
+        0.
+    }
+
+    pub fn offset_x_multiplier_z(&self) -> f32 {
+        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+            return offset_x.z_multiplier;
+        }
+        0.
+    }
+
+    pub fn offset_y_multiplier_y(&self) -> f32 {
+        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+            return offset_y.y_multiplier;
+        }
+        0.
+    }
+
+    pub fn offset_y_multiplier_x(&self) -> f32 {
+        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+            return offset_y.x_multiplier;
+        }
+        0.
+    }
+
+    pub fn offset_y_multiplier_z(&self) -> f32 {
+        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+            return offset_y.z_multiplier;
+        }
+        0.
+    }
+
 }
 
 impl Renderable2D for Tilemap {
