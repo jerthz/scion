@@ -18,12 +18,12 @@ pub(crate) struct ScionWindowRenderingManager {
     should_render: bool,
     should_compute_cursor_color_picking: bool,
     cursor_position: Option<(u32, u32)>,
-    render_callback_sender: Sender<RendererCallbackEvent>
+    render_callback_sender: Sender<RendererCallbackEvent>,
 }
 
 impl ScionWindowRenderingManager {
     pub(crate) async fn new(window: Arc<Window>,
-                            default_background : Option<Color>,
+                            default_background: Option<Color>,
                             render_callback_sender: Sender<RendererCallbackEvent>) -> Self {
         let size = window.inner_size();
         let width = size.width.max(1);
@@ -90,7 +90,7 @@ impl ScionWindowRenderingManager {
         self.scion_renderer.update(updates, &self.device, &self.config, &mut self.queue);
     }
 
-    pub(crate) fn update_cursor(&mut self, cursor_update: Option<(u32,u32)>) {
+    pub(crate) fn update_cursor(&mut self, cursor_update: Option<(u32, u32)>) {
         self.cursor_position = cursor_update;
     }
 
@@ -130,7 +130,7 @@ impl ScionWindowRenderingManager {
         let depth_view = depth_texture.create_view(&wgpu::TextureViewDescriptor::default());
 
 
-        if self.should_compute_cursor_color_picking && self.cursor_position.is_some() {
+        if self.should_compute_cursor_color_picking && self.cursor_position_eligible() {
             self.compute_color_pixel(&data);
         }
 
@@ -144,7 +144,7 @@ impl ScionWindowRenderingManager {
             view,
             depth_view,
             &mut encoder,
-            false
+            false,
         );
 
         self.queue.submit(Some(encoder.finish()));
@@ -195,7 +195,7 @@ impl ScionWindowRenderingManager {
             offscreen_view,
             depth_view2,
             &mut encoder,
-            true
+            true,
         );
 
         let (pixel_x, pixel_y) = self.cursor_position.as_ref().unwrap();
@@ -246,7 +246,7 @@ impl ScionWindowRenderingManager {
         let g = mapped_range[1];
         let r = mapped_range[2];
 
-        let _r = self.render_callback_sender.send(RendererCallbackEvent::CursorColorPicking(Some(Color::new_rgb(r,g,b))));
+        let _r = self.render_callback_sender.send(RendererCallbackEvent::CursorColorPicking(Some(Color::new_rgb(r, g, b))));
 
         drop(mapped_range);
         pixel_buffer.unmap();
@@ -254,5 +254,12 @@ impl ScionWindowRenderingManager {
 
     pub(crate) fn should_render(&self) -> bool {
         self.should_render
+    }
+
+    fn cursor_position_eligible(&self) -> bool {
+        match self.cursor_position.as_ref(){
+            None => false,
+            Some((x,y)) =>  *x >= 0 && *y >= 0 && self.config.width <= *x && self.config.height <= *y
+        }
     }
 }
