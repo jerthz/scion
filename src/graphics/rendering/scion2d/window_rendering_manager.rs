@@ -129,7 +129,6 @@ impl ScionWindowRenderingManager {
         });
         let depth_view = depth_texture.create_view(&wgpu::TextureViewDescriptor::default());
 
-
         if self.should_compute_cursor_color_picking && self.cursor_position_eligible() {
             self.compute_color_pixel(&data);
         }
@@ -259,7 +258,7 @@ impl ScionWindowRenderingManager {
     fn cursor_position_eligible(&self) -> bool {
         match self.cursor_position.as_ref(){
             None => false,
-            Some((x,y)) =>  *x >= 0 && *y >= 0 && self.config.width <= *x && self.config.height <= *y
+            Some((x,y)) =>  *x >= 0 && *y >= 0 && *x <= self.config.width && *y <= self.config.height
         }
     }
 }

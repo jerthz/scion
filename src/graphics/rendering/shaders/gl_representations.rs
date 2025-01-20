@@ -98,6 +98,8 @@ pub(crate) struct TexturedGlVertexWithLayer {
     pub depth: f32,
     pub color_picking_override: [f32;4],
     pub enable_color_picking_override: u32,
+    pub enable_highlight: u32,
+    pub highlight_color: [f32;4],
 
 }
 
@@ -105,7 +107,7 @@ impl TexturedGlVertexWithLayer {
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         use std::mem;
         wgpu::VertexBufferLayout {
-            array_stride: mem::size_of::<TexturedGlVertexWithLayer>() as wgpu::BufferAddress,
+            array_stride: size_of::<TexturedGlVertexWithLayer>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttribute {
@@ -114,12 +116,12 @@ impl TexturedGlVertexWithLayer {
                     format: wgpu::VertexFormat::Float32x3,
                 },
                 wgpu::VertexAttribute {
-                    offset: mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                    offset: size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 1,
                     format: wgpu::VertexFormat::Float32x2,
                 },
                 wgpu::VertexAttribute {
-                    offset: (mem::size_of::<[f32; 2]>() + mem::size_of::<[f32; 3]>()) as wgpu::BufferAddress,
+                    offset: (size_of::<[f32; 2]>() + mem::size_of::<[f32; 3]>()) as wgpu::BufferAddress,
                     shader_location: 2,
                     format: wgpu::VertexFormat::Uint32,
                 },
@@ -137,6 +139,16 @@ impl TexturedGlVertexWithLayer {
                     offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>() + size_of::<u32>() + size_of::<f32>() + size_of::<[f32; 4]>()) as wgpu::BufferAddress,
                     shader_location: 5,
                     format: wgpu::VertexFormat::Uint32,
+                },
+                wgpu::VertexAttribute {
+                    offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>() + size_of::<u32>() + size_of::<f32>() + size_of::<[f32; 4]>() + size_of::<u32>()) as wgpu::BufferAddress,
+                    shader_location: 6,
+                    format: wgpu::VertexFormat::Uint32,
+                },
+                wgpu::VertexAttribute {
+                    offset: (size_of::<[f32; 2]>() + size_of::<[f32; 3]>() + size_of::<u32>() + size_of::<f32>() + size_of::<[f32; 4]>() + size_of::<u32>() + size_of::<u32>()) as wgpu::BufferAddress,
+                    shader_location: 7,
+                    format: wgpu::VertexFormat::Float32x4,
                 },
             ],
         }
@@ -213,6 +225,8 @@ impl From<(&Coordinates, &Coordinates, usize, f32)> for TexturedGlVertexWithLaye
             depth: vertex_infos.3,
             color_picking_override: [0.,0.,0.,1.],
             enable_color_picking_override: 0,
+            enable_highlight: 0,
+            highlight_color: [0.,0.,0.,0.],
         }
     }
 }
@@ -226,6 +240,8 @@ impl From<(&Coordinates, &Coordinates, usize, f32, Color, bool)> for TexturedGlV
             depth: vertex_infos.3,
             color_picking_override: [0.,0.,0.,1.],
             enable_color_picking_override: if vertex_infos.5 { 1 } else { 0 },
+            enable_highlight: 0,
+            highlight_color: [0.,0.,0.,0.],
         }
     }
 }

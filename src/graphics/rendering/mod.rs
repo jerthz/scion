@@ -81,3 +81,8 @@ pub struct RenderingInfos {
     pub(crate) type_name: String,
     pub(crate) render_priority: usize,
 }
+
+#[derive(Debug, Clone)]
+pub enum Highlight{
+    ColorNonTransparent(Color),
+}
