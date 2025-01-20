@@ -1,21 +1,25 @@
 use hecs::Entity;
 use scion::core::components::maths::transform::TransformBuilder;
 use scion::core::resources::asset_manager::AssetType;
-use scion::graphics::components::tiles::atlas::importer::load_tilemap;
-use std::collections::HashMap;
-use std::time::Duration;
-
 use scion::core::scene::Scene;
 use scion::core::world::{GameData, World};
 use scion::graphics::components::animations::{Animation, AnimationModifier, Animations};
+use scion::graphics::components::color::Color;
+use scion::graphics::components::tiles::atlas::importer::load_tilemap;
+use scion::graphics::components::tiles::sprite::Sprite;
 use scion::graphics::components::tiles::tilemap::Tile;
+use scion::graphics::rendering::Highlight;
 use scion::utils::file::app_base_path_join;
 use scion::utils::maths::Vector;
 use scion::utils::premade::dummy_camera_controller::DummyCameraConfig;
+use std::collections::HashMap;
+use std::time::Duration;
+use winit::window::CursorIcon;
 
 #[derive(Default)]
 pub struct DemoScene {
     entity: Option<Entity>,
+    last_highlighted: Option<Entity>,
     last: usize,
 }
 
@@ -78,8 +82,26 @@ impl Scene for DemoScene {
     fn on_update(&mut self, data: &mut GameData) {
         let picked = data.game_state().get_color_picked_entity();
         if let Some(e) = picked {
-            let t = data.entry_mut::<(&Tile)>(e).expect("");
-            println!("currently pointed : {:?} in the tilemap {:?}", t.get_position(), t.get_tilemap_entity());
+            if let Some(entity) = self.last_highlighted.as_ref() {
+                let s = data.entry_mut::<(&mut Sprite)>(*entity).expect("");
+                s.set_highlight(None);
+            }
+            {
+                let t = data.entry_mut::<(&Tile)>(e).expect("");
+                println!("currently pointed : {:?} in the tilemap {:?}", t.get_position(), t.get_tilemap_entity());
+            }
+            {
+                let s = data.entry_mut::<(&mut Sprite)>(e).expect("");
+                s.set_highlight(Some(Highlight::ColorNonTransparent(Color::new(255, 255, 255, 0.5))));
+            }
+            self.last_highlighted = Some(e);
+            data.window().set_cursor(CursorIcon::Pointer);
+        }else{
+            if let Some(entity) = self.last_highlighted.as_ref() {
+                let s = data.entry_mut::<(&mut Sprite)>(*entity).expect("");
+                s.set_highlight(None);
+            }
+            data.window().set_cursor(CursorIcon::Default);
         }
 
         let animations = data.entry_mut::<&mut Animations>(self.entity.unwrap()).expect("");

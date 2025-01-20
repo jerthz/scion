@@ -13,7 +13,7 @@ use crate::graphics::components::ui::ui_text::UiText;
 use crate::graphics::components::{Square, Triangle};
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
 use crate::graphics::rendering::shaders::gl_representations::TexturedGlVertexWithLayer;
-use crate::graphics::rendering::{Renderable2D, RenderableUi, RenderingUpdate};
+use crate::graphics::rendering::{Highlight, Renderable2D, RenderableUi, RenderingUpdate};
 use hecs::{Component, Entity};
 use log::info;
 use wgpu::BufferUsages;
@@ -126,7 +126,6 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                         } else {
                             offset_z = depth * 100 - tile.position.z() * 10;
                         }
-
                         vec.iter_mut().for_each(|gl_vertex| {
                             gl_vertex.position[0] = gl_vertex.position[0] + tile_size as f32 * tile.position.x() as f32 + offset_x;
                             gl_vertex.position[1] = gl_vertex.position[1] + tile_size as f32 * tile.position.y() as f32 + offset_y;
@@ -134,6 +133,10 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                             gl_vertex.depth = gl_vertex.depth + offset_z as f32 * 0.00001;
                             gl_vertex.enable_color_picking_override = 1;
                             gl_vertex.color_picking_override = color_picking.as_f32_array();
+                            if let Some(Highlight::ColorNonTransparent(c)) = sprite.highlight(){
+                                gl_vertex.enable_highlight = 1;
+                                gl_vertex.highlight_color = c.as_f32_array();
+                            }
                         });
                         let sprite_indexes = Sprite::indices();
                         let mut sprite_indexes: Vec<u16> = sprite_indexes

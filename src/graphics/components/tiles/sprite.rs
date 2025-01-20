@@ -10,6 +10,7 @@ use crate::{
     graphics::components::material::Material,
     graphics::rendering::Renderable2D,
 };
+use crate::graphics::rendering::Highlight;
 
 const INDICES: &[u16] = &[0, 1, 3, 3, 1, 2];
 
@@ -24,17 +25,19 @@ pub struct Sprite {
     dirty: bool,
     /// Pivot point of the sprite, default topleft
     pivot: Pivot,
+    /// Highlight type
+    highlight: Option<Highlight>,
 }
 
 impl Sprite {
     /// Creates a new sprite that will use the `tile_number` from the tileset associated in the same
     /// entity
     pub fn new(tile_number: usize) -> Self {
-        Self { tile_number, contents: None, dirty: false, pivot: Pivot::TopLeft}
+        Self { tile_number, contents: None, dirty: false, pivot: Pivot::TopLeft, highlight: None }
     }
 
     pub fn pivot(self, pivot: Pivot) -> Self {
-        Self { tile_number: self.tile_number, contents: None, dirty: false, pivot}
+        Self { tile_number: self.tile_number, contents: None, dirty: false, pivot, highlight: None }
     }
 
     /// Modify the current sprite tile number
@@ -85,6 +88,15 @@ impl Sprite {
 
     pub(crate) fn indices() -> Vec<u16> {
         INDICES.to_vec()
+    }
+
+    pub fn highlight(&self) -> Option<&Highlight> {
+        self.highlight.as_ref()
+    }
+
+    pub fn set_highlight(&mut self, highlight: Option<Highlight>){
+        self.highlight = highlight;
+        self.dirty = true;
     }
 
     pub(crate) fn set_content(&mut self, content: [TexturedGlVertexWithLayer; 4]) {
