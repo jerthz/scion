@@ -137,6 +137,12 @@ impl Transform {
         self.scale = scale
     }
 
+
+    /// Change the scale value to a new one.
+    pub fn get_scale(&self) -> f32{
+        self.scale
+    }
+
     /// Change the z value in the local translation coordinates.
     pub fn set_z(&mut self, z: usize) {
         let z_diff = self.global_translation.z - self.local_translation.z;

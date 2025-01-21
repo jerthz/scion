@@ -9,6 +9,8 @@ pub enum MouseButton {
     Middle,
     Back,
     Forward,
+    WheelUp,
+    WheelDown,
     Other(u16),
 }
 

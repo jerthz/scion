@@ -157,6 +157,10 @@ impl InputsController {
         self.mouse.add_click_event(event);
     }
 
+    pub(crate) fn reset_mouse_wheel(&mut self) {
+        self.mouse.reset_mouse_wheel();
+    }
+
     pub(crate) fn add_keyboard_event(&mut self, event: KeyboardEvent) {
         self.keyboard.add_keyboard_event(event);
     }

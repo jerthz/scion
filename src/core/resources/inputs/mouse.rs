@@ -48,6 +48,15 @@ impl Mouse {
         self.click_events.push(event);
     }
 
+    pub(crate) fn reset_mouse_wheel(&mut self) {
+        if self.buttons_pressed.contains(&MouseButton::WheelUp) {
+            self.buttons_pressed.remove(&MouseButton::WheelUp);
+        }
+        if self.buttons_pressed.contains(&MouseButton::WheelDown) {
+            self.buttons_pressed.remove(&MouseButton::WheelDown);
+        }
+    }
+
     pub(crate) fn clear_events(&mut self) {
         self.click_events.clear();
     }
