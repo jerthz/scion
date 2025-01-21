@@ -1,5 +1,5 @@
 use crate::core::components::maths::camera::Camera;
-use winit::event::WindowEvent;
+use winit::event::{MouseScrollDelta, WindowEvent};
 use winit::keyboard::Key;
 
 use crate::core::resources::inputs::mouse::MouseEvent;
@@ -52,6 +52,21 @@ pub fn handle_window_event(runner: &mut ScionRunner) -> Vec<RendererEvent> {
                             state: InputState::from(state),
                         };
                         runner.game_data.inputs().add_click_event(m_event);
+                    }
+                    WindowEvent::MouseWheel { delta, .. } => {
+
+                        match delta {
+                            MouseScrollDelta::LineDelta(_x, y) => {
+                                if y > 0. {
+                                    runner.game_data.inputs().add_click_event(MouseEvent{ button: MouseButton::WheelUp, state: InputState::Pressed });
+                                } else if y < 0. {
+                                    runner.game_data.inputs().add_click_event(MouseEvent{ button: MouseButton::WheelDown, state: InputState::Pressed });
+                                } else {
+                                    runner.game_data.inputs().reset_mouse_wheel();
+                                }
+                            }
+                            MouseScrollDelta::PixelDelta(_) => {}
+                        }
                     }
                     WindowEvent::CursorMoved { device_id: _, position, .. } => {
                         let dpi_factor = runner

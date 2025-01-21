@@ -1,6 +1,7 @@
 use std::{collections::HashMap, ops::Range};
 
 use hecs::Entity;
+use log::info;
 use serde::{Deserialize, Serialize};
 use wgpu::{util::BufferInitDescriptor, PrimitiveTopology};
 
@@ -218,6 +219,8 @@ impl Tilemap {
             let entry = world.entry_mut::<&mut Sprite>(tile);
             if let Ok(sprite) = entry {
                 sprite.set_tile_nb(new_tile_nb);
+            } else {
+                let _r = world.add_components(tile, (Sprite::new(new_tile_nb),));
             }
         }
     }
