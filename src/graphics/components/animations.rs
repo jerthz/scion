@@ -5,8 +5,8 @@ use std::{
     ops::Div,
     time::Duration,
 };
-
-use crate::graphics::components::animations::AnimationStatus::{ForceStopped, Stopped};
+use std::time::Instant;
+use crate::graphics::components::animations::AnimationStatus::{ForceStopped, Stopped, WaitingStartTime};
 use crate::{graphics::components::color::Color, utils::maths::Vector};
 
 pub struct Animations {
@@ -32,11 +32,12 @@ impl Animations {
                 .animations
                 .get_mut(animation_name)
                 .expect("An animation has not been found after the security check");
-            if AnimationStatus::Stopped == animation.status {
-                animation.status = status;
-                true
-            } else {
-                false
+            match animation.status {
+                WaitingStartTime(_) | Stopped => {
+                    animation.status = status;
+                    true
+                }
+                _ => false
             }
         } else {
             false
@@ -46,6 +47,30 @@ impl Animations {
     /// Runs the animation `name`. Returns true is the animation has been started, false if it does not exist or was already running
     pub fn run_animation(&mut self, animation_name: &str) -> bool {
         self.run(animation_name, AnimationStatus::Running)
+    }
+
+    /// Runs the animation `name` after a delay `delay`. Returns true is the animation has been started, false if it does not exist or was already running
+    pub fn run_animation_delayed(&mut self, animation_name: &str, delay: Duration) -> bool {
+        if let Some(start_time) = Instant::now().checked_add(delay){
+            self.run(animation_name, WaitingStartTime(start_time));
+            return true;
+        }
+        false
+    }
+
+    pub(crate) fn run_eligible_delayed_animations(&mut self) {
+        let now = Instant::now();
+        let mut to_run = Vec::new();
+        self.animations.iter().for_each(|entry| {
+            if let WaitingStartTime(instant) = entry.1.status {
+                if instant <= now {
+                    to_run.push(entry.0.to_string());
+                }
+            }
+        });
+        for key in to_run.iter(){
+            self.run(key, AnimationStatus::Running);
+        }
     }
 
     /// return whether or not an animation with the given name is running
@@ -106,11 +131,7 @@ impl Animations {
     pub fn any_animation_running(&self) -> bool {
         self.animations
             .values()
-            .filter(|v| {
-                v.status.eq(&AnimationStatus::Running)
-                    || v.status.eq(&AnimationStatus::Looping)
-                    || v.status.eq(&AnimationStatus::Stopping)
-            })
+            .filter(|v| matches!(v.status, AnimationStatus::Running | AnimationStatus::WaitingStartTime(_) | AnimationStatus::Looping | AnimationStatus::Stopping))
             .count()
             > 0
     }
@@ -118,6 +139,7 @@ impl Animations {
 
 #[derive(Eq, PartialEq, Debug)]
 pub(crate) enum AnimationStatus {
+    WaitingStartTime(Instant),
     ForceStopped,
     Stopped,
     Running,

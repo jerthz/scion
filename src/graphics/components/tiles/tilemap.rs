@@ -285,7 +285,7 @@ impl Tilemap {
 
     /// Retrieves the mutable tile event associated with this position in the tilemap
     pub fn retrieve_event(&mut self, tile_position: &Position) -> Option<&mut TileEvent> {
-        return self.events.get_mut(tile_position);
+        self.events.get_mut(tile_position)
     }
 
     fn create_tilemap(

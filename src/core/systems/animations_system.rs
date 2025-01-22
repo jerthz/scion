@@ -1,5 +1,5 @@
 use crate::core::components::maths::transform::Transform;
-use crate::core::world::{GameData, World};
+use crate::core::world::{GameData, SubWorld, World};
 use crate::graphics::components::ui::ui_text::UiText;
 use crate::{
     core::resources::time::TimerType,
@@ -14,6 +14,7 @@ use crate::{
         Hide,
     },
 };
+use crate::graphics::components::HidePropagated;
 
 #[derive(PartialEq)]
 enum BlinkResult {
@@ -27,6 +28,7 @@ enum BlinkResult {
 pub(crate) fn animation_executer_system(data: &mut GameData) {
 
     let (subworld, resources) = data.split();
+    start_delayed_animation(subworld);
     let mut timers = resources.timers();
     let mut remove_blink = Vec::new();
     let mut add_blink = Vec::new();
@@ -43,7 +45,7 @@ pub(crate) fn animation_executer_system(data: &mut GameData) {
         animations
             .animations_mut()
             .iter_mut()
-            .filter(|(_, v)| v.status != AnimationStatus::Stopped)
+            .filter(|(_, v)| !matches!(v.status, AnimationStatus::Stopped | AnimationStatus::WaitingStartTime(_)))
             .for_each(|(key, animation)| {
                 for modifier in animation.modifiers.iter_mut() {
                     let mut timer_created = false;
@@ -138,6 +140,14 @@ pub(crate) fn animation_executer_system(data: &mut GameData) {
     add_blink.drain(0..).for_each(|e| {
         let _r = subworld.add_components(e, (Hide,));
     });
+}
+
+fn start_delayed_animation(world: &mut SubWorld) {
+    for (_, animation) in world.query_mut::<&mut Animations>()
+        .without::<&Hide>()
+        .without::<&HidePropagated>() {
+        animation.run_eligible_delayed_animations();
+    }
 }
 
 fn apply_transform_modifier(
