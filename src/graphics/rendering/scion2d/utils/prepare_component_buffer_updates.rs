@@ -173,9 +173,9 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
 
 fn any_dirty_sprite(data: &GameData, entity: Entity) -> bool {
     data
-        .query::<(&Tile, &Sprite)>()
+        .query::<(&Tile, &Sprite, &Transform)>()
         .iter()
-        .filter(|(_, (tile, sprite))| tile.tilemap == entity && sprite.dirty())
+        .filter(|(_, (tile, sprite, t))| tile.tilemap == entity && (sprite.dirty() || t.dirty))
         .count()
         > 0
 }
