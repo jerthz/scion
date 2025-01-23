@@ -21,6 +21,7 @@ pub struct Transform {
     pub(crate) dirty: bool,
     pub(crate) dirty_child: bool,
     pub(crate) use_screen_as_origin: bool,
+    pub(crate) dirty_offset: bool,
     bounds: Bounds,
 }
 
@@ -35,6 +36,7 @@ impl Default for Transform {
             dirty: false,
             dirty_child: true,
             use_screen_as_origin: false,
+            dirty_offset: false,
             bounds: Default::default(),
         }
     }
@@ -52,6 +54,7 @@ impl Transform {
             dirty: false,
             dirty_child: true,
             use_screen_as_origin: false,
+            dirty_offset: false,
             bounds: Default::default(),
         }
     }
@@ -73,6 +76,7 @@ impl Transform {
         self.global_translation.x += x;
         self.global_translation.y += y;
         self.dirty = true;
+        self.dirty_offset = true;
         self.handle_bounds();
     }
 
@@ -86,6 +90,7 @@ impl Transform {
         self.local_translation.x += x;
         self.global_translation.x += x;
         self.dirty = true;
+        self.dirty_offset = true;
         self.handle_bounds();
     }
 
@@ -94,6 +99,7 @@ impl Transform {
         self.local_translation.y += y;
         self.global_translation.y += y;
         self.dirty = true;
+        self.dirty_offset = true;
         self.handle_bounds();
     }
 
@@ -102,6 +108,7 @@ impl Transform {
         self.local_translation.y += y;
         self.global_translation.y += y;
         self.dirty = true;
+        self.dirty_offset = true;
         self.handle_bounds();
     }
 
@@ -110,12 +117,14 @@ impl Transform {
         self.local_angle += angle;
         self.global_angle += angle;
         self.dirty = true;
+        self.dirty_offset = true;
     }
 
     pub fn set_angle(&mut self, angle: f32) {
         self.local_angle = angle;
         self.global_angle = angle;
         self.dirty = true;
+        self.dirty_offset = true;
     }
 
     pub fn global_angle(&self) -> f32 {
@@ -149,6 +158,7 @@ impl Transform {
         self.local_translation.z = z;
         self.global_translation.z = z + z_diff;
         self.dirty = true;
+        self.dirty_offset = true;
     }
 
     /// Change the x value in the local translation coordinates.
@@ -157,6 +167,7 @@ impl Transform {
         self.local_translation.x = x;
         self.global_translation.x = x + x_diff;
         self.dirty = true;
+        self.dirty_offset = true;
     }
 
     /// Change the y value  in the local translation coordinates.
@@ -165,6 +176,7 @@ impl Transform {
         self.local_translation.y = y;
         self.global_translation.y = y + y_diff;
         self.dirty = true;
+        self.dirty_offset = true;
     }
 
     /// Configure the minimum global x position for this transform to be min_x
@@ -219,11 +231,16 @@ impl Transform {
         new_global.z += self.local_translation.z;
         self.global_translation = new_global;
         self.dirty = true;
+        self.dirty_offset = true;
         self.handle_bounds();
     }
 
     pub(crate) fn compute_global_angle_from_parent(&mut self, parent_angle: f32){
         self.global_angle = self.local_angle + parent_angle;
+    }
+
+    pub(crate) fn reset_dirty_offset(&mut self){
+        self.dirty_offset = false;
     }
 
     fn handle_bounds(&mut self) {

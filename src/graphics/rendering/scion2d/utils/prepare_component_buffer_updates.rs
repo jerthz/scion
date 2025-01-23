@@ -104,7 +104,7 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
 
             let any_tile_modified = renderer.missing_vertex_buffer(&entity) || any_dirty_sprite(data, entity);
             if any_tile_modified {
-                for (e, (tile, sprite)) in data.query::<(&Tile, &Sprite)>().iter() {
+                for (e, (tile, sprite, offset_transform)) in data.query::<(&Tile, &Sprite, &Transform)>().iter() {
                     if tile.tilemap == entity {
                         let color_picking = renderer.color_picking_storage.create_picking(e);
                         let current_vertex = sprite.compute_content(Some(material));
@@ -115,9 +115,9 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                         let offset_z: usize;
 
                         if isometric {
-                            offset_x = -1. * tile.position.x() as f32 * t.offset_x_multiplier_x() + tile.position.y() as f32 * t.offset_x_multiplier_y() - (tile.position.z() as f32 * t.offset_x_multiplier_z());
-                            offset_y = -1. * (tile.position.y() as f32 * t.offset_y_multiplier_y()  + tile.position.x() as f32 * t.offset_y_multiplier_x()) - (tile.position.z() as f32 * t.offset_y_multiplier_z());
-                            offset_z = (max_x - tile.position.z()) * (max_x + 1) + tile.position.x() * (max_x + 1) + (max_x - tile.position.y())
+                            offset_x = offset_transform.local_translation.x + -1. * tile.position.x() as f32 * t.offset_x_multiplier_x() + tile.position.y() as f32 * t.offset_x_multiplier_y() - (tile.position.z() as f32 * t.offset_x_multiplier_z());
+                            offset_y = offset_transform.local_translation.y + -1. * (tile.position.y() as f32 * t.offset_y_multiplier_y()  + tile.position.x() as f32 * t.offset_y_multiplier_x()) - (tile.position.z() as f32 * t.offset_y_multiplier_z());
+                            offset_z = offset_transform.local_translation.z + (max_x - tile.position.z()) * (max_x + 1) + tile.position.x() * (max_x + 1) + (max_x - tile.position.y())
                         } else {
                             offset_z = depth * 100 - tile.position.z() * 10;
                         }
@@ -173,9 +173,9 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
 
 fn any_dirty_sprite(data: &GameData, entity: Entity) -> bool {
     data
-        .query::<(&Tile, &Sprite)>()
+        .query::<(&Tile, &Sprite, &Transform)>()
         .iter()
-        .filter(|(_, (tile, sprite))| tile.tilemap == entity && sprite.dirty())
+        .filter(|(_, (tile, sprite, t))| tile.tilemap == entity && (sprite.dirty() || t.dirty_offset))
         .count()
         > 0
 }

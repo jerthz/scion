@@ -7,6 +7,7 @@ use crate::core::components::maths::{
     transform::Transform,
 };
 use crate::core::world::{GameData, World};
+use crate::graphics::components::tiles::tilemap::Tile;
 
 /// System responsible of detecting when a transform's global coords should be computed again
 /// based on the fact that the transform is flagged as dirty_child (IE when it's added to a parent)
@@ -86,6 +87,12 @@ pub(crate) fn dirty_transform_system(data: &mut GameData) {
             }
             parent_transform.dirty = false;
         }
+    }
+}
+
+pub(crate) fn dirty_transform_offset_system(data: &mut GameData) {
+    for (_,(t,_)) in data.query_mut::<(&mut Transform, &Tile)>(){
+        t.reset_dirty_offset();
     }
 }
 

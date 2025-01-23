@@ -84,8 +84,7 @@ impl Scene for MainScene {
                         .unwrap()
                         .get(p.x())
                         .unwrap(),
-                ),
-                None,
+                )
             )
         });
 

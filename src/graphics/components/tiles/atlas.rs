@@ -16,6 +16,7 @@ pub mod importer {
     use crate::graphics::components::animations::{Animation, AnimationModifier};
     use crate::graphics::components::material::Material;
     use crate::graphics::components::tiles::atlas::data::{TilemapAtlas, TilesetAtlas};
+    use crate::graphics::components::tiles::SPRITE_ANIMATION_PRELOAD;
     use crate::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInfo, TilemapType};
     use crate::graphics::components::tiles::tileset::Tileset;
     use crate::utils::maths::Dimensions;
@@ -80,12 +81,12 @@ pub mod importer {
         let entity = Tilemap::create(tilemap_info, subworld, |p| {
             let tile = tilemap.tile_at(p);
             let animation = compute_animation(&tile, tileset);
-            TileInfos::new(tile, animation)
+            TileInfos::new(tile).with_animation(animation)
         });
         (tilemap, entity)
     }
 
-    fn compute_animation(tile: &Option<usize>, tileset: &Tileset) -> Option<Animation> {
+    fn compute_animation(tile: &Option<usize>, tileset: &Tileset) -> Option<(String, Animation)> {
         match tile {
             None => None,
             Some(tile) => {
@@ -97,8 +98,7 @@ pub mod importer {
                             let time: usize = vec_anim.iter().map(|a| a.duration).sum();
                             let frames: Vec<usize> = vec_anim.iter().map(|a| a.tile_id).collect();
                             let end_tile = *frames.last().unwrap();
-                            debug!("Duration of animation : {:?}", time);
-                            Some(Animation::looping(Duration::from_millis(time as u64), vec![AnimationModifier::sprite(frames, end_tile)]))
+                            Some((SPRITE_ANIMATION_PRELOAD.to_string(), Animation::looping(Duration::from_millis(time as u64), vec![AnimationModifier::sprite(frames, end_tile)])))
                         } else {
                             None
                         }

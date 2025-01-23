@@ -168,6 +168,13 @@ impl Animation {
         Self { _duration: duration, modifiers, status: AnimationStatus::Running }
     }
 
+    /// Creates a new animation with the status delayed
+    pub fn delayed(duration: Duration, mut modifiers: Vec<AnimationModifier>, instant: Instant) -> Self {
+        Animation::initialise_animation(duration, &mut modifiers);
+
+        Self { _duration: duration, modifiers, status: WaitingStartTime(instant) }
+    }
+
     ///Creates a new animation with the status looping
     pub fn looping(duration: Duration, mut modifiers: Vec<AnimationModifier>) -> Self {
         Animation::initialise_animation(duration, &mut modifiers);
