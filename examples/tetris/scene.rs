@@ -4,7 +4,7 @@ use scion::core::world::{GameData, World};
 use scion::{
     graphics::components::{
         tiles::tileset::Tileset,
-        ui::{font::Font, ui_image::UiImage, ui_text::UiText},
+        ui::{font::Font, ui_text::UiText},
     },
     core::resources::time::TimerType,
     core::scene::Scene,

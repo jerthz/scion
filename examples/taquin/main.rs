@@ -1,7 +1,6 @@
 mod animations;
 
 use std::collections::HashMap;
-use log::info;
 use rand::rngs::ThreadRng;
 use rand::Rng;
 use scion::core::resources::audio::PlayConfig;
@@ -102,7 +101,7 @@ fn taquin_system(data: &mut GameData) {
             {
                 let direction =  taquin.try_move(case.0.x() as usize, case.0.y() as usize);
                 if direction != MoveDirection::None{
-                    resources.audio().play( app_base_path().join("examples/taquin/assets/tap.ogg").get(), PlayConfig::default());
+                    let _r = resources.audio().play( app_base_path().join("examples/taquin/assets/tap.ogg").get(), PlayConfig::default());
                 }
                 match direction {
                     MoveDirection::Left => {

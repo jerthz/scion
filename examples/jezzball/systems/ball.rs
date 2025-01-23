@@ -10,9 +10,7 @@ use scion::graphics::components::{
 use crate::main_scene::{Ball, BallDirection};
 
 pub fn ball_control_system(data: &mut GameData) {
-    let (world, resource) = data.split();
-
-    let mut audio_player = resource.audio();
+    let (world, _) = data.split();
 
     for (_, (ball, transform, collider, animations)) in
         world.query_mut::<(&mut Ball, &mut Transform, &Collider, &mut Animations)>()

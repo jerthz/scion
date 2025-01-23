@@ -66,7 +66,7 @@ pub fn dummy_camera_controller_system(data: &mut GameData){
     let vertical_input = 0. + if up { -1. * vv } else { 0. } + if down { vv } else { 0. };
 
     if horizontal_input != 0. || vertical_input != 0. {
-        for (_, (t, c)) in data.query_mut::<(&mut Transform, &Camera)>(){
+        for (_, (t, _)) in data.query_mut::<(&mut Transform, &Camera)>(){
             t.append_x(horizontal_input);
             t.append_y(vertical_input);
         }

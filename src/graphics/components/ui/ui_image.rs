@@ -41,7 +41,7 @@ impl UiImage {
         let c = Coordinates::new(a.x() + width, a.y() + height);
         let d = Coordinates::new(a.x() + width, a.y());
 
-        let mut contents = [
+        let contents = [
             TexturedGlVertex::from((&a, &uvs[0])),
             TexturedGlVertex::from((&b, &uvs[1])),
             TexturedGlVertex::from((&c, &uvs[2])),

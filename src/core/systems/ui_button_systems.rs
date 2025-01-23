@@ -1,5 +1,4 @@
 use hecs::Entity;
-use log::info;
 use winit::window::CursorIcon;
 
 use crate::core::components::maths::hierarchy::{Children, Parent};
@@ -22,7 +21,7 @@ pub(crate) fn set_childs_on_buttons(data: &mut GameData) {
 
     let mut to_add_entities = Vec::new();
     let mut to_add_entities_2 = Vec::new();
-    for (e, (ui_button, transform)) in world.query_mut::<(&UiButton, &Transform)>().without::<&Children>() {
+    for (e, (ui_button, _)) in world.query_mut::<(&UiButton, &Transform)>().without::<&Children>() {
         let mut ui_text = UiText::new(ui_button.text().to_string(), ui_button.font_ref());
         ui_text = ui_text.with_font_size(ui_button.font_size());
         if let Some(color) = ui_button.font_color() {

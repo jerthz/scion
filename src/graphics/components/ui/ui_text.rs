@@ -1,5 +1,4 @@
 use std::ops::Range;
-use log::info;
 use wgpu::{util::BufferInitDescriptor, PrimitiveTopology};
 
 use crate::core::components::maths::coordinates::Coordinates;
@@ -13,9 +12,9 @@ use crate::utils::maths::Vector;
 use crate::{
     graphics::components::{
         material::Material,
-        ui::{font::Font, ui_image::UiImage},
+        ui::font::Font,
     },
-    graphics::rendering::{Renderable2D, RenderableUi},
+    graphics::rendering::Renderable2D,
 };
 
 const SINGLE_CHAR_INDICES: &[u16] = &[0, 1, 3, 3, 1, 2];
@@ -128,7 +127,7 @@ impl UiText {
 }
 
 impl Renderable2D for UiText {
-    fn vertex_buffer_descriptor(&mut self, material: Option<&Material>) -> BufferInitDescriptor {
+    fn vertex_buffer_descriptor(&mut self, _material: Option<&Material>) -> BufferInitDescriptor {
         todo!()
     }
 

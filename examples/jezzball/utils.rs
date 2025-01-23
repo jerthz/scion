@@ -16,10 +16,6 @@ pub fn cases_asset() -> String {
     app_base_path().join("examples/jezzball/assets/cases.png").get()
 }
 
-pub fn ball_bounce_effect() -> String {
-    app_base_path().join("examples/jezzball/assets/bounce.ogg").get()
-}
-
 pub fn ball_animations() -> Animations {
     let mut animations = HashMap::new();
     animations.insert(

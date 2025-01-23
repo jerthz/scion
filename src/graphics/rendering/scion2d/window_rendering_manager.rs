@@ -64,7 +64,7 @@ impl ScionWindowRenderingManager {
             .await
             .expect("Failed to create device");
 
-        let mut config = surface
+        let config = surface
             .get_default_config(&adapter, width, height)
             .unwrap();
         surface.configure(&device, &config);
@@ -258,7 +258,7 @@ impl ScionWindowRenderingManager {
     fn cursor_position_eligible(&self) -> bool {
         match self.cursor_position.as_ref(){
             None => false,
-            Some((x,y)) =>  *x >= 0 && *y >= 0 && *x <= self.config.width && *y <= self.config.height
+            Some((x,y)) => *x <= self.config.width && *y <= self.config.height
         }
     }
 }

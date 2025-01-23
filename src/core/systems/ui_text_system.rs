@@ -1,11 +1,6 @@
-use std::collections::HashSet;
 
-use crate::core::components::maths::coordinates::Coordinates;
-use crate::core::components::maths::hierarchy::Parent;
-use crate::core::components::maths::transform::Transform;
 use atomic_refcell::AtomicRefMut;
-use hecs::Entity;
-use log::{debug, info};
+use log::debug;
 
 use crate::core::resources::font_atlas::FontAtlas;
 use crate::core::world::{GameData, World};
@@ -13,9 +8,7 @@ use crate::graphics::components::color::Color;
 use crate::graphics::components::material::Material;
 use crate::graphics::components::ui::{
     font::Font,
-    ui_image::UiImage,
     ui_text::{UiText},
-    UiComponent,
 };
 
 pub(crate) fn sync_text_value_system(data: &mut GameData) {
@@ -90,11 +83,11 @@ fn add_bitmap_to_atlas_if_missing(texture_path: String,
                                   width: f32,
                                   height: f32,
                                   texture_columns: f32,
-                                  texture_lines: f32,
+                                  _texture_lines: f32,
                                   font_atlas: &mut AtomicRefMut<FontAtlas>) {
     if font_atlas.get_texture_from_path(&texture_path).is_none() {
         debug!("Adding bitmap font to atlas: [path: {}]", texture_path);
-        let res = crate::core::resources::font_atlas::convert_bitmap(texture_path.to_string(), chars, width, height, texture_columns, texture_lines);
+        let res = crate::core::resources::font_atlas::convert_bitmap(texture_path.to_string(), chars, width, height, texture_columns);
         if let Ok(texture) = res {
             font_atlas.add_bitmap(texture_path.to_string(), texture);
         }
@@ -104,6 +97,7 @@ fn add_bitmap_to_atlas_if_missing(texture_path: String,
 
 #[cfg(test)]
 mod tests {
+    use crate::core::components::maths::transform::Transform;
     use crate::core::resources::asset_manager::AssetManager;
     use crate::core::world::World;
     use crate::graphics::components::ui::{

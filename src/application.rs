@@ -2,19 +2,17 @@ use std::path::Path;
 
 use std::sync::{mpsc, Arc};
 use std::thread;
-use std::time::Duration;
 
 
 use crate::core::application_builder::ScionBuilder;
 use crate::config::scion_config::{ScionConfig, ScionConfigReader};
 use log::{error, info};
 use winit::application::ApplicationHandler;
-use winit::error::EventLoopError;
 use winit::event::{DeviceEvent, DeviceId};
 use winit::event_loop::ActiveEventLoop;
 use winit::window::{WindowAttributes, WindowId};
 use winit::{
-    event::{Event, WindowEvent},
+    event::WindowEvent,
     event_loop::{ControlFlow, EventLoop},
 };
 
@@ -121,7 +119,7 @@ impl ApplicationHandler<ScionEvent> for Scion {
                 .create_window(window_builder)
                 .expect("An error occurred while building the main game window"),
         );
-        let (render_callback_sender, render_callback_receiver) = mpsc::channel::<(RendererCallbackEvent)>();
+        let (render_callback_sender, render_callback_receiver) = mpsc::channel::<RendererCallbackEvent>();
         let window_rendering_manager = futures::executor::block_on(
             ScionWindowRenderingManager::new(
                 window.clone(),
@@ -167,11 +165,11 @@ impl ApplicationHandler<ScionEvent> for Scion {
         self.window_event_sender = Some(event_sender);
     }
 
-    fn user_event(&mut self, event_loop: &ActiveEventLoop, user_event: ScionEvent) {
+    fn user_event(&mut self, _event_loop: &ActiveEventLoop, _user_event: ScionEvent) {
         // Handle user event.
     }
 
-    fn window_event(&mut self, event_loop: &ActiveEventLoop, window_id: WindowId, event: WindowEvent) {
+    fn window_event(&mut self, event_loop: &ActiveEventLoop, _window_id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::CloseRequested => event_loop.exit(),
             WindowEvent::RedrawRequested => {
@@ -183,11 +181,11 @@ impl ApplicationHandler<ScionEvent> for Scion {
         }
     }
 
-    fn device_event(&mut self, event_loop: &ActiveEventLoop, device_id: DeviceId, event: DeviceEvent) {
+    fn device_event(&mut self, _event_loop: &ActiveEventLoop, _device_id: DeviceId, _event: DeviceEvent) {
         // Handle device event.
     }
 
-    fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
+    fn about_to_wait(&mut self, _event_loop: &ActiveEventLoop) {
     }
 }
 

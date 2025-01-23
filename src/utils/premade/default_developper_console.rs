@@ -5,7 +5,6 @@ use crate::core::resources::inputs::types::{Input, KeyCode};
 use crate::core::world::{GameData, World};
 use crate::graphics::components::color::Color;
 use crate::graphics::components::material::Material;
-use crate::graphics::components::tiles::atlas::data;
 use crate::graphics::components::ui::font::Font;
 use crate::graphics::components::ui::ui_image::UiImage;
 use crate::graphics::components::ui::ui_input::UiInput;
@@ -39,7 +38,7 @@ pub fn dummy_developer_console_system(data: &mut GameData) {
     let currently_displayed = data.resources.get_resource::<ScionDeveloperConsoleResource>()
         .expect("Missing mandatory resource ScionDeveloperConsoleResource").currently_displayed;
 
-    if (!currently_displayed && open && !close) {
+    if !currently_displayed && open && !close {
         info!("pushing developer console");
         let current_window_width = data.resources.window().width();
         let current_window_height = data.resources.window().height();

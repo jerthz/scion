@@ -21,29 +21,3 @@ pub enum Font {
     }
 }
 
-impl Font {
-    pub(crate) fn find_line_and_column(
-        chars: &String,
-        texture_column: f32,
-        character: char,
-    ) -> (f32, f32) {
-        let index_of_char = chars
-            .find(character)
-            .expect("A character is not a part of the bitmap font but has been added to an UiText");
-
-        (
-            (index_of_char / texture_column as usize) as f32,
-            (index_of_char % texture_column as usize) as f32,
-        )
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn find_indexes() {
-        assert_eq!((1., 0.), Font::find_line_and_column(&"abcdef".to_string(), 3., 'd'))
-    }
-}
