@@ -21,7 +21,7 @@ use crate::core::systems::hide_propagation_system::{
 };
 use crate::core::systems::hierarchy_system::children_manager_system;
 use crate::core::systems::missing_ui_component_system::{missing_focus_component_system, missing_ui_component_system};
-use crate::core::systems::parent_transform_system::{dirty_child_system, dirty_transform_system};
+use crate::core::systems::parent_transform_system::{dirty_child_system, dirty_transform_offset_system, dirty_transform_system};
 use crate::core::systems::ui_button_systems::{compute_hover, set_childs_on_buttons};
 use crate::core::systems::ui_input_systems::{register_keyboard_inputs_on_ui_input, set_childs_on_inputs, synchronize_input_and_text};
 use crate::core::systems::ui_text_system::{sync_text_value_system, ui_text_atlas_system, ui_text_material_resolver};
@@ -79,8 +79,8 @@ impl Package for InternalPackage {
     }
 
     fn load(&self, builder: ScionBuilder) -> ScionBuilder {
-
         builder
+            .with_system(dirty_transform_offset_system)
             .with_system(collider_cleaner_system)
             .with_system(default_camera_system)
             .with_system(sync_text_value_system)

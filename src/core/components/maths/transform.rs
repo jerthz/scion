@@ -239,6 +239,10 @@ impl Transform {
         self.global_angle = self.local_angle + parent_angle;
     }
 
+    pub(crate) fn reset_dirty_offset(&mut self){
+        self.dirty_offset = false;
+    }
+
     fn handle_bounds(&mut self) {
         if let Some(min_x) = self.bounds.min_x {
             if self.global_translation.x < min_x {
