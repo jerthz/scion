@@ -1,7 +1,6 @@
 use std::{collections::HashMap, ops::Range};
 
 use hecs::Entity;
-use log::info;
 use serde::{Deserialize, Serialize};
 use wgpu::{util::BufferInitDescriptor, PrimitiveTopology};
 
@@ -318,42 +317,42 @@ impl Tilemap {
     }
 
     pub fn offset_x_multiplier_y(&self) -> f32 {
-        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+        if let TilemapType::Isometric { offset_x, .. } = self.tilemap_type{
             return offset_x.y_multiplier;
         }
         0.
     }
 
     pub fn offset_x_multiplier_x(&self) -> f32 {
-        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+        if let TilemapType::Isometric { offset_x, .. } = self.tilemap_type{
             return offset_x.x_multiplier;
         }
         0.
     }
 
     pub fn offset_x_multiplier_z(&self) -> f32 {
-        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+        if let TilemapType::Isometric { offset_x, .. } = self.tilemap_type{
             return offset_x.z_multiplier;
         }
         0.
     }
 
     pub fn offset_y_multiplier_y(&self) -> f32 {
-        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+        if let TilemapType::Isometric {offset_y, .. } = self.tilemap_type{
             return offset_y.y_multiplier;
         }
         0.
     }
 
     pub fn offset_y_multiplier_x(&self) -> f32 {
-        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+        if let TilemapType::Isometric { offset_y, .. } = self.tilemap_type{
             return offset_y.x_multiplier;
         }
         0.
     }
 
     pub fn offset_y_multiplier_z(&self) -> f32 {
-        if let TilemapType::Isometric { offset_x, offset_y, offset_z } = self.tilemap_type{
+        if let TilemapType::Isometric { offset_y, .. } = self.tilemap_type{
             return offset_y.z_multiplier;
         }
         0.

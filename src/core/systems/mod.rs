@@ -1,7 +1,6 @@
 use crate::core::package::Package;
 use crate::core::resources::asset_manager::AssetManager;
 use crate::core::resources::audio::Audio;
-use crate::core::resources::color_picking::ColorPickingStorage;
 use crate::core::resources::events::topic::TopicConfiguration;
 use crate::core::resources::events::Events;
 use crate::core::resources::focus_manager::FocusManager;
@@ -51,7 +50,6 @@ pub(crate) mod ui_text_system;
 pub(crate) mod ui_input_systems;
 pub(crate) mod focus_systems;
 pub(crate) mod ui_button_systems;
-mod color_picking_system;
 
 pub(crate) struct InternalPackage;
 impl Package for InternalPackage {

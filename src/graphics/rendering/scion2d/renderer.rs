@@ -5,7 +5,7 @@ use wgpu::util::BufferInitDescriptor;
 use wgpu::{util::DeviceExt, BindGroup, BindGroupLayout, Buffer, CommandEncoder, Device, Queue, RenderPassColorAttachment, RenderPipeline, SamplerBindingType, StoreOp, SurfaceConfiguration, TextureFormat, TextureView};
 
 use crate::graphics::rendering::scion2d::rendering_texture_management::load_texture_array_to_queue;
-use crate::graphics::rendering::shaders::gl_representations::{GlColorPickingUniform, GlUniform, PickingData};
+use crate::graphics::rendering::shaders::gl_representations::{GlUniform, PickingData};
 use crate::graphics::rendering::shaders::pipeline::pipeline_sprite;
 use crate::graphics::rendering::{DiffuseBindGroupUpdate, RenderingInfos, RenderingUpdate};
 use crate::{
@@ -42,7 +42,6 @@ pub(crate) struct Scion2D {
     transform_bind_group_layout: Option<BindGroupLayout>,
     diffuse_bind_groups: HashMap<String, (BindGroup, wgpu::Texture)>,
     transform_uniform_bind_groups: HashMap<Entity, (GlUniform, Buffer, BindGroup)>,
-    default_color_picking_uniform_bind_groups: Option<BindGroup>,
     enabled_picking_uniform_bind_group: Option<BindGroup>,
     disabled_picking_uniform_bind_group: Option<BindGroup>,
 }
@@ -484,30 +483,6 @@ fn create_transform_uniform_bind_group(
     });
 
     (gl_uniform, uniform_buffer, uniform_bind_group)
-}
-
-fn create_color_picking_uniform_bind_group(
-    device: &Device,
-    gl_uniform: GlColorPickingUniform,
-    color_picking_bind_group_layout: &BindGroupLayout,
-) -> (GlColorPickingUniform, Buffer, BindGroup) {
-    let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: Some("Color Picking Buffer"),
-        contents: bytemuck::cast_slice(&[gl_uniform]),
-        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-    });
-
-    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-        layout: &color_picking_bind_group_layout,
-        entries: &[
-            wgpu::BindGroupEntry {
-                binding: 0,
-                resource: uniform_buffer.as_entire_binding(),
-            },
-        ],
-        label: Some("Color Picking Bind Group"),
-    });
-    (gl_uniform, uniform_buffer, bind_group)
 }
 
 fn get_default_color_attachment<'a>(

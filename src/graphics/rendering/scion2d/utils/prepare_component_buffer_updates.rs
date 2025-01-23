@@ -15,7 +15,6 @@ use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
 use crate::graphics::rendering::shaders::gl_representations::TexturedGlVertexWithLayer;
 use crate::graphics::rendering::{Highlight, Renderable2D, RenderableUi, RenderingUpdate};
 use hecs::{Component, Entity};
-use log::info;
 use wgpu::BufferUsages;
 
 pub(crate) fn call(renderer: &mut Scion2DPreRenderer, data: &mut GameData) -> Vec<RenderingUpdate> {
@@ -113,7 +112,7 @@ fn prepare_buffer_update_for_tilemap(renderer: &mut Scion2DPreRenderer, data: &m
                         let mut vec = current_vertex.to_vec();
                         let mut offset_x = 0.;
                         let mut offset_y = 0.;
-                        let mut offset_z = 0;
+                        let offset_z: usize;
 
                         if isometric {
                             offset_x = -1. * tile.position.x() as f32 * t.offset_x_multiplier_x() + tile.position.y() as f32 * t.offset_x_multiplier_y() - (tile.position.z() as f32 * t.offset_x_multiplier_z());
@@ -184,7 +183,7 @@ fn any_dirty_sprite(data: &GameData, entity: Entity) -> bool {
 fn prepare_buffer_update_for_ui_text(renderer: &mut Scion2DPreRenderer, data: &mut GameData) -> Vec<RenderingUpdate> {
     let mut updates = vec![];
     let (world, resources) = data.split();
-    for (entity, (mut ui_text, _, material)) in world.query_mut::<(&mut UiText, &Transform, &Material)>() {
+    for (entity, (ui_text, _, material)) in world.query_mut::<(&mut UiText, &Transform, &Material)>() {
         let path = if let Material::Texture(e) = material {
             e.to_string()
         } else {
@@ -212,7 +211,7 @@ fn prepare_buffer_update_for_ui_text(renderer: &mut Scion2DPreRenderer, data: &m
                 let uvs = compute_char_uvs(texture_width, texture_height, char);
                 let mut current_vertexes = ui_text.char_vertex(char.width(), char.height(), uvs);
 
-                let offset_y = compute_offset(char, min_y, character);
+                let offset_y = compute_offset(char, min_y);
                 current_vertexes.iter_mut().for_each(|gl_vertex| {
                     gl_vertex.position[0] = gl_vertex.position[0] + current_x;
                     gl_vertex.position[1] = gl_vertex.position[1] + current_y + offset_y;
@@ -255,7 +254,7 @@ fn prepare_buffer_update_for_ui_text(renderer: &mut Scion2DPreRenderer, data: &m
     updates
 }
 
-fn compute_offset(character_position: &CharacterPosition, min_y: f32, char: char) -> f32 {
+fn compute_offset(character_position: &CharacterPosition, min_y: f32) -> f32 {
     let current_start_y = character_position.start_y;
     if current_start_y > min_y {
         current_start_y - min_y

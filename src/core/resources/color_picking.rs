@@ -19,15 +19,6 @@ impl ColorPickingStorage {
         self.color_to_entity.contains_key(&color.as_u32())
     }
 
-    pub fn color(&self, entity: Entity) -> Option<Color> {
-        if !self.entity_to_color.contains_key(&entity){
-            None
-        } else {
-            let index = self.entity_to_color.get(&entity).expect("Unreachable color u32 despite check");
-            Some(Color::color_from_u32(*index))
-        }
-    }
-
     pub fn create_picking(&mut self, entity: Entity) -> Color{
         if self.entity_registered(entity) {
             return Color::color_from_u32(*self.entity_to_color.get(&entity).expect("Unreachable color u32 despite check"));

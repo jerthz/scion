@@ -43,7 +43,6 @@ pub(crate) struct FontAtlasEntry {
     pub(crate) texture: Option<Texture>,
     pub(crate) width: u32,
     pub(crate) height: u32,
-    pub(crate) min_y: f32,
     pub(crate) character_positions: HashMap<char, CharacterPosition>,
 }
 
@@ -54,12 +53,7 @@ impl FontAtlasEntry {
         }
         panic!("No texture");
     }
-    pub(crate) fn compute_vertical_offset(&self, current_pos_y: f32) -> f32 {
-        if current_pos_y > self.min_y {
-            return current_pos_y - self.min_y
-        }
-        0.
-    }
+
     pub(crate) fn min_y(&self) -> f32 {
         self.character_positions.iter()
             .min_by(|p1, p2| p1.1.start_y.partial_cmp(&p2.1.start_y).unwrap_or(std::cmp::Ordering::Equal))
@@ -120,10 +114,7 @@ pub(crate) fn convert_true_type(font_path: String, font_size: usize, font_color:
                 };
 
                 let mut character_positions = HashMap::<char, CharacterPosition>::new();
-                let mut min_y = 99999.;
                 let mut image = DynamicImage::new_rgba8(glyphs_width + 40, glyphs_height + 40).to_rgba8();
-                let mut min_x = f32::MAX;
-                let mut max_x = f32::MIN;
                 for (pos, glyph) in glyphs.drain(0..glyphs.len()).enumerate() {
                     if let Some(outlined) = scaled_font.outline_glyph(glyph) {
                         let bounds = outlined.px_bounds();
@@ -136,9 +127,6 @@ pub(crate) fn convert_true_type(font_path: String, font_size: usize, font_color:
                                 px.0[3].saturating_add((v * 255.0) as u8),
                             ]);
                         });
-                        if min_y > bounds.min.y {
-                            min_y = bounds.min.y;
-                        }
                         let char_pos = CharacterPosition::new(bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y);
                         character_positions.insert(TEXT.to_string().chars().nth(pos).unwrap(), char_pos);
                     }
@@ -152,7 +140,6 @@ pub(crate) fn convert_true_type(font_path: String, font_size: usize, font_color:
                     }),
                     width: glyphs_width + 40,
                     height: glyphs_height + 40,
-                    min_y,
                     character_positions,
                 });
             }
@@ -166,8 +153,7 @@ pub(crate) fn convert_bitmap(texture_path: String,
                              chars: String,
                              width: f32,
                              height: f32,
-                             texture_columns: f32,
-                             texture_lines: f32) -> Result<FontAtlasEntry, ScionError> {
+                             texture_columns: f32) -> Result<FontAtlasEntry, ScionError> {
 
     match image::open(&texture_path) {
         Ok(img) => {
@@ -177,8 +163,8 @@ pub(crate) fn convert_bitmap(texture_path: String,
 
             for (pos, character) in chars.chars().enumerate() {
                 info!("c {}", texture_columns);
-                let mut cursor_x = (pos % texture_columns as usize) as f32 * width;
-                let mut cursor_y = (pos / texture_columns as usize) as f32 * height;
+                let cursor_x = (pos % texture_columns as usize) as f32 * width;
+                let cursor_y = (pos / texture_columns as usize) as f32 * height;
                 let char_pos = CharacterPosition::new(cursor_x, cursor_y, cursor_x + width, cursor_y + height);
                 character_positions.insert(character, char_pos);
             }
@@ -191,12 +177,11 @@ pub(crate) fn convert_bitmap(texture_path: String,
                 }),
                 width: img_width,
                 height: img_height,
-                min_y: 0.,
                 character_positions,
             })
         }
-        Err(err) => {
-            Err(crate::utils::ScionError::new(""))
+        Err(_) => {
+            Err(ScionError::new(""))
         }
     }
 }

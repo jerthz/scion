@@ -39,8 +39,6 @@ impl ScionRunner {
         thread::spawn(move || { ScionRenderingThread::new(window_rendering_manager, render_receiver).run() });
 
         let mut start_tick = Instant::now();
-        let mut fixed_tick = Instant::now();
-        let mut render_tick = Instant::now();
 
         loop {
             self.compute_color_picked_entity();
@@ -62,18 +60,14 @@ impl ScionRunner {
             }
 
             if frame_limiter.is_fixed_update() {
-                fixed_tick = Instant::now();
                 self.layer_machine.apply_scene_action(SceneAction::FixedUpdate, &mut self.game_data);
                 frame_limiter.fixed_tick();
             }
 
             if frame_limiter.render_unlocked() {
-                render_tick = Instant::now();
-
                 let updates = self.scion_pre_renderer.prepare_update(&mut self.game_data);
                 let rendering_infos = Scion2DPreRenderer::prepare_rendering(&mut self.game_data);
                 let _r = render_sender.send((vec![], updates, rendering_infos,vec![]));
-
                 frame_limiter.render();
             }
 
@@ -122,7 +116,7 @@ impl ScionRunner {
         let mut window = self.game_data.window();
         if let Some(icon) = window.new_cursor() {
             let w = self.window.as_mut().expect("A window is mandatory to run this game !");
-            w.set_cursor_icon(*icon);
+            w.set_cursor(*icon);
         }
         if let Some(dimensions) = window.new_dimensions() {
             let w = self.window.as_mut().expect("A window is mandatory to run this game !");

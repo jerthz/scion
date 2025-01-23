@@ -73,7 +73,7 @@ impl Scene for DemoScene {
         animations.insert("down".to_string(), Animation::new(Duration::from_millis(1500),
                                                  vec![AnimationModifier::transform(60, Some(Vector::new(0., 400.)), None, None)]));
 
-        data.add_components(entity, (Animations::new(animations), Tm {}));
+        let _ = data.add_components(entity, (Animations::new(animations), Tm {}));
 
         data.game_state_mut().update_color_picking_status(true);
         self.entity = Some(entity);
@@ -83,22 +83,22 @@ impl Scene for DemoScene {
         let picked = data.game_state().get_color_picked_entity();
         if let Some(e) = picked {
             if let Some(entity) = self.last_highlighted.as_ref() {
-                let s = data.entry_mut::<(&mut Sprite)>(*entity).expect("");
+                let s = data.entry_mut::<&mut Sprite>(*entity).expect("");
                 s.set_highlight(None);
             }
             {
-                let t = data.entry_mut::<(&Tile)>(e).expect("");
+                let t = data.entry_mut::<&Tile>(e).expect("");
                 println!("currently pointed : {:?} in the tilemap {:?}", t.get_position(), t.get_tilemap_entity());
             }
             {
-                let s = data.entry_mut::<(&mut Sprite)>(e).expect("");
+                let s = data.entry_mut::<&mut Sprite>(e).expect("");
                 s.set_highlight(Some(Highlight::ColorNonTransparent(Color::new(255, 255, 255, 0.5))));
             }
             self.last_highlighted = Some(e);
             data.window().set_cursor(CursorIcon::Pointer);
         }else{
             if let Some(entity) = self.last_highlighted.as_ref() {
-                let s = data.entry_mut::<(&mut Sprite)>(*entity).expect("");
+                let s = data.entry_mut::<&mut Sprite>(*entity).expect("");
                 s.set_highlight(None);
             }
             data.window().set_cursor(CursorIcon::Default);

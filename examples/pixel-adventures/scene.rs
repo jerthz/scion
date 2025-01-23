@@ -4,7 +4,6 @@ use std::time::{Duration};
 use std::vec;
 
 use hecs::Entity;
-use log::info;
 
 
 use scion::graphics::components::animations::{Animation, AnimationModifier, Animations};

@@ -8,13 +8,6 @@ use crate::utils::maths::Vector;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub(crate) struct GlVec2 {
-    pub x: f32,
-    pub y: f32,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub(crate) struct GlVec3 {
     pub x: f32,
     pub y: f32,
@@ -48,34 +41,6 @@ pub(crate) struct GlVec4 {
 impl From<Vec4> for GlVec4 {
     fn from(vec: Vec4) -> Self {
         GlVec4 { x: vec.x, y: vec.y, z: vec.z, w: vec.w }
-    }
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub(crate) struct ColoredGlVertex {
-    pub position: [f32;3],
-    pub color: GlColor,
-}
-
-impl ColoredGlVertex {
-    pub fn _desc<'a>() -> wgpu::VertexBufferLayout<'a> {
-        wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<ColoredGlVertex>() as wgpu::BufferAddress,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttribute {
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-                wgpu::VertexAttribute {
-                    offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                    shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x3,
-                }
-            ],
-        }
     }
 }
 
@@ -243,32 +208,6 @@ impl From<(&Coordinates, &Coordinates, usize, f32, Color, bool)> for TexturedGlV
             enable_highlight: 0,
             highlight_color: [0.,0.,0.,0.],
         }
-    }
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub(crate) struct GlColorPickingUniform {
-    color: [f32; 4],
-    enable_color_override: u32,
-    _padding: [u32; 3],
-}
-
-impl GlColorPickingUniform{
-    pub fn new(color: [f32; 4], enable_color_override: u32) -> Self {
-        Self{
-            color,
-            enable_color_override,
-            _padding: [0;3],
-        }
-    }
-}
-
-
-impl GlColorPickingUniform {
-    pub(crate) fn replace_with(&mut self, other: GlColorPickingUniform) {
-        self.color = other.color;
-        self.enable_color_override = other.enable_color_override;
     }
 }
 
