@@ -464,6 +464,6 @@ fn add_tilemap(data: &mut GameData) -> Entity {
     Tilemap::create(infos, data, |position| {
         let line = position.y() % 2;
         let column = position.x() % 2;
-        TileInfos::new(Some(line * 3 + column), None)
+        TileInfos::new(Some(line * 3 + column))
     })
 }

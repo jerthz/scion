@@ -17,6 +17,7 @@ use scion::core::resources::inputs::types::KeyCode;
 use scion::core::resources::time::TimerType;
 use scion::core::scene::Scene;
 use scion::core::world::{GameData, Resources, World};
+use scion::graphics::components::tiles::SPRITE_ANIMATION_PRELOAD;
 use scion::utils::file::app_base_path;
 use scion::utils::maths::{Dimensions, Position};
 
@@ -228,7 +229,8 @@ impl MainScene {
         self.current_width = level.map.width;
         self.current_height = level.map.height;
         let tilemap = Tilemap::create(tilemap_infos, data, |p| {
-            TileInfos::new(Some(level.map.tile_at(p)), get_animation_for_tile(level.map.tile_at(p)))
+            TileInfos::new(Some(level.map.tile_at(p)))
+                .with_animation(get_animation_for_tile(level.map.tile_at(p)))
                 .with_event(level.event_at(p))
         });
 
@@ -250,37 +252,37 @@ fn play_door_effect(resources: &mut Resources) {
         .play(door_effect(), PlayConfig { volume: 0.2, looped: false, category: None });
 }
 
-fn get_animation_for_tile(i: usize) -> Option<Animation> {
+fn get_animation_for_tile(i: usize) -> Option<(String, Animation)> {
     if i == 73 {
-        Some(Animation::looping(
+        Some((SPRITE_ANIMATION_PRELOAD.to_string(), Animation::looping(
             Duration::from_millis(1500),
             vec![AnimationModifier::sprite(vec![74, 73, 74, 73, 74], 73)],
-        ))
+        )))
     } else if i == 85 {
-        Some(Animation::looping(
+        Some((SPRITE_ANIMATION_PRELOAD.to_string(), Animation::looping(
             Duration::from_millis(1500),
             vec![AnimationModifier::sprite(vec![86, 85, 86, 85, 86], 85)],
-        ))
+        )))
     } else if i == 96 {
-        Some(Animation::looping(
+        Some((SPRITE_ANIMATION_PRELOAD.to_string(), Animation::looping(
             Duration::from_millis(2000),
             vec![AnimationModifier::sprite(vec![51, 75, 99, 96, 51], 96)],
-        ))
+        )))
     } else if i == 108 {
-        Some(Animation::looping(
+        Some((SPRITE_ANIMATION_PRELOAD.to_string(), Animation::looping(
             Duration::from_millis(2000),
             vec![AnimationModifier::sprite(vec![63, 87, 111, 108, 63], 108)],
-        ))
+        )))
     } else if i == 97 {
-        Some(Animation::looping(
+        Some((SPRITE_ANIMATION_PRELOAD.to_string(), Animation::looping(
             Duration::from_millis(2000),
             vec![AnimationModifier::sprite(vec![52, 76, 100, 97, 52], 97)],
-        ))
+        )))
     } else if i == 109 {
-        Some(Animation::looping(
+        Some((SPRITE_ANIMATION_PRELOAD.to_string(), Animation::looping(
             Duration::from_millis(2000),
             vec![AnimationModifier::sprite(vec![64, 88, 112, 109, 64], 109)],
-        ))
+        )))
     } else {
         None
     }

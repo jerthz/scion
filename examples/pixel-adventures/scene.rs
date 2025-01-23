@@ -19,6 +19,7 @@ use scion::graphics::components::tiles::tileset::Tileset;
 use scion::core::resources::inputs::types::{Input, KeyCode};
 use scion::core::scene::Scene;
 use scion::core::world::{GameData, World};
+use scion::graphics::components::tiles::SPRITE_ANIMATION_PRELOAD;
 use scion::utils::file::{app_base_path, read_file};
 use scion::utils::maths::{Dimensions, Position, Vector};
 
@@ -191,7 +192,9 @@ fn add_background(data: &mut GameData) {
     );
 
     Tilemap::create(tilemap_infos, data, |_p| {
-        TileInfos::new(Some(0), Some(Animation::looping(Duration::from_millis(2560), vec![AnimationModifier::sprite(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], 1)])))
+        TileInfos::new(Some(0))
+            .with_animation(Some((SPRITE_ANIMATION_PRELOAD.to_string(),
+                                  Animation::looping(Duration::from_millis(2560), vec![AnimationModifier::sprite(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], 1)]))))
     });
 }
 
@@ -211,7 +214,7 @@ fn add_structures(data: &mut GameData) {
     );
 
     Tilemap::create(tilemap_infos, data, |p| {
-        TileInfos::new(compute_tile_nb(p, &tiles), None)
+        TileInfos::new(compute_tile_nb(p, &tiles))
     });
 }
 

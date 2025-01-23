@@ -84,15 +84,16 @@ impl Tile{
 /// tile resolver function when creating a tilemap.
 pub struct TileInfos {
     tile_nb: Option<usize>,
-    animation: Option<Animation>,
+    animations: Option<Animations>,
     event: Option<TileEvent>,
     pathing_type: Option<String>,
+    custom_offset: Option<Transform>,
 }
 
 impl TileInfos {
     /// Creates a new TileInfos struct
-    pub fn new(tile_nb: Option<usize>, animation: Option<Animation>) -> Self {
-        Self { tile_nb, animation, event: None, pathing_type: None }
+    pub fn new(tile_nb: Option<usize>) -> Self {
+        Self { tile_nb, animations: None, event: None, pathing_type: None, custom_offset: None }
     }
 
     /// Adds an event to the current tile.
@@ -105,6 +106,31 @@ impl TileInfos {
     /// tileset atlas to retrive pathing value for this tile
     pub fn with_pathing(mut self, pathing: String) -> Self {
         self.pathing_type = Some(pathing);
+        self
+    }
+
+    /// Adds an animation to the current tile
+    pub fn with_animation(mut self,animation: Option<(String, Animation)>) -> Self {
+        if let Some((name, anim)) = animation{
+            self.animations = Some(Animations::single(&name, anim));
+        }else{
+            self.animations = None;
+        }
+        self
+    }
+    /// Adds animations to the current tile
+    pub fn with_animations(mut self, animations: Option<HashMap<String, Animation>>) -> Self {
+        if let Some(a) = animations{
+            self.animations = Some(Animations::new(a));
+        }else{
+            self.animations = None;
+        }
+        self
+    }
+
+    /// Adds custom offset to the current tile
+    pub fn with_custom_offset(mut self, offset: Option<Transform>) -> Self {
+        self.custom_offset = offset;
         self
     }
 }
@@ -169,10 +195,16 @@ impl Tilemap {
                         let _r = world.add_components(entity, (Sprite::new(tile_nb),));
                     }
 
-                    if let Some(animation) = tile_infos.animation {
+                    if let Some(offset) = tile_infos.custom_offset {
+                        let _r = world.add_components(entity, (offset,));
+                    } else {
+                        let _r = world.add_components(entity, (Transform::default(),));
+                    }
+
+                    if let Some(animations) = tile_infos.animations {
                         let _r = world.add_components(
                             entity,
-                            (Animations::single("TileAnimation", animation),),
+                            (animations,),
                         );
                     }
 
