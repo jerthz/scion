@@ -175,7 +175,7 @@ fn any_dirty_sprite(data: &GameData, entity: Entity) -> bool {
     data
         .query::<(&Tile, &Sprite, &Transform)>()
         .iter()
-        .filter(|(_, (tile, sprite, t))| tile.tilemap == entity && (sprite.dirty() || t.dirty))
+        .filter(|(_, (tile, sprite, t))| tile.tilemap == entity && (sprite.dirty() || t.dirty_offset))
         .count()
         > 0
 }
