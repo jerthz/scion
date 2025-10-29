@@ -419,14 +419,14 @@ fn load_texture_to_queue(
     });
 
     queue.write_texture(
-        wgpu::ImageCopyTexture {
+        wgpu::TexelCopyTextureInfo {
             texture: &diffuse_texture,
             mip_level: 0,
             origin: wgpu::Origin3d::ZERO,
             aspect: wgpu::TextureAspect::All,
         },
         &texture.bytes,
-        wgpu::ImageDataLayout {
+        wgpu::TexelCopyBufferLayout {
             offset: 0,
             bytes_per_row: Some(4 * &texture.width),
             rows_per_image: Some(texture.height),
@@ -491,6 +491,7 @@ fn get_default_color_attachment<'a>(
 ) -> Option<RenderPassColorAttachment<'a>> {
     Some(RenderPassColorAttachment {
         view: texture_view,
+        depth_slice: None,
         resolve_target: None,
         ops: wgpu::Operations {
             load: wgpu::LoadOp::Clear(

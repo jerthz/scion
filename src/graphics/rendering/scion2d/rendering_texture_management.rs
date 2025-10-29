@@ -1,4 +1,4 @@
-use wgpu::{BindGroup, BindGroupEntry, Device, ImageDataLayout, Queue, SamplerBindingType, Texture, TextureFormat, TextureViewDescriptor, TextureViewDimension};
+use wgpu::{BindGroup, BindGroupEntry, Device, Queue, SamplerBindingType, TexelCopyBufferLayout, Texture, TextureFormat, TextureViewDescriptor, TextureViewDimension};
 
 use crate::graphics::components::material::TextureArray;
 
@@ -35,7 +35,7 @@ pub(crate) fn load_texture_array_to_queue(
     array.drain(0..total_sprites)
         .for_each(|sprite| {
             queue.write_texture(
-                wgpu::ImageCopyTexture {
+                wgpu::TexelCopyTextureInfo {
                     texture: &tileset_texture,
                     mip_level: 0,
                     origin: wgpu::Origin3d {
@@ -46,7 +46,7 @@ pub(crate) fn load_texture_array_to_queue(
                     aspect: Default::default(),
                 },
                 &sprite,
-                ImageDataLayout {
+                TexelCopyBufferLayout {
                     offset: 0,
                     bytes_per_row: Some(4 * unit_width),
                     rows_per_image: Some(unit_height),

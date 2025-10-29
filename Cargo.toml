@@ -20,7 +20,7 @@ downcast-rs = "2.0.2"
 
 # window & rendering
 winit = {version = "0.30.12", features = ["rwh_05"]}
-wgpu = { version = "23.0.1" }
+wgpu = { version = "27.0.1", default-features = false, features = ["metal", "wgsl", "webgl", "vulkan", "gles"] }
 ab_glyph = "0.2.32"
 futures = "0.3"
 
