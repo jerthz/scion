@@ -4,7 +4,7 @@ use std::sync::mpsc::Receiver;
 use std::time::Duration;
 
 use log::debug;
-use rodio::{OutputStream, Sink, Source};
+use rodio::{OutputStream, OutputStreamBuilder, Sink, Source};
 
 use crate::core::resources::audio::AudioEvent;
 
@@ -19,7 +19,8 @@ impl AudioController {
 }
 
 pub(crate) fn audio_thread(controller: AudioController) {
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    let stream_handle = OutputStreamBuilder::open_default_stream()
+        .expect("open default audio stream");
     let mut sinks: HashMap<usize, Sink> = HashMap::new();
 
     loop {
@@ -27,7 +28,7 @@ pub(crate) fn audio_thread(controller: AudioController) {
             match message {
                 AudioEvent::PlaySound { path, config, sound_id } => {
                     debug!("Started to play sound {}", path);
-                    let sink = Sink::try_new(&stream_handle).unwrap();
+                    let sink =  rodio::Sink::connect_new(&stream_handle.mixer());
                     let file = std::fs::File::open(path.as_str()).unwrap();
                     let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
                     if config.looped {
