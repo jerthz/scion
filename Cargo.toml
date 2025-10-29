@@ -1,7 +1,7 @@
 [package]
 name = "scion"
 version = "0.8.0"
-authors = ["grzi <jeremy.thulliez@gmail.com>"]
+authors = ["jerthz <jeremy.thulliez@gmail.com>"]
 edition = "2018"
 description = "Game making library on top of wgpu, winit, hecs"
 documentation = "https://docs.rs/scion"
@@ -16,32 +16,32 @@ hot-reload = []
 [dependencies]
 atomic_refcell = "0.1.13"
 hecs = "0.10.5"
-downcast-rs = "2.0.1"
+downcast-rs = "2.0.2"
 
 # window & rendering
-winit = {version = "0.30.8", features = ["rwh_05"]}
-wgpu = { version = "23.0.1" }
-ab_glyph = "0.2.23"
+winit = {version = "0.30.12", features = ["rwh_05"]}
+wgpu = { version = "27.0.1", default-features = false, features = ["metal", "wgsl", "webgl", "vulkan", "gles"] }
+ab_glyph = "0.2.32"
 futures = "0.3"
 
 # maths
-ultraviolet = "0.9.2"
-geo-types = "0.7.13"
-geo-clipper = "0.8.0"
+ultraviolet = "0.10"
+geo-types = "0.7.17"
+geo-clipper = "0.9.0"
 
 # serialization
-serde = { version = "1.0.197", features = ["derive"] }
-serde_json = "1.0.114"
-bytemuck = { version = "1.14", features = ["derive"] }
-image = { version = "0.25.5", default-features = false, features = ["png"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+bytemuck = { version = "1.24", features = ["derive"] }
+image = { version = "0.25.8", default-features = false, features = ["png"] }
 base64 = "0.22.0"
 
 # logging
-log = { version = "0.4.21", features = ["serde"] }
+log = { version = "0.4.28", features = ["serde"] }
 fern = { version = "0.7.1", features = ["colored"] }
 
 # sound
-rodio = "0.20.1"
+rodio = "0.21.1"
 
 [profile.dev.package]
 image = { opt-level = 3 }

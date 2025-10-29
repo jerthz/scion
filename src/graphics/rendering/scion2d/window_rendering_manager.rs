@@ -1,7 +1,7 @@
 use hecs::Entity;
 use std::sync::mpsc::Sender;
 use std::sync::Arc;
-use wgpu::{Limits, Surface, SurfaceConfiguration};
+use wgpu::{Limits, PollType, Surface, SurfaceConfiguration};
 use winit::window::Window;
 
 use crate::graphics::components::color::Color;
@@ -22,22 +22,28 @@ pub(crate) struct ScionWindowRenderingManager {
 }
 
 impl ScionWindowRenderingManager {
-    pub(crate) async fn new(window: Arc<Window>,
-                            default_background: Option<Color>,
-                            render_callback_sender: Sender<RendererCallbackEvent>) -> Self {
+    pub(crate) async fn new(
+        window: Arc<Window>,
+        default_background: Option<Color>,
+        render_callback_sender: Sender<RendererCallbackEvent>,
+    ) -> Self {
         let size = window.inner_size();
         let width = size.width.max(1);
         let height = size.height.max(1);
 
         let backends = wgpu::Backends::VULKAN;
-        let dx12_shader_compiler = wgpu::util::dx12_shader_compiler_from_env().unwrap_or_default();
-        let gles_minor_version = wgpu::util::gles_minor_version_from_env().unwrap_or_default();
+        let dx12_shader_compiler = wgpu::Dx12Compiler::from_env().unwrap_or_default();
+        let gles_minor_version = wgpu::Gles3MinorVersion::from_env().unwrap_or_default();
 
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends,
             flags: wgpu::InstanceFlags::from_build_config().with_env(),
-            dx12_shader_compiler,
-            gles_minor_version,
+            memory_budget_thresholds: Default::default(),
+            backend_options: wgpu::BackendOptions {
+                dx12: wgpu::Dx12BackendOptions { shader_compiler: dx12_shader_compiler, presentation_system: Default::default(), latency_waitable_object: Default::default() },
+                gl: wgpu::GlBackendOptions { gles_minor_version, fence_behavior: Default::default() },
+                noop: Default::default(),
+            },
         });
 
         let surface = instance.create_surface(window).expect("Surface creation failed");
@@ -50,29 +56,37 @@ impl ScionWindowRenderingManager {
             .request_device(
                 &wgpu::DeviceDescriptor {
                     label: None,
-                    required_features: wgpu::Features::TEXTURE_BINDING_ARRAY | wgpu::Features::ADDRESS_MODE_CLAMP_TO_BORDER,
+                    required_features: wgpu::Features::TEXTURE_BINDING_ARRAY
+                        | wgpu::Features::ADDRESS_MODE_CLAMP_TO_BORDER,
                     // Make sure we use the texture resolution limits from the adapter, so we can support images the size of the swapchain.
-                    required_limits: Limits {
-                        max_texture_array_layers: 512,
-                        ..Limits::default()
-                    }
+                    required_limits: Limits { max_texture_array_layers: 512, ..Limits::default() }
                         .using_resolution(adapter.limits()),
+                    experimental_features: Default::default(),
                     memory_hints: Default::default(),
-                },
-                None,
+                    trace: Default::default(),
+                }
             )
             .await
             .expect("Failed to create device");
 
-        let config = surface
-            .get_default_config(&adapter, width, height)
-            .unwrap();
+        let config = surface.get_default_config(&adapter, width, height).unwrap();
         surface.configure(&device, &config);
 
         let mut scion_renderer = Scion2D::default();
         scion_renderer.start(&device, &config);
 
-        Self { surface, device, queue, config, scion_renderer, default_background_color: default_background, should_render: false, should_compute_cursor_color_picking: false, cursor_position: None, render_callback_sender }
+        Self {
+            surface,
+            device,
+            queue,
+            config,
+            scion_renderer,
+            default_background_color: default_background,
+            should_render: false,
+            should_compute_cursor_color_picking: false,
+            cursor_position: None,
+            render_callback_sender,
+        }
     }
 
     pub(crate) fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>, _scale_factor: f64) {
@@ -102,10 +116,7 @@ impl ScionWindowRenderingManager {
         self.scion_renderer.clean_entities(entities);
     }
 
-    pub(crate) fn render(
-        &mut self,
-        data: Vec<RenderingInfos>,
-    ) -> Result<(), wgpu::SurfaceError> {
+    pub(crate) fn render(&mut self, data: Vec<RenderingInfos>) -> Result<(), wgpu::SurfaceError> {
         if !self.should_render {
             return Ok(());
         }
@@ -208,44 +219,42 @@ impl ScionWindowRenderingManager {
         });
 
         encoder.copy_texture_to_buffer(
-            wgpu::ImageCopyTexture {
+            wgpu::TexelCopyTextureInfo {
                 texture: &offscreen_texture,
                 mip_level: 0,
-                origin: wgpu::Origin3d {
-                    x: *pixel_x,
-                    y: *pixel_y,
-                    z: 0,
-                },
+                origin: wgpu::Origin3d { x: *pixel_x, y: *pixel_y, z: 0 },
                 aspect: wgpu::TextureAspect::All,
             },
-            wgpu::ImageCopyBuffer {
+            wgpu::TexelCopyBufferInfo {
                 buffer: &pixel_buffer,
-                layout: wgpu::ImageDataLayout {
+                layout: wgpu::TexelCopyBufferLayout {
                     offset: 0,
                     bytes_per_row: None,
                     rows_per_image: None,
                 },
             },
-            wgpu::Extent3d {
-                width: 1,
-                height: 1,
-                depth_or_array_layers: 1,
-            },
+            wgpu::Extent3d { width: 1, height: 1, depth_or_array_layers: 1 },
         );
 
         self.queue.submit(Some(encoder.finish()));
-        self.device.poll(wgpu::Maintain::Wait);
+        self.device.poll(PollType::Wait{  submission_index: None,
+                  timeout: Some(std::time::Duration::from_secs(60)),
+               });
 
         let buffer_slice = pixel_buffer.slice(..);
         buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
-        self.device.poll(wgpu::Maintain::Wait);
+        self.device.poll(PollType::Wait{  submission_index: None,
+            timeout: Some(std::time::Duration::from_secs(60)),
+        });
 
         let mapped_range = buffer_slice.get_mapped_range();
         let b = mapped_range[0];
         let g = mapped_range[1];
         let r = mapped_range[2];
 
-        let _r = self.render_callback_sender.send(RendererCallbackEvent::CursorColorPicking(Some(Color::new_rgb(r, g, b))));
+        let _r = self
+            .render_callback_sender
+            .send(RendererCallbackEvent::CursorColorPicking(Some(Color::new_rgb(r, g, b))));
 
         drop(mapped_range);
         pixel_buffer.unmap();
@@ -256,9 +265,9 @@ impl ScionWindowRenderingManager {
     }
 
     fn cursor_position_eligible(&self) -> bool {
-        match self.cursor_position.as_ref(){
+        match self.cursor_position.as_ref() {
             None => false,
-            Some((x,y)) => *x <= self.config.width && *y <= self.config.height
+            Some((x, y)) => *x <= self.config.width && *y <= self.config.height,
         }
     }
 }
