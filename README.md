@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=jerthz&project=scion&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 <img src="banner.png" alt="Scion" />
 
 Scion is a 2D game library made in rust.
