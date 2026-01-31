@@ -31,7 +31,7 @@ impl ScionWindowRenderingManager {
         let width = size.width.max(1);
         let height = size.height.max(1);
 
-        let backends = wgpu::Backends::VULKAN;
+        let backends = wgpu::Backends::PRIMARY;
         let dx12_shader_compiler = wgpu::Dx12Compiler::from_env().unwrap_or_default();
         let gles_minor_version = wgpu::Gles3MinorVersion::from_env().unwrap_or_default();
 
