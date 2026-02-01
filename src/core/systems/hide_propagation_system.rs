@@ -30,7 +30,7 @@ pub(crate) fn hide_propagated_deletion_system(data: &mut GameData) {
     let mut child_to_clear = Vec::new();
     for (e, (_c, parent)) in data.query::<(&HidePropagated, &Parent)>().iter() {
         if data
-            .entry::<&Hide>(parent.0)
+            .entry::<&Hide>(parent.entity())
             .expect("Unreachable parent during hide propagated deletion")
             .get()
             .is_none()
@@ -74,7 +74,7 @@ mod tests {
         let mut world = GameData::default();
 
         let parent = world.push((1,));
-        let child = world.push((2, HidePropagated, Parent(parent)));
+        let child = world.push((2, HidePropagated, Parent::new(parent)));
 
         assert!(world.entry::<&HidePropagated>(child).unwrap().get().is_some());
 

@@ -11,6 +11,7 @@ use hecs::{
 };
 
 use crate::core::components::maths::camera::{Camera, DefaultCamera};
+use crate::core::components::maths::hierarchy::{init_parent_children_link, retrieve_children, retrieve_parent, update_children_if_needed, update_parent_if_needed, Children, Parent};
 use crate::core::resources::asset_manager::AssetManager;
 use crate::core::resources::audio::Audio;
 use crate::core::resources::events::Events;
@@ -163,6 +164,8 @@ impl GameData {
     pub(crate) fn take_despawned(&mut self) -> Option<Vec<Entity>>{
         self.subworld.entity_cleaner.take()
     }
+
+
 }
 
 impl World for GameData {
@@ -175,11 +178,11 @@ impl World for GameData {
     }
 
     fn clear(&mut self) {
-        self.subworld.internal_world.clear();
+        self.subworld.clear();
     }
 
     fn push(&mut self, components: impl DynamicBundle) -> Entity {
-        self.subworld.internal_world.spawn(components)
+        self.subworld.push(components)
     }
 
     fn remove(&mut self, entity: Entity) -> Result<(), NoSuchEntity> {
@@ -191,11 +194,11 @@ impl World for GameData {
         entity: Entity,
         components: impl DynamicBundle,
     ) -> Result<(), NoSuchEntity> {
-        self.subworld.internal_world.insert(entity, components)
+        self.subworld.add_components(entity, components)
     }
 
     fn remove_component<T: Component>(&mut self, entity: Entity) -> Result<T, ComponentError> {
-        self.subworld.internal_world.remove_one::<T>(entity)
+        self.subworld.remove_component::<T>(entity)
     }
 
     fn query<Q: Query>(&self) -> QueryBorrow<'_, Q> {
@@ -244,17 +247,25 @@ impl World for SubWorld {
     }
 
     fn push(&mut self, components: impl DynamicBundle) -> Entity {
-        self.internal_world.spawn(components)
+        let entity = self.internal_world.spawn(components);
+        init_parent_children_link(&mut self.internal_world, entity);
+        entity
     }
 
     fn remove(&mut self, entity: Entity) -> Result<(), NoSuchEntity> {
+        let current_parent = retrieve_parent(&mut self.internal_world, entity);
+        let current_children = retrieve_children(&mut self.internal_world, entity);
+
         match &mut self.entity_cleaner {
             Some(vec) => vec.push(entity),
             None => {
                 self.entity_cleaner = Some(vec![entity]);
             }
         }
-        self.internal_world.despawn(entity)
+        let _r  = self.internal_world.despawn(entity);
+        update_parent_if_needed(&mut self.internal_world, current_parent, entity);
+        update_children_if_needed(&mut self.internal_world, current_children);
+        _r
     }
 
     fn add_components(
@@ -262,11 +273,16 @@ impl World for SubWorld {
         entity: Entity,
         components: impl DynamicBundle,
     ) -> Result<(), NoSuchEntity> {
-        self.internal_world.insert(entity, components)
+        let r = self.internal_world.insert(entity, components);
+        init_parent_children_link(&mut self.internal_world, entity);
+        r
     }
 
     fn remove_component<T: Component>(&mut self, entity: Entity) -> Result<T, ComponentError> {
-        self.internal_world.remove_one::<T>(entity)
+        let current_parent = retrieve_parent(&mut self.internal_world, entity);
+        let r = self.internal_world.remove_one::<T>(entity);
+        update_parent_if_needed(&mut self.internal_world, current_parent, entity);
+        r
     }
 
     fn query<Q: Query>(&self) -> QueryBorrow<'_, Q> {

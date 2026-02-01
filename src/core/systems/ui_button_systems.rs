@@ -35,8 +35,8 @@ pub(crate) fn set_childs_on_buttons(data: &mut GameData) {
             material = mat;
         }
 
-        to_add_entities.push((e, UiImage::new(ui_button.width() as f32, ui_button.height() as f32), material, Transform::from_xyz(0., 0., 1), Parent(e)));
-        to_add_entities_2.push((e, ui_text, Transform::from_xyz(0., 0., 0), Parent(e)));
+        to_add_entities.push((e, UiImage::new(ui_button.width() as f32, ui_button.height() as f32), material, Transform::from_xyz(0., 0., 1), Parent::new(e)));
+        to_add_entities_2.push((e, ui_text, Transform::from_xyz(0., 0., 0), Parent::new(e)));
     }
     to_add_entities.drain(0..).for_each(|(_, ui_image, texture, transform, parent)| {
         data.push((ui_image, texture, transform, parent));

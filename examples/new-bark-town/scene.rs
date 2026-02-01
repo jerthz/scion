@@ -92,7 +92,7 @@ impl Scene for MainScene {
         self.tilemap = Some(tilemap);
         let char = add_character(data, start_x, start_y, &direction);
         let camera_transform = Transform::from_xy(-192., -168.);
-        data.push((Camera::new(384., 336.), camera_transform, Parent(char)));
+        data.push((Camera::new(384., 336.), camera_transform, Parent::new(char)));
         self.player = Some(char);
     }
 
@@ -206,6 +206,10 @@ impl Scene for MainScene {
 
             resources.timers().get_timer("SceneSwitch").unwrap().reset();
         }
+    }
+
+    fn on_stop(&mut self, data: &mut GameData) {
+        data.clear();
     }
 }
 

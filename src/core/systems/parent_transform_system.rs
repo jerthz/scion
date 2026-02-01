@@ -17,7 +17,7 @@ pub(crate) fn dirty_child_system(data: &mut GameData) {
         if t.dirty_child {
             match p {
                 None => t.dirty_child = false,
-                Some(parent) => parent_to_check.push((child_entity, parent.0)),
+                Some(parent) => parent_to_check.push((child_entity, parent.entity())),
             }
         }
     }
@@ -99,7 +99,7 @@ pub(crate) fn dirty_transform_offset_system(data: &mut GameData) {
 #[cfg(test)]
 mod tests {
     use crate::core::world::World;
-    use crate::core::{components::maths::hierarchy::Parent, systems::hierarchy_system::*};
+    use crate::core::{components::maths::hierarchy::Parent};
 
     use super::*;
 
@@ -111,14 +111,13 @@ mod tests {
         let child_transform = Transform::from_xyz(1., 1., 1);
         let child_of_child_transform = Transform::from_xyz(1., 1., 1);
         let parent = world.push((parent_transform,));
-        let child = world.push((child_transform, Parent(parent)));
-        let child_of_child = world.push((child_of_child_transform, Parent(child)));
+        let child = world.push((child_transform, Parent::new(parent)));
+        let child_of_child = world.push((child_of_child_transform, Parent::new(child)));
 
         for (_, t) in world.query::<&Transform>().iter() {
             assert!(!t.dirty);
         }
 
-        children_manager_system(&mut world);
         dirty_child_system(&mut world);
         dirty_transform_system(&mut world);
 
@@ -165,7 +164,6 @@ mod tests {
             t.append_translation(5.0, 1.0);
         }
 
-        children_manager_system(&mut world);
         dirty_child_system(&mut world);
         dirty_transform_system(&mut world);
 
@@ -193,7 +191,6 @@ mod tests {
             t.set_z(5);
         }
 
-        children_manager_system(&mut world);
         dirty_child_system(&mut world);
         dirty_transform_system(&mut world);
 

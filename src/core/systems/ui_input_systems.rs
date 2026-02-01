@@ -15,7 +15,7 @@ pub(crate) fn set_childs_on_inputs(data: &mut GameData) {
         if let Some(color) = ui_input.font_color() {
             ui_text = ui_text.with_font_color(color);
         }
-        to_add_entities.push((e, ui_text, Transform::from_xyz(0., 0., transform.local_translation.z), Parent(e)));
+        to_add_entities.push((e, ui_text, Transform::from_xyz(0., 0., transform.local_translation.z), Parent::new(e)));
     }
     to_add_entities.drain(0..).for_each(|(_, ui_text, transform, parent)| {
         data.push((ui_text, transform, parent));

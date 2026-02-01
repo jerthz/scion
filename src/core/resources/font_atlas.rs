@@ -131,7 +131,7 @@ pub(crate) fn convert_true_type(font_path: String, font_size: usize, font_color:
                         character_positions.insert(TEXT.to_string().chars().nth(pos).unwrap(), char_pos);
                     }
                 }
-                image.save(app_base_path().join("test_font.png").get()).unwrap();
+                //image.save(app_base_path().join("test_font.png").get()).unwrap();
                 return Ok(FontAtlasEntry {
                     texture: Some(Texture {
                         bytes: image.to_vec(),

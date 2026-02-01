@@ -46,13 +46,13 @@ pub fn dummy_developer_console_system(data: &mut GameData) {
         let c = Color::new(50,50,50, 0.8);
         let material = Material::Diffuse(c);
 
-        data.push((UiImage::new(current_window_width as f32, current_window_height as f32), Transform::from_xyz(0.,0.,3), material, Parent(parent)));
+        data.push((UiImage::new(current_window_width as f32, current_window_height as f32), Transform::from_xyz(0.,0.,3), material, Parent::new(parent)));
 
         let c2 = Color::new(10,10,10, 0.9);
         let material2 = Material::Diffuse(c2);
 
 
-        data.push((UiImage::new(current_window_width as f32, 60.), Transform::from_xyz(0.,current_window_height as f32 -60.,2), material2, Parent(parent)));
+        data.push((UiImage::new(current_window_width as f32, 60.), Transform::from_xyz(0.,current_window_height as f32 -60.,2), material2, Parent::new(parent)));
 
         let font = Font::TrueType {
             font_path:  app_base_path().join("examples/tetris/assets/").join("Arial.ttf").get(),
@@ -68,7 +68,7 @@ pub fn dummy_developer_console_system(data: &mut GameData) {
         data.push((
             input,
             Transform::from_xyz(15.,current_window_height as f32 -35.,0),
-            Parent(parent)
+            Parent::new(parent)
         ));
 
 
