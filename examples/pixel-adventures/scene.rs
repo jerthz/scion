@@ -59,7 +59,7 @@ impl Scene for MainScene {
         data.push((
             Camera::new(1024., 768.),
             camera_transform,
-            Parent(self.char_entity.expect("Hero is mandatory")),
+            Parent::new(self.char_entity.expect("Hero is mandatory")),
         ));
 
         self.idle = true;

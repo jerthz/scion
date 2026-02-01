@@ -19,7 +19,6 @@ use crate::core::systems::focus_systems::focus_switcher_system;
 use crate::core::systems::hide_propagation_system::{
     hide_propagated_deletion_system, hide_propagation_system,
 };
-use crate::core::systems::hierarchy_system::children_manager_system;
 use crate::core::systems::missing_ui_component_system::{missing_focus_component_system, missing_ui_component_system};
 use crate::core::systems::parent_transform_system::{dirty_child_system, dirty_transform_offset_system, dirty_transform_system};
 use crate::core::systems::ui_button_systems::{compute_hover, set_childs_on_buttons};
@@ -43,7 +42,6 @@ pub(crate) mod asset_ref_resolver_system;
 pub(crate) mod collider_systems;
 pub(crate) mod default_camera_system;
 pub(crate) mod hide_propagation_system;
-pub(crate) mod hierarchy_system;
 pub(crate) mod missing_ui_component_system;
 pub(crate) mod parent_transform_system;
 pub(crate) mod ui_text_system;
@@ -85,7 +83,6 @@ impl Package for InternalPackage {
             .with_system(default_camera_system)
             .with_system(sync_text_value_system)
             .with_system(set_childs_on_buttons)
-            .with_system(children_manager_system)
             .with_system(hide_propagated_deletion_system)
             .with_system(hide_propagation_system)
             .with_system(collider_pivot_propagation_system::<Sprite>)

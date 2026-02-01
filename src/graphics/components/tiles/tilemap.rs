@@ -188,7 +188,7 @@ impl Tilemap {
 
                     let entity = world.push((
                         Tile { position: position.clone(), tilemap: self_entity },
-                        Parent(self_entity),
+                        Parent::new(self_entity),
                     ));
 
                     if let Some(tile_nb) = tile_infos.tile_nb {

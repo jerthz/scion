@@ -95,7 +95,7 @@ pub(crate) fn debug_colliders_system(data: &mut GameData) {
             let polygon_collider =
                 Polygon::new(collider.collider_coordinates(0.,0.)).pivot(collider.get_pivot());
             debug_lines_to_add.push((
-                Parent(entity),
+                Parent::new(entity),
                 ColliderDebug,
                 Transform::from_xyz(offset.x(), offset.y(), 0),
                 polygon_collider,
@@ -139,8 +139,8 @@ fn fetch_collider_debug_entities(data: &mut GameData) -> (HashSet<Entity>, HashM
     let mut parents = HashSet::new();
     let mut debug_line: HashMap<Entity, Entity> = HashMap::new();
     for (e, (_, parent)) in data.query::<(&ColliderDebug, &Parent)>().iter() {
-        parents.insert(parent.0);
-        debug_line.insert(parent.0, e);
+        parents.insert(parent.entity());
+        debug_line.insert(parent.entity(), e);
     }
     (parents, debug_line)
 }

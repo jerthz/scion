@@ -51,7 +51,7 @@ impl Scene for LevelScene {
         data.push((
             Camera::new(dimension.0 as f32 / dpi, dimension.1 as f32 / dpi),
             camera_transform,
-            Parent(ship_entity)
+            Parent::new(ship_entity)
         ));
         self.ship = Some(ship_entity);
         let _ = data.timers().add_timer("s", TimerType::Cyclic, 0.2);
