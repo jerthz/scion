@@ -58,14 +58,15 @@ impl Scene for LevelScene {
         let _ = data.timers().add_timer("reset", TimerType::Manual, 0.5);
     }
 
-    fn on_update(&mut self, data: &mut GameData) {
-        let cycle_sound = data.timers().get_timer("s").unwrap().cycle();
+    fn on_update(&mut self, game_data: &mut GameData) {
+        let (world, resources, commands) = game_data.split_with_command();
+        let cycle_sound = resources.timers().get_timer("s").unwrap().cycle();
         if !self.exploded {
-            let up = data.inputs().input_pressed(&Input::Key(KeyCode::Up));
-            let left = data.inputs().input_pressed(&Input::Key(KeyCode::Left));
-            let right = data.inputs().input_pressed(&Input::Key(KeyCode::Right));
+            let up = resources.inputs().input_pressed(&Input::Key(KeyCode::Up));
+            let left = resources.inputs().input_pressed(&Input::Key(KeyCode::Left));
+            let right = resources.inputs().input_pressed(&Input::Key(KeyCode::Right));
             if up {
-                let (s, a, t) = data.entry_mut::<(&mut Ship, &mut Animations, &Transform)>(self.ship.unwrap()).expect("");
+                let (s, a, t) = world.entry_mut::<(&mut Ship, &mut Animations, &Transform)>(self.ship.unwrap()).expect("");
                 if !a.animation_running("booster") {
                     a.loop_animation("booster");
                 }
@@ -80,13 +81,13 @@ impl Scene for LevelScene {
                 s.x_force += 0.04 * x_force;
                 s.is_landed = false;
                 if cycle_sound > 0 {
-                    let _r = data
+                    let _r = resources
                         .audio()
                         .play(app_base_path_join("examples/starlight-1961/assets/fire.ogg"),
                               PlayConfig { volume: 0.1, looped: false, category: None });
                 }
             } else {
-                let (s, a, sp) = data.entry_mut::<(&mut Ship, &mut Animations, &mut Sprite)>(self.ship.unwrap()).expect("");
+                let (s, a, sp) = world.entry_mut::<(&mut Ship, &mut Animations, &mut Sprite)>(self.ship.unwrap()).expect("");
                 a.stop_all_animation(true);
                 sp.set_tile_nb(0);
                 if !s.is_landed {
@@ -95,16 +96,16 @@ impl Scene for LevelScene {
             }
 
             if left {
-                let (s, t) = data.entry_mut::<(&mut Ship, &mut Transform)>(self.ship.unwrap()).expect("");
+                let (s, t) = world.entry_mut::<(&mut Ship, &mut Transform)>(self.ship.unwrap()).expect("");
                 if !s.is_landed {
-                    t.append_angle(-0.04);
+                    commands.transform_commands.append_angle(self.ship.unwrap(), -0.04);
                 }
             }
 
             if right {
-                let (s, t) = data.entry_mut::<(&mut Ship, &mut Transform)>(self.ship.unwrap()).expect("");
+                let (s, t) = world.entry_mut::<(&mut Ship, &mut Transform)>(self.ship.unwrap()).expect("");
                 if !s.is_landed {
-                    t.append_angle(0.04);
+                    commands.transform_commands.append_angle(self.ship.unwrap(), 0.04);
                 }
             }
 
@@ -113,8 +114,8 @@ impl Scene for LevelScene {
 
             {
 
-                let (ship, t, c) = data.entry_mut::<(&mut Ship, &mut Transform, &Collider)>(self.ship.unwrap()).expect("");
-                t.append_vector(Vector::new(ship.x_force, ship.y_force));
+                let (ship, t, c) = world.entry_mut::<(&mut Ship, &mut Transform, &Collider)>(self.ship.unwrap()).expect("");
+                commands.transform_commands.append_vector(self.ship.unwrap(), Vector::new(ship.x_force, ship.y_force));
                 if !ship.is_landed && c.is_colliding() {
                     should_explose = true;
                     tr = TransformBuilder::new().with_xy(t.global_translation().x() -16., t.global_translation().y()-16.).with_scale(self.global_scale_modifier).build();
@@ -123,36 +124,36 @@ impl Scene for LevelScene {
             }
 
             if should_explose {
-                data.timers().get_timer("reset").unwrap().reset();
-                let _ = data.add_components(self.ship.unwrap(), (Hide, ));
+                resources.timers().get_timer("reset").unwrap().reset();
+                let _ = world.add_components(self.ship.unwrap(), (Hide, ));
                 self.exploded = true;
-                let explose_ref = data.assets_mut().register_tileset(Tileset::new("explose".to_string(),
+                let explose_ref = resources.assets_mut().register_tileset(Tileset::new("explose".to_string(),
                                                                                   app_base_path_join("examples/starlight-1961/assets/explosion.png"),
                                                                                   4, 1, 26, 24));
 
-                self.explosion = Some(data.push((
+                self.explosion = Some(world.push((
                     Sprite::new(0),
                     explose_ref,
                     Animations::single("explode", Animation::running(Duration::from_millis(300), vec![AnimationModifier::sprite(vec![0, 1, 2, 3], 3)])),
                     tr,
                 )));
-                let _r = data
+                let _r = resources
                     .audio()
                     .play(app_base_path_join("examples/starlight-1961/assets/explosion.ogg"),
                           PlayConfig { volume: 0.1, looped: false, category: None });
             }
         } else if self.explosion.is_some() {
             let finished_explosion = {
-                let animation = data.entry_mut::<&mut Animations>(self.explosion.unwrap()).expect("");
+                let animation = world.entry_mut::<&mut Animations>(self.explosion.unwrap()).expect("");
                 !animation.any_animation_running()
             };
             if finished_explosion {
-                let _r = data.remove(self.explosion.take().unwrap());
+                let _r = world.remove(self.explosion.take().unwrap());
             }
         } else {
-            let ended = data.timers().get_timer("reset").unwrap().ended();
+            let ended = resources.timers().get_timer("reset").unwrap().ended();
             if ended {
-                data.scene_controller().switch::<LevelScene>();
+                resources.scene_controller().switch::<LevelScene>();
             }
         }
     }

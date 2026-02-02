@@ -103,14 +103,17 @@ impl Scene for Menu {
 
 impl Menu {
     fn animate_main_menu_ship(&mut self, data: &mut GameData) {
-        let (transform, ship) = data.entry_mut::<(&mut Transform, &mut Ship)>(self.ship.unwrap())
-            .expect("Ship with transform must be mandatory here");
+        let dir = {
+            let (transform, ship) = data.entry_mut::<(&mut Transform, &mut Ship)>(self.ship.unwrap())
+                .expect("Ship with transform must be mandatory here");
 
-        if ship.dir && transform.global_translation().y() <= 495. {
-            ship.dir = false;
-        } else if !ship.dir && transform.global_translation().y() >= 505. {
-            ship.dir = true;
-        }
-        transform.append_y(if ship.dir { -0.4 } else { 0.2 });
+            if ship.dir && transform.global_translation().y() <= 495. {
+                ship.dir = false;
+            } else if !ship.dir && transform.global_translation().y() >= 505. {
+                ship.dir = true;
+            }
+            ship.dir
+        };
+        data.commands().transform_commands.append_y(self.ship.unwrap(), if dir { -0.4 } else { 0.2 });
     }
 }

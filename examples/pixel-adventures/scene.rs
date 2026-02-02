@@ -84,7 +84,7 @@ impl Scene for MainScene {
 
         let direction = if left { Some(Direction::LEFT) } else if right { Some(Direction::RIGHT) } else { None };
         let direction = if direction.is_some() { direction.expect("") } else { self.direction };
-        let (world, resources) = data.split();
+        let (world, resources, commands) = data.split_with_command();
         if (!self.running || self.direction != direction) && running {
             for (_, (character, material, _transform, animations)) in world.query_mut::<(&Character, &mut Material, &mut Transform, &mut Animations)>() {
                 if direction == Direction::LEFT {
@@ -115,25 +115,25 @@ impl Scene for MainScene {
             self.idle = true;
         }
         if right {
-            for (_, (_character, _material, transform, _animations)) in world.query_mut::<(&Character, &mut Material, &mut Transform, &mut Animations)>() {
+            for (e, (_character, _material, transform, _animations)) in world.query_mut::<(&Character, &mut Material, &mut Transform, &mut Animations)>() {
                 if !collisions.contains(&Direction::RIGHT) {
-                    transform.append_x(4.5);
+                    commands.transform_commands.append_x(e, 4.5);
                 }
             }
         }
         if left {
-            for (_, (_character, _material, transform, _animations)) in world.query_mut::<(&Character, &mut Material, &mut Transform, &mut Animations)>() {
+            for (e, (_character, _material, transform, _animations)) in world.query_mut::<(&Character, &mut Material, &mut Transform, &mut Animations)>() {
                 if !collisions.contains(&Direction::LEFT) {
-                    transform.append_x(-4.5);
+                    commands.transform_commands.append_x(e, -4.5);
                 }
             }
         }
         if self.vertical_force != 0.0 && (self.jumping || !collisions.contains(&Direction::BOTTOM)) {
-            for (_, (character, material, transform, animations)) in world.query_mut::<(&Character, &mut Material, &mut Transform, &mut Animations)>() {
+            for (e, (character, material, transform, animations)) in world.query_mut::<(&Character, &mut Material, &mut Transform, &mut Animations)>() {
                 *material = Material::Tileset(resources.assets_mut().retrieve_tileset(&character.jump_asset_ref).expect("").clone());
                 animations.stop_all_animation(true);
                 animations.loop_animation("jump");
-                transform.append_y(-self.vertical_force);
+                commands.transform_commands.append_y(e, -self.vertical_force);
             }
             self.running = false;
             self.idle = false;
@@ -174,7 +174,7 @@ impl MainScene {
         });
 
         if y_bottom.is_some() {
-            data.entry_mut::<&mut Transform>(char_entity).expect("").set_y(y_bottom.unwrap() - 9. - 45.);
+            data.commands().transform_commands.set_y(char_entity, y_bottom.unwrap() - 9. - 45.);
             self.vertical_force = 0.;
         }
         res

@@ -1,5 +1,6 @@
+use hecs::Entity;
 use crate::core::components::maths::transform::Transform;
-use crate::core::world::{GameData, SubWorld, World};
+use crate::core::world::{GameData, ScionWorld, World};
 use crate::graphics::components::ui::ui_text::UiText;
 use crate::{
     core::resources::time::TimerType,
@@ -14,6 +15,7 @@ use crate::{
         Hide,
     },
 };
+use crate::core::command_buffer::TransformCommand;
 use crate::graphics::components::HidePropagated;
 
 #[derive(PartialEq)]
@@ -27,7 +29,7 @@ enum BlinkResult {
 /// of long frames.
 pub(crate) fn animation_executer_system(data: &mut GameData) {
 
-    let (subworld, resources) = data.split();
+    let (subworld, resources, command) = data.split_with_command();
     start_delayed_animation(subworld);
     let mut timers = resources.timers();
     let mut remove_blink = Vec::new();
@@ -80,7 +82,7 @@ pub(crate) fn animation_executer_system(data: &mut GameData) {
                     {
                         match modifier.modifier_type.clone() {
                             AnimationModifierType::TransformModifier { .. } => {
-                                apply_transform_modifier(transform.as_mut(), modifier, timer_cycle)
+                                apply_transform_modifier(transform.as_mut(), modifier, timer_cycle, entity, &mut command.transform_commands)
                             }
                             AnimationModifierType::SpriteModifier {
                                 tile_numbers,
@@ -142,7 +144,7 @@ pub(crate) fn animation_executer_system(data: &mut GameData) {
     });
 }
 
-fn start_delayed_animation(world: &mut SubWorld) {
+fn start_delayed_animation(world: &mut ScionWorld) {
     for (_, animation) in world.query_mut::<&mut Animations>()
         .without::<&Hide>()
         .without::<&HidePropagated>() {
@@ -154,6 +156,8 @@ fn apply_transform_modifier(
     mut transform: Option<&mut &mut Transform>,
     modifier: &mut AnimationModifier,
     timer_cycle: usize,
+    entity: Entity,
+    transform_command: &mut TransformCommand
 ) {
     if let ComputedKeyframeModifier::TransformModifier { vector: coordinates, scale, rotation } =
         modifier.retrieve_keyframe_modifier()
@@ -161,13 +165,13 @@ fn apply_transform_modifier(
         if let Some(ref mut transform) = transform {
             for _i in 0..timer_cycle {
                 if let Some(coordinates) = coordinates {
-                    transform.append_translation(coordinates.x(), coordinates.y());
+                    transform_command.append_translation(entity, coordinates.x(), coordinates.y());
                 }
                 if let Some(scale) = scale {
-                    transform.set_scale(transform.scale + scale);
+                    transform_command.set_scale(entity, transform.scale + scale);
                 }
                 if let Some(rotation) = rotation {
-                    transform.append_angle(*rotation);
+                    transform_command.append_angle(entity, *rotation);
                 }
             }
         }

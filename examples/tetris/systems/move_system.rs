@@ -13,7 +13,7 @@ use crate::{
 };
 
 pub fn move_piece_system(data: &mut GameData) {
-    let (subworld, resources) = data.split();
+    let (subworld, resources, commands) = data.split_with_command();
     let mut timers = resources.timers();
     let mut tetris = resources.get_resource_mut::<TetrisResource>().unwrap();
     let mut inputs = resources.inputs();
@@ -65,7 +65,7 @@ pub fn move_piece_system(data: &mut GameData) {
             for (_e, (bloc, transform)) in subworld.query_mut::<(&mut Bloc, &mut Transform)>() {
                 match bloc.kind {
                     BlocKind::Moving => {
-                        transform.append_translation(movement as f32 * BLOC_SIZE, 0.);
+                        commands.transform_commands.append_translation(_e, movement as f32 * BLOC_SIZE, 0.);
                     }
                     _ => {}
                 };

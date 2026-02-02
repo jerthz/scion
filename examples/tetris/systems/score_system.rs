@@ -53,13 +53,14 @@ pub fn score_system(data: &mut GameData) {
                 _ => {}
             };
         }
+        let (world, _, com) = data.split_with_command();
         for full_line_idx in full_lines.iter() {
-            for (_, (bloc, transform)) in data.query_mut::<(&Bloc, &mut Transform)>() {
+            for (e, (bloc, transform)) in world.query_mut::<(&Bloc, &mut Transform)>() {
                 match bloc.kind {
                     BlocKind::Static => {
                         let line_idx = (transform.translation().y() / BLOC_SIZE) as usize;
                         if *full_line_idx > line_idx {
-                            transform.move_down(BLOC_SIZE);
+                            com.transform_commands.append_y(e,  BLOC_SIZE);
                         }
                     }
                     _ => {}

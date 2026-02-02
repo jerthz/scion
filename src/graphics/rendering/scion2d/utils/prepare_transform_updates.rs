@@ -1,5 +1,6 @@
 use crate::core::components::maths::camera::Camera;
 use crate::core::components::maths::transform::Transform;
+use crate::core::components::Dirty;
 use crate::core::world::{GameData, World};
 use crate::graphics::components::material::Material;
 use crate::graphics::components::shapes::line::Line;
@@ -13,7 +14,6 @@ use crate::graphics::components::ui::UiComponent;
 use crate::graphics::components::{Square, Triangle};
 use crate::graphics::rendering::scion2d::pre_renderer::Scion2DPreRenderer;
 use crate::graphics::rendering::shaders::gl_representations::{GlUniform, UniformData};
-use std::time::Instant;
 use crate::graphics::rendering::{Renderable2D, RenderingUpdate};
 use hecs::Component;
 
@@ -46,9 +46,8 @@ fn update_transforms_for_type<T: Component + Renderable2D>(
         (c, t)
     };
     let camera = (&camera1.0, &camera1.1);
-    for (entity, (transform, optional_ui_component, renderable, optional_material)) in
-        data.query::<(&Transform, Option<&UiComponent>, &T, Option<&Material>)>().iter() {
-        // TODO : update only if needed ?
+    for (entity, (transform, optional_ui_component, renderable, optional_material, _)) in
+        data.query::<(&Transform, Option<&UiComponent>, &T, Option<&Material>, &Dirty)>().iter() {
         let uniform = GlUniform::from(UniformData {
             transform,
             camera,
@@ -79,8 +78,8 @@ fn update_transforms_for_sprites(
         (c, t)
     };
     let camera = (&camera1.0, &camera1.1);
-    for (entity, (transform, optional_ui_component, renderable, optional_material)) in data
-        .query::<(&Transform, Option<&UiComponent>, &Sprite, Option<&Material>)>()
+    for (entity, (transform, optional_ui_component, renderable, optional_material, &Dirty)) in data
+        .query::<(&Transform, Option<&UiComponent>, &Sprite, Option<&Material>, &Dirty)>()
         .without::<&Tile>()
         .iter()
     {

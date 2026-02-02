@@ -4,7 +4,7 @@ use scion::graphics::components::material::Material;
 
 use scion::core::components::maths::transform::{Transform, TransformBuilder};
 use scion::graphics::components::ui::ui_image::UiImage;
-use scion::core::world::{GameData, World};
+use scion::core::world::{GameData, ScionWorld, World};
 use scion::utils::file::app_base_path_join;
 
 /*
@@ -47,16 +47,17 @@ pub struct BackgroundParallax {
 
 // System function
 pub fn apply_parallax_system(game_data: &mut GameData) {
-    for (_, (transform, parallax)) in backgrounds_query(game_data) {
+    let (w,_,c) = game_data.split_with_command();
+    for (e, (transform, parallax)) in backgrounds_query(w) {
         if transform.global_translation().y() <= parallax.y_reset {
-            transform.set_y(parallax.y_start);
+            c.transform_commands.set_y(e, parallax.y_start);
         } else {
-            transform.append_y(parallax.speed);
+            c.transform_commands.append_y(e, parallax.speed);
         }
     }
 }
 
-fn backgrounds_query(game_data: &mut GameData) -> QueryMut<(&mut Transform, &BackgroundParallax)> {
-    game_data.query_mut::<(&mut Transform, &BackgroundParallax)>()
+fn backgrounds_query(w: &mut ScionWorld) -> QueryMut<(&mut Transform, &BackgroundParallax)> {
+    w.query_mut::<(&mut Transform, &BackgroundParallax)>()
 }
 

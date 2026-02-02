@@ -14,7 +14,7 @@ use crate::main_scene::LineDirection;
 const LINE_SPEED: f32 = 4.;
 
 pub fn line_update_system(data: &mut GameData) {
-    let (world, resources) = data.split();
+    let (world, resources, commands) = data.split_with_command();
     let mut timers = resources.timers();
     let mut events = resources.events();
 
@@ -36,13 +36,13 @@ pub fn line_update_system(data: &mut GameData) {
             match line.direction {
                 LineDirection::LEFT => {
                     rectangle.set_width(rectangle.width() + LINE_SPEED);
-                    transform.append_x(-LINE_SPEED);
+                    commands.transform_commands.append_x(entity, -LINE_SPEED);
                 }
                 LineDirection::RIGHT => {
                     rectangle.set_width(rectangle.width() + LINE_SPEED);
                 }
                 LineDirection::TOP => {
-                    transform.append_y(-LINE_SPEED);
+                    commands.transform_commands.append_y(entity, -LINE_SPEED);
                     rectangle.set_height(rectangle.height() + LINE_SPEED)
                 }
                 LineDirection::BOTTOM => rectangle.set_height(rectangle.height() + LINE_SPEED),

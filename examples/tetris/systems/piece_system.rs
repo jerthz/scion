@@ -1,4 +1,4 @@
-use scion::core::components::maths::transform::Transform;
+use scion::core::components::maths::transform::{Transform, TransformBuilder};
 use scion::graphics::components::material::Material;
 use scion::core::resources::asset_manager::AssetRef;
 use scion::core::world::{GameData, World};
@@ -10,7 +10,7 @@ use crate::{
 };
 
 pub fn piece_update_system(data: &mut GameData) {
-    let (world, resources) = data.split();
+    let (world, resources, commands) = data.split_with_command();
 
     let mut timers = resources.timers();
     let mut tetris = resources.get_resource_mut::<TetrisResource>().unwrap();
@@ -65,10 +65,10 @@ pub fn piece_update_system(data: &mut GameData) {
                     res
                 };
                 if should_move_piece {
-                    for (_, (bloc, transform)) in world.query_mut::<(&mut Bloc, &mut Transform)>() {
+                    for (z, (bloc, _)) in world.query_mut::<(&mut Bloc, &mut Transform)>() {
                         match bloc.kind {
                             BlocKind::Moving => {
-                                transform.move_down(BLOC_SIZE);
+                                commands.transform_commands.append_y(z, BLOC_SIZE);
                                 tetris.state = TetrisState::MOVING(x, y + 1);
                             }
                             _ => {}
@@ -108,12 +108,11 @@ pub fn initialize_bloc(
     coord_y: f32,
     is_next_bloc: bool,
 ) -> (Transform, Sprite, AssetRef<Material>, bool) {
-    let mut bloc_transform = Transform::default();
-    bloc_transform.append_translation(
+    let bloc_transform = TransformBuilder::default().with_translation(
         coord_x * BLOC_SIZE + offset.0 * BLOC_SIZE,
         coord_y * BLOC_SIZE + offset.1 * BLOC_SIZE,
-    );
-    bloc_transform.set_z(1);
+        1
+    ).build();
     let tuple = (
         bloc_transform,
         Sprite::new(if is_next_bloc { tetris.next_piece.color } else { tetris.active_piece.color }),

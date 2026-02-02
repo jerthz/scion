@@ -12,7 +12,7 @@ use scion::{
 use scion::graphics::components::color::Color;
 use scion::graphics::components::material::Material;
 use scion::core::components::maths::padding::Padding;
-use scion::core::components::maths::transform::Transform;
+use scion::core::components::maths::transform::{Transform, TransformBuilder};
 use scion::graphics::components::ui::ui_button::UiButton;
 use scion::graphics::components::ui::ui_input::UiInput;
 use scion::core::resources::inputs::types::{Input, KeyCode};
@@ -119,9 +119,7 @@ fn add_main_ui_mask(data: &mut GameData) {
     let path = asset_path().join("ui.png").get();
     let image = Rectangle::new(544., 704., None);
 
-    let mut t = Transform::default();
-    t.set_z(10);
-    t.set_use_screen_as_origin(true);
+    let t = TransformBuilder::default().with_z(10).with_screen_as_origin().build();Transform::default();
     data.push((image, t, Material::Texture(path)));
 }
 
@@ -129,9 +127,6 @@ fn add_ui_top_overflow(data: &mut GameData) {
     let path = asset_path().join("ui_overflow_top.png").get();
     let image = Rectangle::new(324., 32., None);
 
-    let mut t = Transform::default();
-    t.set_z(0);
-    t.append_translation(32., 0.);
-    t.set_use_screen_as_origin(true);
+    let t = TransformBuilder::default().with_z(0).with_translation(32.0, 0., 0).with_screen_as_origin().build();
     data.push((image, t, Material::Texture(path)));
 }
