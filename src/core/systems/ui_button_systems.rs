@@ -5,7 +5,7 @@ use crate::core::components::maths::hierarchy::{Children, Parent};
 use crate::core::components::maths::transform::Transform;
 use crate::core::resources::asset_manager::AssetRef;
 use crate::core::resources::inputs::types::{Input, MouseButton};
-use crate::core::world::{GameData, Resources, SubWorld, World};
+use crate::core::world::{GameData, Resources, ScionWorld, World};
 use crate::graphics::components::color::Color;
 use crate::graphics::components::material::Material;
 use crate::graphics::components::ui::ui_button::UiButton;
@@ -107,7 +107,7 @@ pub(crate) fn compute_hover(data: &mut GameData) {
     }
 }
 
-fn change_button_material(world: &mut SubWorld, resources: &mut Resources, clicked_buttons: &mut Vec<(Entity, AssetRef<Material>)>) {
+fn change_button_material(world: &mut ScionWorld, resources: &mut Resources, clicked_buttons: &mut Vec<(Entity, AssetRef<Material>)>) {
     clicked_buttons.drain(0..).for_each(|(child, asset_ref)| {
         let button_asset_ref = world.entry_mut::<(Option<&AssetRef<Material>>, Option<&UiImage>)>(child);
 

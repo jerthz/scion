@@ -9,3 +9,4 @@ pub mod world;
 pub mod application_builder;
 pub mod scion_runner;
 pub mod components;
+mod command_buffer;

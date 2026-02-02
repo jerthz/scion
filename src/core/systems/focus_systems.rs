@@ -2,7 +2,7 @@ use hecs::Entity;
 use log::debug;
 
 use crate::core::resources::inputs::types::{Input, KeyCode};
-use crate::core::world::{GameData, SubWorld, World};
+use crate::core::world::{GameData, ScionWorld, World};
 use crate::graphics::components::ui::UiFocusable;
 use crate::graphics::components::{Hide, HidePropagated};
 
@@ -67,7 +67,7 @@ fn compute_action(data: &mut GameData) -> FocusAction {
 }
 
 fn retrieve_next_focus(current_focus: Option<usize>,
-                       world: &mut SubWorld) -> Option<(Entity, usize)> {
+                       world: &mut ScionWorld) -> Option<(Entity, usize)> {
     let (mut min_entity, mut next_entity) = (None, None);
     let (mut min, mut next) = (usize::MAX, usize::MAX);
 
@@ -102,7 +102,7 @@ fn retrieve_next_focus(current_focus: Option<usize>,
 }
 
 fn retrieve_previous_focus(current_focus: Option<usize>,
-                           world: &mut SubWorld) -> Option<(Entity, usize)> {
+                           world: &mut ScionWorld) -> Option<(Entity, usize)> {
     let (mut max_entity, mut previous_entity) = (None, None);
     let (mut max, mut previous) = (usize::MIN, usize::MIN);
 

@@ -8,7 +8,7 @@ use scion::graphics::components::tiles::tilemap::{TileInfos, Tilemap, TilemapInf
 use scion::core::resources::events::topic::TopicConfiguration;
 use scion::core::resources::events::{PollConfiguration, SubscriberId};
 
-use scion::core::world::{GameData, SubWorld, World};
+use scion::core::world::{GameData, ScionWorld, World};
 use scion::{
     graphics::components::{
         material::Material,
@@ -341,7 +341,7 @@ impl MainScene {
         })
     }
 }
-pub fn init_balls(world: &mut SubWorld, assets: &JezzBallAssets) {
+pub fn init_balls(world: &mut ScionWorld, assets: &JezzBallAssets) {
     let x = thread_rng().gen_range(10..58) as f32;
     let y = thread_rng().gen_range(5..33) as f32;
 
@@ -367,7 +367,7 @@ pub fn init_balls(world: &mut SubWorld, assets: &JezzBallAssets) {
     ));
 }
 
-fn add_border(world: &mut SubWorld) {
+fn add_border(world: &mut ScionWorld) {
     world.push((
         Transform::from_xy(2.0, 0.),
         Collider::new(

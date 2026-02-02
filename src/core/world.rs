@@ -9,9 +9,12 @@ use hecs::{
     Component, ComponentError, DynamicBundle, Entity, NoSuchEntity, Query, QueryBorrow,
     QueryMut, QueryOne, QueryOneError,
 };
-
+use log::info;
+use crate::core::command_buffer::CommandBuffer;
+use crate::core::components::Dirty;
 use crate::core::components::maths::camera::{Camera, DefaultCamera};
 use crate::core::components::maths::hierarchy::{init_parent_children_link, retrieve_children, retrieve_parent, update_children_if_needed, update_parent_if_needed, Children, Parent};
+use crate::core::components::maths::transform::{Transform, TransformOperation};
 use crate::core::resources::asset_manager::AssetManager;
 use crate::core::resources::audio::Audio;
 use crate::core::resources::events::Events;
@@ -44,13 +47,20 @@ pub trait World {
 
 #[derive(Default)]
 pub struct GameData {
-    pub(crate) subworld: SubWorld,
+    pub(crate) subworld: ScionWorld,
     pub(crate) resources: Resources,
+    pub(crate) commands: CommandBuffer,
 }
 
 impl GameData {
-    pub fn split(&mut self) -> (&mut SubWorld, &mut Resources) {
+    pub fn split(&mut self) -> (&mut ScionWorld, &mut Resources) {
         (&mut self.subworld, &mut self.resources)
+    }
+    pub fn split_with_command(&mut self) -> (&mut ScionWorld, &mut Resources, &mut CommandBuffer) {
+        (&mut self.subworld, &mut self.resources, &mut self.commands)
+    }
+    pub fn commands(&mut self) -> &mut CommandBuffer {
+        &mut self.commands
     }
 
     pub fn contains_resource<T: Resource>(&self) -> bool {
@@ -165,7 +175,97 @@ impl GameData {
         self.subworld.entity_cleaner.take()
     }
 
+    pub(crate) fn apply_commands(&mut self) {
+        let mut drained = self.commands.drain();
+        let mut to_refresh : HashSet<Entity> = self.query::<(&Transform, &Dirty)>().iter().map(|e| e.0).collect();
+        drained.0.drain().for_each(|(e, transform_changes)|{
+            let mut changed = false;
+            let mut cloned = Transform::default();
+            match self.entry_mut::<&mut Transform>(e){
+                Ok(t) => {
+                    if let Some(x) = transform_changes.x {
+                        t.set_x(x);
+                        changed = true;
+                    }
+                    if let Some(y) = transform_changes.y {
+                        t.set_y(y);
+                        changed = true;
+                    }
+                    if let Some(z) = transform_changes.z {
+                        t.set_z(z);
+                        changed = true;
+                    }
+                    if let Some(delta_x) = transform_changes.delta_x {
+                        t.append_x(delta_x);
+                        changed = true;
+                    }
+                    if let Some(delta_y) = transform_changes.delta_y {
+                        t.append_y(delta_y);
+                        changed = true;
+                    }
+                    if let Some(delta_z) = transform_changes.delta_z {
+                        t.set_z(t.translation().z + delta_z);
+                        changed = true;
+                    }
+                    if let Some(angle) = transform_changes.angle {
+                        t.set_angle(angle);
+                        changed = true;
+                    }
+                    if let Some(delta_angle) = transform_changes.delta_angle {
+                        t.append_angle(delta_angle);
+                        changed = true;
+                    }
+                    if let Some(scale) = transform_changes.scale {
+                        t.set_scale(scale);
+                        changed = true;
+                    }
+                    cloned = t.clone();
+                }
+                Err(e) => {
+                    info!("Ignoring command for entity {:?} because it doesn't have a transform component.", e)
+                }
+            }
+            if changed {
+                let _r = self.add_components(e, (Dirty,));
+                if let Ok(children) = self.subworld.entry_mut::<&Children>(e) {
+                    self.commands.transform_commands.parent_modified.insert(e, (children.0.clone(), cloned));
+                }
+            }
+        });
+        let mut parents = self.commands.drain_parent_modified();
+        parents.0.drain().for_each(|(_, (mut c, t))|{
+            c.drain(0..).for_each(|child| {
+                if to_refresh.contains(&child){
+                    to_refresh.remove(&child);
+                }
+                self.entry_mut::<&mut Transform>(child).expect("").compute_global_from_parent(t.global_translation());
+                self.entry_mut::<&mut Transform>(child).expect("").compute_global_angle_from_parent(t.global_angle());
+            });
+        });
 
+        if !to_refresh.is_empty(){
+            to_refresh.drain().for_each(|e|{
+                if let Some(parent) = {self.subworld.entry_mut::<&Parent>(e).map(|p|p.entity()).ok()} {
+                    if let Some(t_parent) = {self.subworld.entry_mut::<&Transform>(parent).map(|p|p.clone()).ok()} {
+                        self.entry_mut::<&mut Transform>(e).expect("").compute_global_from_parent(t_parent.global_translation());
+                    }
+                }
+            })
+        }
+
+    }
+
+    pub(crate) fn reset_dirty(&mut self) {
+        let entities: Vec<Entity> = self.subworld
+            .query::<(&Dirty, &Transform)>()
+            .iter()
+            .map(|(e, _)| e)
+            .collect();
+        println!("remove {:?} dirty", entities.len());
+        for e in entities {
+            let _ = self.subworld.internal_world.remove_one::<Dirty>(e);
+        }
+    }
 }
 
 impl World for GameData {
@@ -227,7 +327,7 @@ impl World for GameData {
 }
 
 #[derive(Default)]
-pub struct SubWorld {
+pub struct ScionWorld {
     internal_world: hecs::World,
     entity_cleaner: Option<Vec<Entity>>,
 }
@@ -237,7 +337,7 @@ pub struct Resources {
     internal_resources: InternalResources,
 }
 
-impl World for SubWorld {
+impl World for ScionWorld {
     fn entities(&self) -> HashSet<Entity> {
         self.internal_world.iter().map(|entity_ref| entity_ref.entity()).collect::<HashSet<_>>()
     }
@@ -248,6 +348,7 @@ impl World for SubWorld {
 
     fn push(&mut self, components: impl DynamicBundle) -> Entity {
         let entity = self.internal_world.spawn(components);
+        let _d = self.add_components(entity, (Dirty,));
         init_parent_children_link(&mut self.internal_world, entity);
         entity
     }

@@ -69,24 +69,8 @@ impl Transform {
         Self::new(Coordinates::new_with_z(x, y, z), 1., 0.)
     }
 
-    /// Append a translation to this transform's position
-    pub fn append_translation(&mut self, x: f32, y: f32) {
-        self.local_translation.x += x;
-        self.local_translation.y += y;
-        self.global_translation.x += x;
-        self.global_translation.y += y;
-        self.dirty = true;
-        self.dirty_offset = true;
-        self.handle_bounds();
-    }
-
-    /// Append a translation to this transform's position
-    pub fn append_vector(&mut self, vector: Vector) {
-        self.append_translation(vector.x, vector.y);
-    }
-
     /// Appends the x val to the translation's x value
-    pub fn append_x(&mut self, x: f32) {
+    pub(crate) fn append_x(&mut self, x: f32) {
         self.local_translation.x += x;
         self.global_translation.x += x;
         self.dirty = true;
@@ -95,16 +79,7 @@ impl Transform {
     }
 
     /// Appends the y val to the translation's y value
-    pub fn append_y(&mut self, y: f32) {
-        self.local_translation.y += y;
-        self.global_translation.y += y;
-        self.dirty = true;
-        self.dirty_offset = true;
-        self.handle_bounds();
-    }
-
-    /// Move this transform down
-    pub fn move_down(&mut self, y: f32) {
+    pub(crate) fn append_y(&mut self, y: f32) {
         self.local_translation.y += y;
         self.global_translation.y += y;
         self.dirty = true;
@@ -113,14 +88,14 @@ impl Transform {
     }
 
     /// Append an angle to this transform's angle
-    pub fn append_angle(&mut self, angle: f32) {
+    pub(crate) fn append_angle(&mut self, angle: f32) {
         self.local_angle += angle;
         self.global_angle += angle;
         self.dirty = true;
         self.dirty_offset = true;
     }
 
-    pub fn set_angle(&mut self, angle: f32) {
+    pub(crate) fn set_angle(&mut self, angle: f32) {
         self.local_angle = angle;
         self.global_angle = angle;
         self.dirty = true;
@@ -153,7 +128,7 @@ impl Transform {
     }
 
     /// Change the z value in the local translation coordinates.
-    pub fn set_z(&mut self, z: usize) {
+    pub(crate) fn set_z(&mut self, z: usize) {
         let z_diff = self.global_translation.z - self.local_translation.z;
         self.local_translation.z = z;
         self.global_translation.z = z + z_diff;
@@ -162,7 +137,7 @@ impl Transform {
     }
 
     /// Change the x value in the local translation coordinates.
-    pub fn set_x(&mut self, x: f32) {
+    pub(crate) fn set_x(&mut self, x: f32) {
         let x_diff = self.global_translation.x - self.local_translation.x;
         self.local_translation.x = x;
         self.global_translation.x = x + x_diff;
@@ -171,7 +146,7 @@ impl Transform {
     }
 
     /// Change the y value  in the local translation coordinates.
-    pub fn set_y(&mut self, y: f32) {
+    pub(crate) fn set_y(&mut self, y: f32) {
         let y_diff = self.global_translation.y - self.local_translation.y;
         self.local_translation.y = y;
         self.global_translation.y = y + y_diff;
@@ -325,6 +300,21 @@ impl TransformBuilder {
     }
 }
 
+
+
+#[derive(Default)]
+pub(crate) struct TransformOperation {
+    pub(crate) x: Option<f32>,
+    pub(crate) y: Option<f32>,
+    pub(crate) z: Option<usize>,
+    pub(crate) delta_x: Option<f32>,
+    pub(crate) delta_y: Option<f32>,
+    pub(crate) delta_z: Option<usize>,
+    pub(crate) angle: Option<f32>,
+    pub(crate) delta_angle: Option<f32>,
+    pub(crate) scale: Option<f32>,
+}
+
 #[cfg(test)]
 mod tests {
     use crate::core::components::maths::transform::{Coordinates, Transform};
@@ -348,12 +338,8 @@ mod tests {
         let mut transform = Transform::new(Coordinates::new(5., 3.), 1., 1.);
         assert!(!transform.dirty);
 
-        transform.append_translation(1., 1.);
-        assert!(transform.dirty);
-
-        transform.dirty = false;
-
-        transform.move_down(1.);
+        transform.append_x(1.);
+        transform.append_y(1.);
         assert!(transform.dirty);
 
         transform.dirty = false;

@@ -220,9 +220,7 @@ impl MainScene {
             Tileset::from_atlas("examples/new-bark-town/assets/nbt_atlas.json", "examples/new-bark-town/assets/nbt.png").unwrap(),
         );
         let mut level = read_level(level_name.as_str());
-        let mut scale = Transform::default();
-        scale.set_scale(3.0);
-        scale.set_z(5);
+        let scale = TransformBuilder::default().with_scale(3.0).with_z(5).build();
         let tilemap_infos = TilemapInfo::new(
             Dimensions::new(level.map.width, level.map.height, level.map.layers.len()),
             scale,

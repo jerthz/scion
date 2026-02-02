@@ -7,7 +7,7 @@ use wgpu::{util::BufferInitDescriptor, PrimitiveTopology};
 use crate::core::components::maths::hierarchy::Parent;
 use crate::core::components::maths::transform::Transform;
 use crate::core::resources::asset_manager::AssetManager;
-use crate::core::world::{SubWorld, World};
+use crate::core::world::{ScionWorld, World};
 use crate::{
     core::resources::asset_manager::AssetRef,
     graphics::rendering::Renderable2D,
@@ -276,7 +276,7 @@ impl Tilemap {
 
     /// Retrieves the pathing value associated with this position in the tilemap
     pub fn retrieve_pathing(
-        world: &mut SubWorld,
+        world: &mut ScionWorld,
         entity: Entity,
         tile_position: &Position,
         asset_manager: &AssetManager,

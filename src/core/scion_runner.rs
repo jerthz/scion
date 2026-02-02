@@ -39,6 +39,7 @@ impl ScionRunner {
         thread::spawn(move || { ScionRenderingThread::new(window_rendering_manager, render_receiver).run() });
 
         let mut start_tick = Instant::now();
+        let mut first = true;
 
         loop {
             self.compute_color_picked_entity();
@@ -52,10 +53,15 @@ impl ScionRunner {
                     .expect("Time is an internal resource and can't be missing")
                     .frame();
                 self.game_data.timers().add_delta_duration(frame_duration);
-                let _r = render_sender.send((handle_window_event(&mut self), vec![], vec![],vec![]));
+                let _r = render_sender.send((handle_window_event(&mut self), vec![], vec![], vec![]));
                 self.layer_machine.apply_scene_action(SceneAction::Update, &mut self.game_data);
+                self.game_data.apply_commands();
                 self.scheduler.execute(&mut self.game_data);
-                self.layer_machine.apply_scene_action(SceneAction::LateUpdate, &mut self.game_data);
+                self.game_data.apply_commands();
+            }
+
+            if should_tick {
+            self.layer_machine.apply_scene_action(SceneAction::LateUpdate, &mut self.game_data);
                 self.update_cursor();
             }
 
@@ -69,13 +75,17 @@ impl ScionRunner {
                 let rendering_infos = Scion2DPreRenderer::prepare_rendering(&mut self.game_data);
                 let _r = render_sender.send((vec![], updates, rendering_infos,vec![]));
                 frame_limiter.render();
+                first = false;
+            }
+
+            if !first && frame_limiter.render_unlocked() {
+                self.game_data.reset_dirty();
             }
 
             if should_tick {
                 self.game_data.inputs().reset_inputs();
                 self.game_data.events().cleanup();
-                self.layer_machine
-                    .apply_scene_action(SceneAction::EndFrame, &mut self.game_data);
+                self.layer_machine.apply_scene_action(SceneAction::EndFrame, &mut self.game_data);
                 frame_limiter.tick(&start_tick);
                 if let Some(e) = self.game_data.take_despawned(){
                     render_sender.send((vec![], vec![], vec![], e)).unwrap();

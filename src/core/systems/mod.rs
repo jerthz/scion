@@ -20,7 +20,7 @@ use crate::core::systems::hide_propagation_system::{
     hide_propagated_deletion_system, hide_propagation_system,
 };
 use crate::core::systems::missing_ui_component_system::{missing_focus_component_system, missing_ui_component_system};
-use crate::core::systems::parent_transform_system::{dirty_child_system, dirty_transform_offset_system, dirty_transform_system};
+use crate::core::systems::parent_transform_system::{dirty_transform_offset_system};
 use crate::core::systems::ui_button_systems::{compute_hover, set_childs_on_buttons};
 use crate::core::systems::ui_input_systems::{register_keyboard_inputs_on_ui_input, set_childs_on_inputs, synchronize_input_and_text};
 use crate::core::systems::ui_text_system::{sync_text_value_system, ui_text_atlas_system, ui_text_material_resolver};
@@ -98,8 +98,6 @@ impl Package for InternalPackage {
             .with_system(missing_focus_component_system::<UiInput>)
             .with_system(asset_ref_resolver_system::<Material, MaterialAssetResolverFn>)
             .with_system(animation_executer_system)
-            .with_system(dirty_child_system)
-            .with_system(dirty_transform_system)
             .with_system(compute_collisions_system)
             .with_system(set_childs_on_inputs)
             .with_system(ui_text_material_resolver)

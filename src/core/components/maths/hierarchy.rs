@@ -1,6 +1,6 @@
 use std::process::Child;
 use hecs::Entity;
-use crate::core::world::{SubWorld, World};
+use crate::core::world::{ScionWorld, World};
 
 /// A component creating a parent link to the wrapped entity
 #[derive(Debug)]

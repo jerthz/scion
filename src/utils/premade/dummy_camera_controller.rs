@@ -54,21 +54,22 @@ impl Package for DummyCamera {
 
 /// A premade camera controller allowing the player to move the camera using keyboard arrows
 pub fn dummy_camera_controller_system(data: &mut GameData){
-    let left = data.inputs().input_pressed(&Input::Key(KeyCode::Left));
-    let right = data.inputs().input_pressed(&Input::Key(KeyCode::Right));
-    let up = data.inputs().input_pressed(&Input::Key(KeyCode::Up));
-    let down = data.inputs().input_pressed(&Input::Key(KeyCode::Down));
+    let (world, resources , command) = data.split_with_command();
+    let left = resources.inputs().input_pressed(&Input::Key(KeyCode::Left));
+    let right = resources.inputs().input_pressed(&Input::Key(KeyCode::Right));
+    let up = resources.inputs().input_pressed(&Input::Key(KeyCode::Up));
+    let down = resources.inputs().input_pressed(&Input::Key(KeyCode::Down));
 
-    let (vh, vv) = data.resources.get_resource::<DummyCameraConfig>()
+    let (vh, vv) = resources.get_resource::<DummyCameraConfig>()
         .expect("Missing mandatory DummyCameraConfig").get_velocities();
 
     let horizontal_input = 0. + if left { -1. * vh } else { 0. } + if right { vh } else { 0. };
     let vertical_input = 0. + if up { -1. * vv } else { 0. } + if down { vv } else { 0. };
 
     if horizontal_input != 0. || vertical_input != 0. {
-        for (_, (t, _)) in data.query_mut::<(&mut Transform, &Camera)>(){
-            t.append_x(horizontal_input);
-            t.append_y(vertical_input);
+        for (e, (t, _)) in world.query_mut::<(&mut Transform, &Camera)>(){
+            command.transform_commands.append_x(e, horizontal_input);
+            command.transform_commands.append_y(e, vertical_input);
         }
     }
 }
