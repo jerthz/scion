@@ -1,3 +1,4 @@
+use profiling_macros::profile;
 use crate::core::components::maths::hierarchy::{Children, Parent};
 use crate::core::world::{GameData, World};
 use crate::graphics::components::{
@@ -6,6 +7,8 @@ use crate::graphics::components::{
 };
 
 /// System responsible to add a `HidePropagate` component to each child of entities that have an `Hide` component
+
+#[profile("system::hide_propagation_system")]
 pub(crate) fn hide_propagation_system(data: &mut GameData) {
     let mut to_add = Vec::new();
 
@@ -26,6 +29,7 @@ pub(crate) fn hide_propagation_system(data: &mut GameData) {
 }
 
 /// System responsible to remove all the `HidePropagated` components when the parent is no longer Hidden
+#[profile("system::hide_propagated_deletion_system")]
 pub(crate) fn hide_propagated_deletion_system(data: &mut GameData) {
     let mut child_to_clear = Vec::new();
     for (e, (_c, parent)) in data.query::<(&HidePropagated, &Parent)>().iter() {

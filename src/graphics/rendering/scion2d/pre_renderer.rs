@@ -16,11 +16,13 @@ use crate::graphics::rendering::scion2d::utils::prepare_component_buffer_updates
 use crate::graphics::rendering::{RenderingInfos, RenderingUpdate};
 use crate::utils::file::FileReaderError;
 use hecs::Entity;
+use crate::core::components::maths::camera::Camera;
+use crate::core::components::maths::transform::Transform;
 
 #[derive(Default)]
 pub(crate) struct Scion2DPreRenderer {
     textures_timestamps: HashMap<String, SystemTime>,
-    transform_uniform: HashSet<Entity>,
+    pub(crate) camera: Option<(Camera, Transform)>,
     vertex_buffer: HashSet<Entity>,
     indexes_buffer: HashSet<Entity>,
     pub(crate) color_picking_storage: ColorPickingStorage
@@ -32,7 +34,9 @@ impl Scion2DPreRenderer {
         let mut updates = vec![];
         if data.has_camera() {
             updates.append(&mut prepare_material_updates::call(self, data));
-            updates.append(&mut prepare_transform_updates::call(self, data));
+            let (mut transform_updates, camera) = prepare_transform_updates::call(self, data);
+            updates.append(&mut transform_updates);
+            self.camera = Some(camera);
             updates.append(&mut prepare_component_buffer_updates::call(self, data));
         }
         self.clean_buffers(data);
@@ -92,6 +96,5 @@ impl Scion2DPreRenderer {
     fn clean_buffers(&mut self, data: &mut GameData) {
         self.vertex_buffer.retain(|&k| data.contains(k));
         self.indexes_buffer.retain(|&k| data.contains(k));
-        self.transform_uniform.retain(|&k| data.contains(k));
     }
 }

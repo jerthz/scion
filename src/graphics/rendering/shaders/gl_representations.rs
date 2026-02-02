@@ -246,7 +246,7 @@ pub(crate) fn create_glmat(t: &Vec4) -> [f32; 4] {
 
 pub(crate) struct UniformData<'a> {
     pub transform: &'a Transform,
-    pub camera: (&'a Camera, &'a Transform),
+    pub camera: &'a(Camera, Transform),
     pub is_ui_component: bool,
     pub pivot_offset: Vector
 }

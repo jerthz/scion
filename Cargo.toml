@@ -6,17 +6,28 @@ edition = "2018"
 description = "Game making library on top of wgpu, winit, hecs"
 documentation = "https://docs.rs/scion"
 keywords = ["game", "library", "engine"]
-repository = "https://github.com/grzi/scion/"
+repository = "https://github.com/jerthz/scion/"
 license = "MIT OR Apache-2.0"
 resolver = "2"
 
 [features]
 hot-reload = []
+profiling = ["profiling/profiling"]
+
+[workspace]
+members = [
+    ".",
+    "external/profiling",
+    "external/profiling_macro",
+]
 
 [dependencies]
 atomic_refcell = "0.1.13"
 hecs = "0.10.5"
 downcast-rs = "2.0.2"
+
+profiling = { path = "external/profiling" }
+profiling_macros = { path = "external/profiling_macro" }
 
 # window & rendering
 winit = {version = "0.30.12", features = ["rwh_05"]}

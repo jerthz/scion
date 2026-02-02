@@ -1,4 +1,5 @@
 use hecs::Entity;
+use profiling_macros::profile;
 use crate::core::components::maths::transform::Transform;
 use crate::core::world::{GameData, ScionWorld, World};
 use crate::graphics::components::ui::ui_text::UiText;
@@ -27,6 +28,7 @@ enum BlinkResult {
 /// System responsible of applying modifiers data to the dedicated components
 /// It will use timers to keep track of the animation and will merge keyframes in case
 /// of long frames.
+#[profile("system::animation_executer_system")]
 pub(crate) fn animation_executer_system(data: &mut GameData) {
 
     let (subworld, resources, command) = data.split_with_command();

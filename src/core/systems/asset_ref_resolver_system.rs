@@ -1,5 +1,5 @@
 use hecs::Component;
-
+use profiling_macros::profile;
 use crate::core::world::{GameData, World};
 use crate::core::resources::asset_manager::{AssetManager, AssetRef};
 use crate::graphics::components::material::Material;
@@ -9,6 +9,7 @@ pub(crate) trait AssetResolverFn<T: Component> {
 }
 
 /// System responsible to add an asset of type T to each entity with an assetRef<T>
+#[profile("system::asset_ref_resolver_system")]
 pub(crate) fn asset_ref_resolver_system<T: Component, F: AssetResolverFn<T>>(data: &mut GameData) {
     let mut to_add = Vec::new();
     {

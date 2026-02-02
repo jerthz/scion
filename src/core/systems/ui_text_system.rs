@@ -1,7 +1,7 @@
 
 use atomic_refcell::AtomicRefMut;
 use log::debug;
-
+use profiling_macros::profile;
 use crate::core::resources::font_atlas::FontAtlas;
 use crate::core::world::{GameData, World};
 use crate::graphics::components::color::Color;
@@ -11,6 +11,7 @@ use crate::graphics::components::ui::{
     ui_text::{UiText},
 };
 
+#[profile("system::sync_text_value_system")]
 pub(crate) fn sync_text_value_system(data: &mut GameData) {
     let (world, resources) = data.split();
     for (_e, ui_text) in world.query_mut::<&mut UiText>() {
@@ -22,6 +23,7 @@ pub(crate) fn sync_text_value_system(data: &mut GameData) {
 
 
 /// This system is responsible to resolve missing material on ui_text
+#[profile("system::ui_text_material_resolver")]
 pub(crate) fn ui_text_material_resolver(data: &mut GameData) {
     let (world, resources) = data.split();
     let mut to_add = Vec::new();
@@ -47,6 +49,7 @@ pub(crate) fn ui_text_material_resolver(data: &mut GameData) {
 /// This system is responsible to check missing font atlas in the registry
 /// In the end, it generates a bitmap for True type, and use existing bitmap for bitmap font
 /// Each are inserted in the Font atlas, int later used in rendering.
+#[profile("system::ui_text_atlas_system")]
 pub(crate) fn ui_text_atlas_system(data: &mut GameData) {
     let (world, resources) = data.split();
     let mut font_atlas = resources.font_atlas();
