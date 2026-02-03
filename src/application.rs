@@ -89,6 +89,7 @@ impl Scion {
             event_loop.set_control_flow(ControlFlow::Wait);
             match event_loop.run_app(&mut self){
                 Ok(_) => {
+                    profiling::print_profile_stats();
                     info!("Gracefully closed the game");
                 }
                 Err(e) => {

@@ -4,13 +4,14 @@ use crate::core::components::maths::collider::{Collider, ColliderDebug, Collider
 use crate::core::components::maths::hierarchy::Parent;
 use crate::core::components::maths::transform::Transform;
 use hecs::{Component, Entity};
-
+use profiling_macros::profile;
 use crate::core::resources::global_storage::GlobalStorage;
 use crate::core::resources::inputs::types::{Input, KeyCode};
 use crate::core::world::{GameData, World};
 use crate::graphics::components::{color::Color, material::Material, shapes::polygon::Polygon};
 use crate::graphics::rendering::Renderable2D;
 
+#[profile("system::collider_cleaner_system")]
 pub(crate) fn collider_cleaner_system(data: &mut GameData) {
     for (_, c) in data.query_mut::<&mut Collider>() {
         c.clear_collisions();
@@ -18,6 +19,7 @@ pub(crate) fn collider_cleaner_system(data: &mut GameData) {
 }
 
 /// System responsible to compute collision between colliders, following the mask filters
+#[profile("system::compute_collisions_system")]
 pub(crate) fn compute_collisions_system(data: &mut GameData) {
     let mut res: HashMap<Entity, Vec<Collision>> = HashMap::default();
 
@@ -74,6 +76,7 @@ pub(crate) fn compute_collisions_system(data: &mut GameData) {
 }
 
 /// System responsible to add a `ColliderDebug` component to each colliders that are in debug mode
+#[profile("system::debug_colliders_system")]
 pub(crate) fn debug_colliders_system(data: &mut GameData) {
     let global_debug_activated = handle_global_debug_colliders(data);
     let mut collider_debug = fetch_collider_debug_entities(data);
@@ -115,6 +118,7 @@ pub(crate) fn debug_colliders_system(data: &mut GameData) {
 }
 
 /// System responsible to add the UiComponent to any T missing its uiComponent
+#[profile("system::collider_pivot_propagation_system")]
 pub(crate) fn collider_pivot_propagation_system<T: Component + Renderable2D>(data: &mut GameData) {
     for (_, (renderable, collider)) in data.query_mut::<(&T, &mut Collider)>(){
         collider.set_parent_pivot(renderable.get_pivot());

@@ -90,9 +90,12 @@ impl Scene for MainScene {
 
         let tilemap = self.load_map(level, data);
         self.tilemap = Some(tilemap);
+        println!("tilemap {:?}", tilemap);
         let char = add_character(data, start_x, start_y, &direction);
+        println!("char {:?}", char);
         let camera_transform = Transform::from_xy(-192., -168.);
-        data.push((Camera::new(384., 336.), camera_transform, Parent::new(char)));
+        let camera = data.push((Camera::new(384., 336.), camera_transform, Parent::new(char)));
+        println!("camera {:?}", camera);
         self.player = Some(char);
     }
 

@@ -1,6 +1,6 @@
 use hecs::Entity;
 use log::debug;
-
+use profiling_macros::profile;
 use crate::core::resources::inputs::types::{Input, KeyCode};
 use crate::core::world::{GameData, ScionWorld, World};
 use crate::graphics::components::ui::UiFocusable;
@@ -14,6 +14,7 @@ enum FocusAction {
     Reset,
 }
 
+#[profile("system::focus_switcher_system")]
 pub(crate) fn focus_switcher_system(data: &mut GameData) {
     let action = compute_action(data);
     let (world, resource) = data.split();

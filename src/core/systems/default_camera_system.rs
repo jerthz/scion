@@ -1,5 +1,5 @@
 use log::debug;
-
+use profiling_macros::profile;
 use crate::core::components::maths::{
     camera::{Camera, DefaultCamera},
     transform::Transform,
@@ -7,6 +7,7 @@ use crate::core::components::maths::{
 use crate::core::world::{GameData, World};
 
 /// System responsible of adding a Camera on each entity with a DefaultCamera component
+#[profile("system::default_camera_system")]
 pub(crate) fn default_camera_system(data: &mut GameData) {
     let default_entity =
         data.query::<&DefaultCamera>().without::<&Camera>().iter().map(|(e, _d)| e).next();

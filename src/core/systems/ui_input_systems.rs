@@ -1,3 +1,4 @@
+use profiling_macros::profile;
 use crate::core::components::maths::hierarchy::{Children, Parent};
 use crate::core::components::maths::transform::Transform;
 use crate::core::resources::inputs::types::{Input, KeyCode};
@@ -7,6 +8,7 @@ use crate::graphics::components::ui::ui_text::UiText;
 
 /// This system is responsible of handling components needed to represent a ui_input
 /// It will detect and create needed components
+#[profile("system::set_childs_on_inputs")]
 pub(crate) fn set_childs_on_inputs(data: &mut GameData) {
     let mut to_add_entities = Vec::new();
     for (e, (ui_input, transform)) in data.query_mut::<(&UiInput, &Transform)>().without::<&Children>() {
@@ -23,6 +25,7 @@ pub(crate) fn set_childs_on_inputs(data: &mut GameData) {
 }
 
 /// This system is responsible of handling inputs from keyboard on a focused input
+#[profile("system::register_keyboard_inputs_on_ui_input")]
 pub(crate) fn register_keyboard_inputs_on_ui_input(data: &mut GameData) {
     let (world, resources) = data.split();
     let current_focused = resources.focus_manager().current_focus_entity();
@@ -55,6 +58,7 @@ pub(crate) fn register_keyboard_inputs_on_ui_input(data: &mut GameData) {
 }
 
 /// This system is responsible of handling synchronization between ui inputs and ui text
+#[profile("system::synchronize_input_and_text")]
 pub(crate) fn synchronize_input_and_text(data: &mut GameData) {
     let mut dirty_input = Vec::new();
     for (_, (input, children)) in data.query_mut::<(&mut UiInput, &Children)>() {

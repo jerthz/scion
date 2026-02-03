@@ -1,6 +1,6 @@
 use hecs::Entity;
 use winit::window::CursorIcon;
-
+use profiling_macros::profile;
 use crate::core::components::maths::hierarchy::{Children, Parent};
 use crate::core::components::maths::transform::Transform;
 use crate::core::resources::asset_manager::AssetRef;
@@ -16,6 +16,7 @@ use crate::graphics::rendering::Renderable2D;
 
 /// This system is responsible of handling components needed to represent buttons
 /// It will detect and create needed components
+#[profile("system::set_childs_on_buttons")]
 pub(crate) fn set_childs_on_buttons(data: &mut GameData) {
     let (world, resources) = data.split();
 
@@ -47,6 +48,7 @@ pub(crate) fn set_childs_on_buttons(data: &mut GameData) {
     });
 }
 
+#[profile("system::compute_hover")]
 pub(crate) fn compute_hover(data: &mut GameData) {
     let (world, resources) = data.split();
     let (mx, my) = resources.inputs().mouse_xy();

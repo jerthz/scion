@@ -1,8 +1,7 @@
-use std::collections::LinkedList;
-use std::time::Instant;
-
 use crate::core::state::GameState;
 use crate::core::world::GameData;
+use profiling_macros::profile;
+use std::collections::LinkedList;
 
 #[derive(Default)]
 pub(crate) struct Scheduler {
@@ -19,18 +18,12 @@ impl Scheduler {
                                       pause_condition: fn(&GameState) -> bool) {
         self.systems.push_back((Some(pause_condition), system));
     }
-
+    #[profile("scheduler::execute")]
     pub(crate) fn execute(&mut self, data: &mut GameData) {
-        let start = Instant::now();
-
         let systems_to_execute : LinkedList<&(Option<fn(&GameState) -> bool>, fn(&mut GameData))> = {
             let game_state = data.get_resource::<GameState>().expect("Missing game state resource");
             self.systems.iter().filter(|s| s.0.is_none() || !s.0.unwrap()(&game_state)).collect()
         };
-
         systems_to_execute.iter().for_each(|s| s.1(data));
-
-        let duration = start.elapsed();
-        log::debug!("System execution time: {:?}", duration);
     }
 }

@@ -2,11 +2,12 @@ use std::any;
 
 use hecs::Component;
 use log::trace;
-
+use profiling_macros::profile;
 use crate::core::world::{GameData, World};
 use crate::graphics::components::ui::{Focusable, UiComponent, UiFocusable};
 
 /// System responsible to add the UiComponent to any T missing its uiComponent
+#[profile("system::missing_ui_component_system")]
 pub(crate) fn missing_ui_component_system<T: Component>(data: &mut GameData) {
     let mut to_add = Vec::new();
     {
@@ -20,6 +21,7 @@ pub(crate) fn missing_ui_component_system<T: Component>(data: &mut GameData) {
 }
 
 /// System responsible to add UiFocusable to eligible Focusable entities
+#[profile("system::missing_focus_component_system")]
 pub(crate) fn missing_focus_component_system<T: Component + Focusable>(data: &mut GameData) {
     let mut to_add = Vec::new();
     {

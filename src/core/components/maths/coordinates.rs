@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Convenience struct used in all `Scion` to specify any 2D position.
-#[derive(Default, Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Coordinates {
     pub(crate) x: f32,
     pub(crate) y: f32,

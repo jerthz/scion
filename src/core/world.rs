@@ -230,6 +230,9 @@ impl GameData {
                 if let Ok(children) = self.subworld.entry_mut::<&Children>(e) {
                     self.commands.transform_commands.parent_modified.insert(e, (children.0.clone(), cloned));
                 }
+                if let Ok(parent) = self.subworld.entry_mut::<&Parent>(e) {
+
+                }
             }
         });
         let mut parents = self.commands.drain_parent_modified();
@@ -238,6 +241,7 @@ impl GameData {
                 if to_refresh.contains(&child){
                     to_refresh.remove(&child);
                 }
+                let _r = self.add_components(child, (Dirty,));
                 self.entry_mut::<&mut Transform>(child).expect("").compute_global_from_parent(t.global_translation());
                 self.entry_mut::<&mut Transform>(child).expect("").compute_global_angle_from_parent(t.global_angle());
             });
@@ -247,6 +251,7 @@ impl GameData {
             to_refresh.drain().for_each(|e|{
                 if let Some(parent) = {self.subworld.entry_mut::<&Parent>(e).map(|p|p.entity()).ok()} {
                     if let Some(t_parent) = {self.subworld.entry_mut::<&Transform>(parent).map(|p|p.clone()).ok()} {
+                        let _r = self.add_components(e, (Dirty,));
                         self.entry_mut::<&mut Transform>(e).expect("").compute_global_from_parent(t_parent.global_translation());
                     }
                 }
@@ -261,7 +266,6 @@ impl GameData {
             .iter()
             .map(|(e, _)| e)
             .collect();
-        println!("remove {:?} dirty", entities.len());
         for e in entities {
             let _ = self.subworld.internal_world.remove_one::<Dirty>(e);
         }

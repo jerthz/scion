@@ -78,9 +78,9 @@ impl Package for InternalPackage {
 
     fn load(&self, builder: ScionBuilder) -> ScionBuilder {
         builder
+            .with_system(default_camera_system)
             .with_system(dirty_transform_offset_system)
             .with_system(collider_cleaner_system)
-            .with_system(default_camera_system)
             .with_system(sync_text_value_system)
             .with_system(set_childs_on_buttons)
             .with_system(hide_propagated_deletion_system)

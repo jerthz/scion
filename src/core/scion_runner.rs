@@ -39,11 +39,9 @@ impl ScionRunner {
         thread::spawn(move || { ScionRenderingThread::new(window_rendering_manager, render_receiver).run() });
 
         let mut start_tick = Instant::now();
-        let mut first = true;
 
         loop {
             self.compute_color_picked_entity();
-
             let should_tick = frame_limiter.is_min_tick();
             if should_tick {
                 start_tick = Instant::now();
@@ -75,10 +73,6 @@ impl ScionRunner {
                 let rendering_infos = Scion2DPreRenderer::prepare_rendering(&mut self.game_data);
                 let _r = render_sender.send((vec![], updates, rendering_infos,vec![]));
                 frame_limiter.render();
-                first = false;
-            }
-
-            if !first && frame_limiter.render_unlocked() {
                 self.game_data.reset_dirty();
             }
 

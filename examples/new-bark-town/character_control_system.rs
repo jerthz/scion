@@ -1,3 +1,4 @@
+use profiling_macros::profile;
 use scion::core::world::{GameData, World};
 use scion::{
     graphics::components::{animations::Animations},
@@ -7,6 +8,7 @@ use scion::core::components::maths::transform::Transform;
 
 use crate::scene::MainCharacter;
 
+#[profile("custom_system::controller_system")]
 pub fn controller_system(data: &mut GameData) {
     let (world, resources) = data.split();
     let inputs = resources.inputs();
